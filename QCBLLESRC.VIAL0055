@@ -1,0 +1,9 @@
+      ******************************************************************
+      *                                                                *
+      *       VIAL0055   AREA INPUT ROTINA DE CRITERIO DE EXPURGO      *
+      *                                                                *
+      ******************************************************************
+       01  VIAL0055-COMMAREA.
+           05 VIAL0055-TABLE-CRITERIA-ID    PIC X(30).
+           05 VIAL0055-REMOVE-DAYS          PIC 9(10).
+       01  VIAL0055-PGMID                   PIC X(08) VALUE 'VIAR0055'.

@@ -1,0 +1,29 @@
+      *****************************************************************
+      * DESCRICAO: COPYBOOK VALORES SQLCODE                           *
+      * CRICAO:    11-10-2010                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01 VIAW0012-SQLCODE                  PIC S9(09) VALUE ZEROS.
+          88 DB2-OK                         VALUE +0.
+          88 DB2-NOTFND                     VALUE +100.
+          88 DB2-DUPREC                     VALUE -803.
+          88 DB2-DUPLINE                    VALUE -811.
+          88 VIAW0012-NOTFND                VALUE +100.
+          88 VIAW0012-OK                    VALUE +0.
+          88 VIAW0012-DUPREC                VALUE -803.
+          88 VIAW0012-MULTROW               VALUE -811.
+          88 VIAW0012-DB2-NOT-EXIST         VALUE -924.
+          88 VIAW0012-FKNTFND               VALUE -530.
+          88 VIAW0012-FNC-NOT-FND           VALUE -305.
+          88 VIAW0012-RESTRICT              VALUE -532.
+          88 VIAW0012-DATAS                 VALUE -180 -181.
+       01 VIAW0012-ERROR-AREA.
+          10 VIAW0012-ERRSTATUS             PIC  X(02).
+             88 VIAW0012-SEM-ERROS                VALUE 'OK'.
+             88 VIAW0012-ERROS-FUNCAO             VALUE 'FU'.
+             88 VIAW0012-ERROS-ARQUITEC           VALUE 'AT'.
+             88 VIAW0012-ABEND-DB2                VALUE 'A2'.
+             88 VIAW0012-ABEND-FS                 VALUE 'FS'.
+          10 VIAW0012-ERRCODE               PIC  X(10).
+          10 VIAW0012-ERRMSG                PIC  X(50).
+          10 VIAW0012-TABLE-NAME            PIC  X(16).

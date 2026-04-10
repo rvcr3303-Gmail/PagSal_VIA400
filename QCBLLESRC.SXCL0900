@@ -1,0 +1,14 @@
+      *****************************************************************
+      * NOME:      SXCL0900                                           *
+      * DESCRICAO: AREA DE LIGACAO DA ROTINA SX0900                   *
+      * CRICAO:    20-08-2010                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01 SXCL0900-COMMAREA.
+          05 SXCL0900-JOB-NAME              PIC  X(00010).
+          05 SXCL0900-USER-NAME             PIC  X(00010).
+          05 SXCL0900-JOB-NUMBER            PIC S9(00006) COMP-3.
+          05 SXCL0900-APIERR.
+             10 SXCL0900-ERRMSGID           PIC  X(00007).
+       01 SXCL0900-ROTINA                   PIC  X(00010)
+                                                 VALUE 'SX0900    '.

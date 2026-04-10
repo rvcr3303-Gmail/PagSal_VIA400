@@ -1,0 +1,18 @@
+      *****************************************************************
+      * DESCRICAO: COPYBOOK CONSTANTES                                *
+      * CRICAO:    11-10-2010                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01 VIACK001-CONSTANTES.
+          05 VIACK001-VIGOR              PIC X(01) VALUE 'V'.
+      *    ERRO DB2
+          05 VIACK001-ERRO-DB2           PIC  X(07) VALUE 'VIA0001'.
+      *    WARNING DB2
+          05 VIACK001-WARNING-DB2        PIC  X(07) VALUE 'VIA0002'.
+      *    RECEBIDO BEGIN COM SESSION PREENCHIDO
+          05 VIACK001-BEGIN-SESS-INV     PIC  X(07) VALUE 'VIA0003'.
+      *    APLICACAO INACTIVA
+          05 VIACK001-APL-INACTIVA       PIC  X(07) VALUE 'VIA0004'.
+      *    SERVIÇO INACTIVO
+          05 VIACK001-SRV-INACTIVO       PIC  X(07) VALUE 'VIA0005'.
+      *

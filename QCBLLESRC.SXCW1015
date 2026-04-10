@@ -1,0 +1,38 @@
+      ******************************************************************
+      *               CALCULO DO NIB WS COPYBOOK                       *
+      ******************************************************************
+      *  AREA DE PASSAGEM:                                             *
+      *      SXCW1015-NIB.                                             *
+      *         SXCW1015-COD-BANCO                                     *
+      *         SXCW1015-COD-AGENCIA                                   *
+      *         SXCW1015-NUMERO                                        *
+      *         SXCW1015-CHK-DIGITO                                    *
+      *  RETORNO: SXCW1015-DIGICALC                                     *
+      *                                                                *
+      ******************************************************************
+       01 SXCW1015-CALC-NIB.
+          05 SXCW1015-NIB.
+             10 SXCW1015-COD-BANCO         PIC 9(4).
+             10 SXCW1015-COD-AGENCIA       PIC 9(4).
+             10 SXCW1015-NUMERO            PIC 9(11).
+             10 SXCW1015-CHK-DIGITO        PIC 9(2).
+
+          05 SXCW1015-R-NIB REDEFINES SXCW1015-NIB.
+             10 SXCW1015-NIB-POS OCCURS 21 PIC 9(1).
+
+          05 SXCW1015-DIGICALC             PIC 9(2).
+
+       01 SXCW1015-VARIAVEIS.
+          05 SXCW1015-NUM-DIGITOS          PIC 9(2)   VALUE 19.
+          05 SXCW1015-MODULO-97            PIC 9(2)   VALUE 97.
+          05 SXCW1015-AUX                  PIC 9(3)   VALUE ZEROS.
+          05 SXCW1015-SOMA                 PIC 9(14)  VALUE ZEROS.
+          05 SXCW1015-RESTO-DIV            PIC 9(14)  VALUE ZEROS.
+          05 SXCW1015-IND                  PIC 9(04)  BINARY SYNC.
+
+          05 SXCW1015-PESOS-NIB.
+             10 SXCW1015-PESOS-T          PIC X(38)  VALUE
+                '73178938624553155005493481762790093003'.
+
+          05 SXCW1015-R-PESOS-NIB REDEFINES SXCW1015-PESOS-NIB.
+             10 SXCW1015-PESO OCCURS 19     PIC 9(2).

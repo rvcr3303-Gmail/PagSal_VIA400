@@ -1,0 +1,16 @@
+           EXEC SQL DECLARE VIAT0500_INACTIV TABLE
+           (
+               APLIC CHAR(10) NOT NULL
+             , SERVCODE   CHAR(10) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE VIAT0500_INACTIV
+      ******************************************************************
+       01  DCLVIAD0500.
+            05 VIAD0500-APLIC PIC X(10).
+            05 VIAD0500-SERVCODE   PIC X(10).
+            05 VIAD0500-CUSERID PIC X(20).
+            05 VIAD0500-HTIMEST PIC X(26).
+

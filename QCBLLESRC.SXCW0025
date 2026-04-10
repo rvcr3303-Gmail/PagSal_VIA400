@@ -1,0 +1,13 @@
+      *****************************************************************
+      * NOME:      SXCW0025                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADAS AO COPY PROCEDURE      *
+      *            SXCP0025                                           *
+      * CRICAO:    04-01-2011                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01  SXCW0025-DATA.
+           05 SXCW0025-PAPARM            PIC S9(05) COMP-3 VALUE ZEROS.
+           05 SXCW0025-PAVALV.
+              10 FILLER                  PIC  X(37) VALUE SPACES.
+              10 SXCW0025-DTAPL          PIC  X(08) VALUE SPACES.
+       01  SXCW0025-PARAM-BM             PIC  X(07) VALUE 'GB1000'.

@@ -1,0 +1,22 @@
+      *****************************************************************
+      * NOME:      SXCW0902                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADAS AO COPY PROCEDURE      *
+      *            SXCP0015                                           *
+      * CRICAO:    21-12-2010                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01  SXCW0902-DATA.
+           05 SXCW0902-PGMQC             PIC  X(10) VALUE SPACES.
+           05 SXCW0902-MSGID             PIC  X(07) VALUE SPACES.
+           05 SXCW0902-MSGK              PIC  X(04) VALUE SPACES.
+           05 SXCW0902-MFILE             PIC  X(10) VALUE SPACES.
+           05 SXCW0902-MP2               PIC  X(02) VALUE SPACES.
+           05 SXCW0902-MP3               PIC  X(03) VALUE SPACES.
+           05 SXCW0902-MP4               PIC  X(04) VALUE SPACES.
+           05 SXCW0902-MP5               PIC  X(05) VALUE SPACES.
+           05 SXCW0902-MP6               PIC  X(06) VALUE SPACES.
+           05 SXCW0902-MP8               PIC  X(08) VALUE SPACES.
+           05 SXCW0902-MP10              PIC  X(10) VALUE SPACES.
+           05 SXCW0902-MP12              PIC  X(12) VALUE SPACES.
+           05 SXCW0902-MP50              PIC  X(50) VALUE SPACES.
+       01 SXCW0902-PRGMSG                PIC  X(06) VALUE 'P$9000'.

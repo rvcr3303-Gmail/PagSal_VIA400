@@ -1,0 +1,13 @@
+      *****************************************************************
+      * NOME:      SXCL0901                                           *
+      * DESCRICAO: AREA DE LIGACAO COM A ARQUITECTURA                 *
+      * CRIACAO:   20-08-2010                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01 SXCL0901-IND                   PIC  X(00002).
+       01 SXCL0901-PCMD                  PIC  X(00050).
+       01 SXCL0901-PERC                  PIC  X(00006).
+       01 SXCL0901-NOME                  PIC  X(00060).
+      * OS CAMPOS SEGUINTES USAM-SE APENAS NOS PERCURSOS 915
+       01 SXCL0901-WAREFP                PIC  X(00010).
+       01 SXCL0901-WAREFP1               PIC  X(00010).

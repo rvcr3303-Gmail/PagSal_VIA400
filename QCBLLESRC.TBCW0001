@@ -1,0 +1,22 @@
+      ******************************************************************
+      *                                                                *
+      *    Ficheiro : TBCW0001                                         *
+      *                                                                *
+      ******************************************************************
+       01  TBCW0001.
+           05  TBCW0001-TBFICH              PIC  X(10).
+           05  TBCW0001-TBTABELA            PIC  X(10).
+           05  TBCW0001-TBTBDESC            PIC  X(40).
+           05  TBCW0001-CUSERID             PIC  X(10).
+           05  TBCW0001-DATA-EST            PIC  9(08).
+           05  FILLER REDEFINES TBCW0001-DATA-EST.
+             10 TBCW0001-DTEST-ANO          PIC  9(04).
+             10 TBCW0001-DTEST-MES          PIC  9(02).
+             10 TBCW0001-DTEST-DIA          PIC  9(02).
+           05  TBCW0001-TBAGENC             PIC S9(04).
+           05  TBCW0001-CUTILIZA            PIC  X(10).
+           05  TBCW0001-TBPAIS              PIC  X(03).
+           05  TBCW0001-DATVAL              PIC S9(08).
+           05  TBCW0001-VALOR               PIC S9(15)V99.
+           05  TBCW0001-MOED                PIC  X(03).
+           05  TBCW0001-VLRC                PIC S9(15)V99.
