@@ -1,0 +1,846 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID.    PSM5810.
+      ******************************************************************
+      *                                                                *
+      *   PS - PAGAMENTO DE SALARIOS                                   *
+      *                                                                *
+      ******************************************************************
+      * Processo Aprovação Colegial - Integração WS                    *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME               PIC  X(10) VALUE 'PSM5810'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY ARCK0001.
+           COPY ARCK0002.
+           COPY ETCK0001.
+           COPY ETCK0002.
+           COPY PSCK0001.
+           COPY PSCK0002.
+           COPY VIAK0001.
+           COPY VIAK0002.
+           COPY VIAL0015.
+           COPY VIAL9001.
+
+           COPY PSCV4910.
+           COPY PSCV4911.
+           COPY PSCV4920.
+           COPY PSCV4921.
+           COPY PSCV4930.
+           COPY PSCV4931.
+           COPY PSCV4940.
+           COPY PSCV4941.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 WS-PSVT5201               PIC  X(10)  VALUE 'PSVT5201'.
+           05 WS-APROVADO               PIC  X(10)  VALUE 'Aprovada'.
+           05 WS-USER-MARTELADO         PIC  X(20)  VALUE 'CFUMO'.
+           05 WS-LOG-TRUE               PIC  X(05)  VALUE 'true'.
+           05 WS-LOG-FALSE              PIC  X(05)  VALUE 'false'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 FILLER                    PIC  X(01).
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA     END-EXEC.
+           EXEC SQL INCLUDE PSCD5201  END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY ETCL0002.
+           COPY PSCL5810.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING ETCL0002-COMMAREA
+                                PSCL5810-COMMAREA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           MOVE '0000-MAINLINE            ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT
+           END-IF.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           MOVE '1000-INICIO-PROGRAMA     ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 1100-INICIALIZA
+              THRU 1100-INICIALIZA-EXIT.
+
+           PERFORM 1200-VALIDAR-LINKAGE
+              THRU 1200-VALIDAR-LINKAGE-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              IF NOT PSCL5810-CRIAR-PROCESSO
+                 PERFORM 1300-SELECT-PSVT5201
+                    THRU 1300-SELECT-PSVT5201-EXIT
+           END-IF.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-INICIALIZA.
+      ******************************************************************
+           MOVE '1100-INICIALIZA          ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE WS-VARIAVEIS  REPLACING  NUMERIC BY ZEROES
+                                          ALPHANUMERIC BY SPACES.
+
+      * FORMATA STANDARD DA AREA DE COMUNICAÇÃO - VIAL9001
+           INITIALIZE VIAL9001-COMMAREA     REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE ETCL0002-JOBNC              TO VIAL9001-CALLERID.
+           MOVE ETCL0002-CUTILIZA           TO VIAL9001-CUTILIZA-I.
+           MOVE ETCL0002-CUTILIZA           TO VIAL9001-CUTILIZA-O.
+           MOVE ETCL0002-DATA-PROCESSO      TO VIAL9001-DATA-PROCESSO-I.
+           MOVE ETCL0002-DATA-PROCESSO      TO VIAL9001-DATA-PROCESSO-O.
+           MOVE ETCL0002-NR-SEQUENCIA       TO VIAL9001-NR-SEQUENCIA-O.
+           MOVE ETCL0002-CUTILIZA           TO VIAL9001-CUSER-EXTRN.
+
+       1100-INICIALIZA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1200-VALIDAR-LINKAGE.
+      ******************************************************************
+           MOVE '1200-VALIDAR-LINKAGE     ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF ETCL0002-SEM-ERROS
+              IF PSCL5810-PID EQUAL SPACES
+                 IF PSCL5810-CRIAR-PROCESSO
+                    CONTINUE
+                 ELSE
+                    SET  ETCL0002-ERROS-FUNCAO
+                      TO TRUE
+                    MOVE PSCK0002-PID-INVALIDO
+                      TO ETCL0002-NR-ERRO
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO ETCL0002-CAPLIC-ERRO
+              END-IF.
+
+       1200-VALIDAR-LINKAGE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1300-SELECT-PSVT5201.
+      ******************************************************************
+           MOVE '1300-SELECT-PSVT5201     ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLPSCD5201           REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCL5810-NCLI               TO PSCD5201-NCLI.
+           MOVE PSCL5810-DINT               TO PSCD5201-DINT.
+           MOVE PSCL5810-NFIC               TO PSCD5201-NFIC.
+           MOVE PSCL5810-PID                TO PSCD5201-PID.
+
+           EXEC SQL
+                SELECT NCLI
+                     , DINT
+                     , NFIC
+                     , PID
+                     , GUSER
+                     , NMONTANTE
+                     , TSTATUS
+                     , TREGISTOS
+                     , DTPARECER
+                     , STATUSAP
+                     , STATUSQ
+                     , WSOUT
+                     , IDCANCEL
+                     , WSTATION
+                     , TGRANT
+                     , CMOEDA
+                     , NGRANT
+                     , GUSERISERIES
+                     , CUSERID
+                     , HTIMEST
+                  INTO :PSCD5201-NCLI
+                     , :PSCD5201-DINT
+                     , :PSCD5201-NFIC
+                     , :PSCD5201-PID
+                     , :PSCD5201-GUSER
+                     , :PSCD5201-NMONTANTE
+                     , :PSCD5201-TSTATUS
+                     , :PSCD5201-TREGISTOS
+                     , :PSCD5201-DTPARECER
+                     , :PSCD5201-STATUSAP
+                     , :PSCD5201-STATUSQ
+                     , :PSCD5201-WSOUT
+                     , :PSCD5201-IDCANCEL
+                     , :PSCD5201-WSTATION
+                     , :PSCD5201-TGRANT
+                     , :PSCD5201-CMOEDA
+                     , :PSCD5201-NGRANT
+                     , :PSCD5201-GUSERISERIES
+                     , :PSCD5201-CUSERID
+                     , :PSCD5201-HTIMEST
+                  FROM PSVT5201
+                 WHERE PID = :PSCD5201-PID
+           END-EXEC.
+
+           MOVE WS-PSVT5201                 TO ETCL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9020-DB2CHECK-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              EVALUATE TRUE
+              WHEN ETCL0002-SQL-OK
+                   CONTINUE
+              WHEN OTHER
+                   SET  ETCL0002-ABEND-DB2  TO TRUE
+                   MOVE ETCK0002-APL-AT     TO ETCL0002-CAPLIC-ERRO
+                   MOVE VIAK0001-ERRO-DB2   TO ETCL0002-NR-ERRO
+              END-EVALUATE
+           END-IF.
+
+       1300-SELECT-PSVT5201-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                    Processamento Principal                     *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           MOVE '2000-PROC-PROGRAMA       ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * FORMATA INFORMAÇÃO DE ACORDO COM A ACÇÃO PRETENDIDA
+           IF ETCL0002-SEM-ERROS
+              EVALUATE TRUE
+              WHEN PSCL5810-CRIAR-PROCESSO
+                   PERFORM 2100-CRIAR-PROCESSO
+                      THRU 2100-CRIAR-PROCESSO-EXIT
+              WHEN PSCL5810-CONSULTAR-PROCESSO
+                   PERFORM 2300-CONSULTAR-PROCESSO
+                      THRU 2300-CONSULTAR-PROCESSO-EXIT
+              WHEN PSCL5810-CANCELAR-PROCESSO
+                   PERFORM 2500-CANCELAR-PROCESSO
+                      THRU 2500-CANCELAR-PROCESSO-EXIT
+              WHEN PSCL5810-OBTER-AUTORIZACAO
+                   PERFORM 2700-OBTER-AUTORIZACAO
+                      THRU 2700-OBTER-AUTORIZACAO-EXIT
+              END-EVALUATE
+           END-IF.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-CRIAR-PROCESSO.
+      ******************************************************************
+           MOVE '2100-CRIAR-PROCESSO      ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * PREENCHIMENTO DOS CAMPOS
+           INITIALIZE PSCV4910-MSG          REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE ETCL0002-USER-EXTRN         TO PSCV4910-GUSER.
+           MOVE PSCL5810-NMONTANTE          TO PSCV4910-MONTANTE.
+           MOVE PSCL5810-NCLI               TO PSCV4910-NCLIENTE.
+      *    MOVE PSCL5810-PID                TO PSCV4910-PID.
+
+      * FORMATA A MENSAGEM DO WEBSERVICE
+           MOVE PSCK0002-CAPLIC-PS          TO VIAL9001-CAPLIC.
+           MOVE '491'                       TO VIAL9001-COPCAO.
+           MOVE PSCV4910-MSG                TO VIAL9001-MENSAGEM-INPUT.
+           MOVE PSCV4910-LENGTH             TO VIAL9001-LENGTH-MSG.
+           MOVE PSCV4910-NR-CAMPOS          TO VIAL9001-NR-CAMPOS.
+
+      * INVOCA O WEBSERVICE
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2900-CALL-WEBSERVICE
+                 THRU 2900-CALL-WEBSERVICE-EXIT
+           END-IF.
+
+           MOVE VIAL9001-MENSAGEM-OUTPUT    TO PSCV4911-MSG.
+
+           IF ETCL0002-SEM-ERROS
+
+              MOVE PSCV4911-GUSER           TO PSCL5810-GUSER
+              MOVE PSCV4911-MONTANTE        TO PSCL5810-NMONTANTE
+              MOVE PSCV4911-NCLIENTE        TO PSCL5810-NCLI
+              MOVE PSCV4911-PID             TO PSCL5810-PID
+              MOVE PSCV4911-TSTATUS         TO PSCL5810-TSTATUS
+              MOVE PSCV4911-TREGISTOS       TO PSCL5810-TREGISTOS
+              MOVE PSCV4911-DTPARECER       TO PSCL5810-DTPARECER
+              MOVE PSCV4911-STATUSAP        TO PSCL5810-STATUSAP
+              MOVE PSCV4911-STATUSQ         TO PSCL5810-STATUSQ
+              MOVE PSCV4911-WSOUT           TO PSCL5810-WSOUT
+              MOVE PSCV4911-IDCANCEL        TO PSCL5810-IDCANCEL
+              MOVE PSCV4911-ERROUT          TO PSCL5810-ERROUT
+
+           END-IF.
+
+           PERFORM 2950-VALIDAR-ERROUT
+              THRU 2950-VALIDAR-ERROUT-EXIT.
+
+      * SE O PEDIDO FOI BEM EXECUTADO, GUARDA OS DADOS EM TABELA
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2200-INSERIR-PSVT5201
+                 THRU 2200-INSERIR-PSVT5201-EXIT
+           END-IF.
+
+       2100-CRIAR-PROCESSO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-INSERIR-PSVT5201.
+      ******************************************************************
+           MOVE '2200-INSERIR-PSVT5201    ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLPSCD5201           REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCL5810-NCLI               TO PSCD5201-NCLI.
+           MOVE PSCL5810-DINT               TO PSCD5201-DINT.
+           MOVE PSCL5810-NFIC               TO PSCD5201-NFIC.
+           MOVE PSCL5810-PID                TO PSCD5201-PID.
+           MOVE PSCL5810-GUSER              TO PSCD5201-GUSER.
+           MOVE PSCL5810-NMONTANTE          TO PSCD5201-NMONTANTE.
+           MOVE PSCL5810-TSTATUS            TO PSCD5201-TSTATUS.
+           MOVE PSCL5810-TREGISTOS          TO PSCD5201-TREGISTOS.
+           MOVE PSCL5810-DTPARECER          TO PSCD5201-DTPARECER.
+           MOVE PSCL5810-STATUSAP           TO PSCD5201-STATUSAP.
+           MOVE PSCL5810-STATUSQ            TO PSCD5201-STATUSQ.
+           MOVE PSCL5810-WSOUT              TO PSCD5201-WSOUT.
+           MOVE PSCL5810-IDCANCEL           TO PSCD5201-IDCANCEL.
+           MOVE PSCL5810-WSTATION           TO PSCD5201-WSTATION.
+           MOVE PSCL5810-TGRANT             TO PSCD5201-TGRANT.
+           MOVE PSCL5810-CMOEDA             TO PSCD5201-CMOEDA.
+           MOVE PSCL5810-NGRANT             TO PSCD5201-NGRANT.
+           MOVE PSCL5810-GUSERISERIES       TO PSCD5201-GUSERISERIES.
+           MOVE ETCL0002-USER-EXTRN         TO PSCD5201-CUSERID.
+
+           EXEC SQL
+                INSERT INTO PSVT5201
+                     ( NCLI
+                     , DINT
+                     , NFIC
+                     , PID
+                     , GUSER
+                     , NMONTANTE
+                     , TSTATUS
+                     , TREGISTOS
+                     , DTPARECER
+                     , STATUSAP
+                     , STATUSQ
+                     , WSOUT
+                     , IDCANCEL
+                     , WSTATION
+                     , TGRANT
+                     , CMOEDA
+                     , NGRANT
+                     , GUSERISERIES
+                     , CUSERID
+                     , HTIMEST )
+                VALUES
+                     ( :PSCD5201-NCLI
+                     , :PSCD5201-DINT
+                     , :PSCD5201-NFIC
+                     , :PSCD5201-PID
+                     , :PSCD5201-GUSER
+                     , :PSCD5201-NMONTANTE
+                     , :PSCD5201-TSTATUS
+                     , :PSCD5201-TREGISTOS
+                     , :PSCD5201-DTPARECER
+                     , :PSCD5201-STATUSAP
+                     , :PSCD5201-STATUSQ
+                     , :PSCD5201-WSOUT
+                     , :PSCD5201-IDCANCEL
+                     , :PSCD5201-WSTATION
+                     , :PSCD5201-TGRANT
+                     , :PSCD5201-CMOEDA
+                     , :PSCD5201-NGRANT
+                     , :PSCD5201-GUSERISERIES
+                     , :PSCD5201-CUSERID
+                     , CURRENT TIMESTAMP )
+           END-EXEC.
+
+           MOVE WS-PSVT5201                 TO ETCL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9020-DB2CHECK-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              EVALUATE TRUE
+              WHEN ETCL0002-SQL-OK
+                   CONTINUE
+              WHEN OTHER
+                   SET  ETCL0002-ABEND-DB2  TO TRUE
+                   MOVE ETCK0002-APL-AT     TO ETCL0002-CAPLIC-ERRO
+                   MOVE VIAK0001-ERRO-DB2   TO ETCL0002-NR-ERRO
+              END-EVALUATE
+           END-IF.
+
+       2200-INSERIR-PSVT5201-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-CONSULTAR-PROCESSO.
+      ******************************************************************
+           MOVE '2300-CONSULTAR-PROCESSO  ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * PREENCHIMENTO DOS CAMPOS
+           INITIALIZE PSCV4920-MSG          REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE ETCL0002-USER-EXTRN         TO PSCV4920-GUSER.
+           MOVE PSCL5810-NMONTANTE          TO PSCV4920-MONTANTE.
+           MOVE PSCL5810-NCLI               TO PSCV4920-NCLIENTE.
+           MOVE PSCL5810-PID                TO PSCV4920-PID.
+
+      * FORMATA A MENSAGEM DO WEBSERVICE
+           MOVE PSCK0002-CAPLIC-PS          TO VIAL9001-CAPLIC.
+           MOVE 492                         TO VIAL9001-COPCAO.
+           MOVE PSCV4920-MSG                TO VIAL9001-MENSAGEM-INPUT.
+           MOVE PSCV4920-LENGTH             TO VIAL9001-LENGTH-MSG.
+           MOVE PSCV4920-NR-CAMPOS          TO VIAL9001-NR-CAMPOS.
+
+      * INVOCA O WEBSERVICE
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2900-CALL-WEBSERVICE
+                 THRU 2900-CALL-WEBSERVICE-EXIT
+           END-IF.
+
+           MOVE VIAL9001-MENSAGEM-OUTPUT    TO PSCV4921-MSG.
+
+           IF ETCL0002-SEM-ERROS
+
+              MOVE PSCV4921-GUSER           TO PSCL5810-GUSER
+              MOVE PSCV4921-MONTANTE        TO PSCL5810-NMONTANTE
+              MOVE PSCV4921-NCLIENTE        TO PSCL5810-NCLI
+              MOVE PSCV4921-PID             TO PSCL5810-PID
+              MOVE PSCV4921-TSTATUS         TO PSCL5810-TSTATUS
+              MOVE PSCV4921-TREGISTOS       TO PSCL5810-TREGISTOS
+              MOVE PSCV4921-DTPARECER       TO PSCL5810-DTPARECER
+              MOVE PSCV4921-STATUSAP        TO PSCL5810-STATUSAP
+              MOVE PSCV4921-STATUSQ         TO PSCL5810-STATUSQ
+              MOVE PSCV4921-WSOUT           TO PSCL5810-WSOUT
+              MOVE PSCV4921-IDCANCEL        TO PSCL5810-IDCANCEL
+              MOVE PSCV4921-ERROUT          TO PSCL5810-ERROUT
+
+           END-IF.
+
+           PERFORM 2950-VALIDAR-ERROUT
+              THRU 2950-VALIDAR-ERROUT-EXIT.
+
+           IF ETCL0002-DEBUG-SIM
+              MOVE 'PSCV4921-GUSER       ' TO VIAL0015-CAMPO-NM(1)
+              MOVE  PSCV4921-GUSER         TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'PSCV4921-MONTANTE    ' TO VIAL0015-CAMPO-NM(2)
+              MOVE  PSCV4921-MONTANTE      TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'PSCV4921-NCLIENTE    ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  PSCV4921-NCLIENTE      TO VIAL0015-CAMPO-VLR(3)
+              MOVE 'PSCV4921-PID         ' TO VIAL0015-CAMPO-NM(4)
+              MOVE  PSCV4921-PID           TO VIAL0015-CAMPO-VLR(4)
+              MOVE 'PSCV4921-TSTATUS     ' TO VIAL0015-CAMPO-NM(5)
+              MOVE  PSCV4921-TSTATUS       TO VIAL0015-CAMPO-VLR(5)
+              MOVE 'PSCV4921-TREGISTOS   ' TO VIAL0015-CAMPO-NM(6)
+              MOVE  PSCV4921-TREGISTOS     TO VIAL0015-CAMPO-VLR(6)
+              MOVE 'PSCV4921-DTPARECER   ' TO VIAL0015-CAMPO-NM(7)
+              MOVE  PSCV4921-DTPARECER     TO VIAL0015-CAMPO-VLR(7)
+              MOVE 'PSCV4921-STATUSAP    ' TO VIAL0015-CAMPO-NM(8)
+              MOVE  PSCV4921-STATUSAP      TO VIAL0015-CAMPO-VLR(8)
+              MOVE 'PSCV4921-STATUSQ     ' TO VIAL0015-CAMPO-NM(9)
+              MOVE  PSCV4921-STATUSQ       TO VIAL0015-CAMPO-VLR(9)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+              MOVE 'PSCV4921-WSOUT       ' TO VIAL0015-CAMPO-NM(1)
+              MOVE  PSCV4921-WSOUT         TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'PSCV4921-IDCANCEL    ' TO VIAL0015-CAMPO-NM(2)
+              MOVE  PSCV4921-IDCANCEL      TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'PSCV4921-ERROUT      ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  PSCV4921-ERROUT        TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * SE O PEDIDO FOI BEM EXECUTADO, OBTEM NUMERO DE AUTORIZACAO
+           EVALUATE TRUE
+              WHEN NOT ETCL0002-SEM-ERROS
+              WHEN PSCV4921-WSOUT   NOT EQUAL WS-LOG-TRUE
+                 CONTINUE
+              WHEN PSCV4921-STATUSQ     EQUAL WS-LOG-TRUE
+                 PERFORM 2700-OBTER-AUTORIZACAO
+                    THRU 2700-OBTER-AUTORIZACAO-EXIT
+              WHEN PSCV4921-STATUSQ     EQUAL WS-LOG-FALSE
+                 PERFORM 2800-ALTERAR-AUTORIZACAO
+                    THRU 2800-ALTERAR-AUTORIZACAO-EXIT
+           END-EVALUATE.
+      *
+       2300-CONSULTAR-PROCESSO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2500-CANCELAR-PROCESSO.
+      ******************************************************************
+           MOVE '2500-CANCELAR-PROCESSO   ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * PREENCHIMENTO DOS CAMPOS
+           INITIALIZE PSCV4930-MSG          REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE ETCL0002-USER-EXTRN         TO PSCV4930-GUSER.
+           MOVE PSCL5810-NMONTANTE          TO PSCV4930-MONTANTE.
+           MOVE PSCL5810-NCLI               TO PSCV4930-NCLIENTE.
+           MOVE PSCL5810-PID                TO PSCV4930-PID.
+
+      * FORMATA A MENSAGEM DO WEBSERVICE
+           MOVE PSCK0002-CAPLIC-PS          TO VIAL9001-CAPLIC.
+           MOVE 493                         TO VIAL9001-COPCAO.
+           MOVE PSCV4930-MSG                TO VIAL9001-MENSAGEM-INPUT.
+           MOVE PSCV4930-LENGTH             TO VIAL9001-LENGTH-MSG.
+           MOVE PSCV4930-NR-CAMPOS          TO VIAL9001-NR-CAMPOS.
+
+      * INVOCA O WEBSERVICE
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2900-CALL-WEBSERVICE
+                 THRU 2900-CALL-WEBSERVICE-EXIT
+           END-IF.
+
+           MOVE VIAL9001-MENSAGEM-OUTPUT    TO PSCV4941-MSG.
+
+           PERFORM 2950-VALIDAR-ERROUT
+              THRU 2950-VALIDAR-ERROUT-EXIT.
+
+      * SE O PEDIDO FOI BEM EXECUTADO, APAGA DA TABELA
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2600-APAGAR-PSVT5201
+                 THRU 2600-APAGAR-PSVT5201-EXIT
+           END-IF.
+
+       2500-CANCELAR-PROCESSO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2600-APAGAR-PSVT5201.
+      ******************************************************************
+           MOVE '2600-APAGAR-PSVT5201     ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLPSCD5201           REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCL5810-PID                TO PSCD5201-PID.
+
+           EXEC SQL
+                DELETE FROM PSVT5201
+                 WHERE PID = :PSCD5201-PID
+           END-EXEC.
+
+           MOVE WS-PSVT5201                 TO ETCL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9020-DB2CHECK-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              EVALUATE TRUE
+              WHEN ETCL0002-SQL-OK
+                   CONTINUE
+              WHEN OTHER
+                   SET  ETCL0002-ABEND-DB2  TO TRUE
+                   MOVE ETCK0002-APL-AT     TO ETCL0002-CAPLIC-ERRO
+                   MOVE VIAK0001-ERRO-DB2   TO ETCL0002-NR-ERRO
+              END-EVALUATE
+           END-IF.
+
+       2600-APAGAR-PSVT5201-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2700-OBTER-AUTORIZACAO.
+      ******************************************************************
+           MOVE '2700-OBTER-AUTORIZACAO   ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * PREENCHIMENTO DOS CAMPOS
+           INITIALIZE PSCV4940-MSG          REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCL5810-PID                TO PSCV4940-PID.
+           MOVE ETCL0002-USER-EXTRN         TO PSCV4940-GUSER.
+           MOVE ETCL0002-JOBNC              TO PSCV4940-WSTATION.
+      * 1 = Descoberto DO / Saldo Mínimo
+           MOVE '1'                         TO PSCV4940-TGRANT.
+           MOVE ETCL0002-CMOE               TO PSCV4940-MOEDA.
+
+      * FORMATA A MENSAGEM DO WEBSERVICE
+           MOVE PSCK0002-CAPLIC-PS          TO VIAL9001-CAPLIC.
+           MOVE 494                         TO VIAL9001-COPCAO.
+           MOVE PSCV4940-MSG                TO VIAL9001-MENSAGEM-INPUT.
+           MOVE PSCV4940-LENGTH             TO VIAL9001-LENGTH-MSG.
+           MOVE PSCV4940-NR-CAMPOS          TO VIAL9001-NR-CAMPOS.
+
+      * INVOCA O WEBSERVICE
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2900-CALL-WEBSERVICE
+                 THRU 2900-CALL-WEBSERVICE-EXIT
+           END-IF.
+
+           MOVE VIAL9001-MENSAGEM-OUTPUT    TO PSCV4941-MSG.
+
+           IF ETCL0002-SEM-ERROS
+
+              MOVE PSCV4941-PID             TO PSCL5810-PID
+              MOVE PSCV4941-GUSER           TO PSCL5810-GUSER
+              MOVE PSCV4941-WSTATION        TO PSCL5810-WSTATION
+              MOVE PSCV4941-TGRANT          TO PSCL5810-TGRANT
+              MOVE PSCV4941-MOEDA           TO PSCL5810-CMOEDA
+              MOVE PSCV4941-WSOUT           TO PSCL5810-WSOUT
+              MOVE PSCV4941-NGRANT          TO PSCL5810-NGRANT
+              MOVE PSCV4941-GUSERISERIES    TO PSCL5810-GUSERISERIES
+              MOVE PSCV4941-ERROUT          TO PSCL5810-ERROUT
+
+           END-IF.
+
+           PERFORM 2950-VALIDAR-ERROUT
+              THRU 2950-VALIDAR-ERROUT-EXIT.
+
+
+      * SE O PEDIDO FOI BEM EXECUTADO, ATUALIZA OS DADOS EM TABELA
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2800-ALTERAR-AUTORIZACAO
+                 THRU 2800-ALTERAR-AUTORIZACAO-EXIT
+           END-IF.
+
+       2700-OBTER-AUTORIZACAO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2800-ALTERAR-AUTORIZACAO.
+      ******************************************************************
+           MOVE '2800-ALTERAR-AUTORIZACAO ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLPSCD5201           REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCL5810-PID                TO PSCD5201-PID.
+      *
+           MOVE 'OK'                        TO PSCD5201-STATUSAP.
+           IF PSCL5810-STATUSQ EQUAL WS-LOG-FALSE
+              MOVE 'KO'                     TO PSCD5201-STATUSAP
+           END-IF.
+      *
+           MOVE PSCL5810-WSOUT              TO PSCD5201-WSOUT.
+           MOVE PSCL5810-TGRANT             TO PSCD5201-TGRANT.
+           MOVE PSCL5810-NGRANT             TO PSCD5201-NGRANT.
+           MOVE ETCL0002-USER-EXTRN         TO PSCD5201-CUSERID.
+
+           EXEC SQL
+                UPDATE PSVT5201
+                   SET WSOUT     =  :PSCD5201-WSOUT
+                     , STATUSAP  =  :PSCD5201-STATUSAP
+                     , NGRANT    =  :PSCD5201-NGRANT
+                     , TGRANT    =  :PSCD5201-TGRANT
+                     , CUSERID   =  :PSCD5201-CUSERID
+                     , HTIMEST   =  CURRENT TIMESTAMP
+                 WHERE PID       =  :PSCD5201-PID
+           END-EXEC.
+
+           MOVE WS-PSVT5201                 TO ETCL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9020-DB2CHECK-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              EVALUATE TRUE
+              WHEN ETCL0002-SQL-OK
+                   CONTINUE
+              WHEN OTHER
+                   SET  ETCL0002-ABEND-DB2  TO TRUE
+                   MOVE ETCK0002-APL-AT     TO ETCL0002-CAPLIC-ERRO
+                   MOVE VIAK0001-ERRO-DB2   TO ETCL0002-NR-ERRO
+              END-EVALUATE
+           END-IF.
+
+       2800-ALTERAR-AUTORIZACAO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2900-CALL-WEBSERVICE.
+      ******************************************************************
+           MOVE '2900-CALL-WEBSERVICE     ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * CHAMA O WEBSERVICE
+           CALL ARCK0002-WEBSERVICE USING VIAL9001-COMMAREA
+                                          ETCL0002-COMMAREA.
+
+      * TRATAMENTO DO ERRO?
+           IF NOT ETCL0002-SEM-ERROS
+              CONTINUE
+           END-IF.
+
+       2900-CALL-WEBSERVICE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2950-VALIDAR-ERROUT.
+      ******************************************************************
+           MOVE '2950-VALIDAR-ERROUT      ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * OS ERROS OCORRIDOS NO WEBSERVICE VEM DESCRITOS NESTE CAMPO
+      * (O WEBSERVICE RETORNA COM OK)
+           IF PSCL5810-ERROUT EQUAL SPACES
+              CONTINUE
+           ELSE
+              IF ETCL0002-DEBUG-SIM
+                 MOVE 'ERRO WEBSERVICE MSG' TO VIAL0015-CALLER-ID
+                 MOVE  PSCL5810-ERROUT      TO VIAL0015-CAMPOS-CHAVE
+                 PERFORM VIAP0015-TRATA-DEBUG
+                    THRU VIAP0015-TRATA-DEBUG-EXIT
+              END-IF
+
+              SET  ETCL0002-ERROS-ARQ       TO TRUE
+              MOVE VIAK0002-APLIC-AT        TO ETCL0002-CAPLIC-ERRO
+              MOVE VIAK0001-WSINSSINDISP    TO ETCL0002-NR-ERRO
+           END-IF.
+
+       2950-VALIDAR-ERROUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           MOVE '3000-FIM-PROGRAMA        ' TO VIAL0015-CALLER-ID.
+           IF ETCL0002-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                     Procedimentos Externos                     *
+      ******************************************************************
+           COPY VIAP0015.
+           COPY ETCP0010.
+      ******************************************************************
+      *                       Via Consulting Way                       *
+      ******************************************************************

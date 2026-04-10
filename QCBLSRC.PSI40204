@@ -1,0 +1,428 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI40204.
+      ******************************************************************
+      *     PROGRAMA PSI40204.                                         *
+      *                                                                *
+      *     WS Consulta Fich Duplicado                                 *
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      * http://localhost:8111/PSMCentralWS/PS402WS                     *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC  X(40) VALUE
+           'INICIO WORKING-STORAGE PSI40204         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCD2101 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+       01  WS-SQL-AUXILIARY.
+           05 IND-NULL                     PIC S9(04) BINARY.
+
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV4020.
+       COPY PSCV4021.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0010.
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+      *
+       COPY AQCW0005.
+       COPY ARCK0001.
+       COPY ETCL0002.
+       COPY PSCL5010.
+       COPY VIAW0020.
+      *
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSVT2101                 PIC  X(08) VALUE 'PSVT2101'.
+           05 CON-PSM5010                  PIC  X(10) VALUE 'PSM5010'.
+
+      *--------------------------------------------------------------
+      *            SWITCHES
+      *--------------------------------------------------------------
+       01  SW-SWITCHES.
+      * Indicador se emite aviso de possivel duplicado
+           05 SW-EMITE                     PIC  X(01).
+              88 SW-EMITE-S                           VALUE 'S'.
+              88 SW-EMITE-N                           VALUE 'N'.
+      *--------------------------------------------------------------
+      *            PROGRAM CONTROL
+      *--------------------------------------------------------------
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME                  PIC  X(08) VALUE 'PSI40204'.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC  X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI40204         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+       COPY VIAL0004.
+      *
+           EXEC SQL
+              INCLUDE VIAP0009
+           END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA'  TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           SET SW-EMITE-N                  TO TRUE.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV4020-MSG.
+           MOVE PSCV4020-ASE               TO PSCV4021-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA'    TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4020-ADE               TO PSCV4021-ADE.
+           MOVE 'N'                        TO PSCV4021-IDUPLICADO.
+
+      * Valida o pedido feito
+           PERFORM 2100-VALIDA-PEDIDO
+              THRU 2199-VALIDA-PEDIDO-EXIT.
+
+      * Verifica se existem ficheiros com a mesma informacao
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-VERIFICA-DUPLICADOS
+                 THRU 2299-VERIFICA-DUPLICADOS-EXIT
+           END-IF.
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2100-VALIDA-PEDIDO
+      *--------------------------------------------------------------
+       2100-VALIDA-PEDIDO.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-VALIDA-PEDIDO'    TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * Valida os valores de INPUT
+           PERFORM 2110-VALIDA-INPUT
+              THRU 2110-VALIDA-INPUT-EXIT
+
+      * Inicializa area str online
+           IF VIAL0002-SEM-ERROS
+              PERFORM ETCP0002-FORM-ONLINE-IN
+                 THRU ETCP0002-FORM-ONLINE-IN-EXIT
+           END-IF.
+
+       2199-VALIDA-PEDIDO-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2110-VALIDA-INPUT
+      *--------------------------------------------------------------
+       2110-VALIDA-INPUT.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2110-VALIDA-INPUT'     TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF PSCV4020-CUTILIZA EQUAL SPACES
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO
+                                           TO PSCV4021-CUTILIZA-S
+              MOVE PSCK0001-ERR-ORUSER     TO PSCV4021-CUTILIZA-MSG
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV4021-CUTILIZA-CAPLIC
+           END-IF.
+
+           IF PSCV4020-MVALOR EQUAL ZEROES
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO
+                                           TO PSCV4021-MVALOR-S
+              MOVE PSCK0001-ERR-ORMONT     TO PSCV4021-MVALOR-MSG
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV4021-MVALOR-CAPLIC
+           END-IF.
+
+           IF PSCV4020-NREGISTOS EQUAL ZEROES
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO
+                                           TO PSCV4021-NREGISTOS-S
+              MOVE PSCK0001-ERR-ORNREG     TO PSCV4021-NREGISTOS-MSG
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV4021-NREGISTOS-CAPLIC
+           END-IF.
+
+           IF PSCV4020-NCLIENTE EQUAL ZEROES
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO
+                                           TO PSCV4021-NCLIENTE-S
+              MOVE PSCK0001-ERR-ORNCLI     TO PSCV4021-NCLIENTE-MSG
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV4021-NCLIENTE-CAPLIC
+           END-IF.
+
+       2110-VALIDA-INPUT-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2200-VERIFICA-DUPLICADOS
+      *--------------------------------------------------------------
+       2200-VERIFICA-DUPLICADOS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-VERIFICA-DUPLICADOS' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * Procura possiveis duplicados antes de integracao
+           PERFORM 2210-INSERE-PST21
+              THRU 2219-INSERE-PST21-EXIT.
+
+      * Procura possiveis duplicados ja' integrados
+           IF VIAL0002-SEM-ERROS AND SW-EMITE-N
+              PERFORM 2220-CALL-PSM5010
+                 THRU 2229-CALL-PSM5010-EXIT
+           END-IF.
+
+      * Emite aviso de possivel duplicado
+           IF VIAL0002-SEM-ERROS AND SW-EMITE-S
+              PERFORM 2280-AVISA-DUPLICADO
+                 THRU 2289-AVISA-DUPLICADO-EXIT
+           END-IF.
+
+       2299-VERIFICA-DUPLICADOS-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2210-INSERE-PST21
+      *--------------------------------------------------------------
+       2210-INSERE-PST21.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2210-INSERE-PST21'     TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLPSCD2101          REPLACING NUMERIC BY ZEROES
+                                                ALPHANUMERIC BY SPACES.
+
+           MOVE PSCV4020-CUTILIZA          TO PSCD2101-CUTILIZA.
+
+           MOVE PSCV4020-NCLIENTE          TO PSCD2101-NCLIENTE.
+           MOVE PSCV4020-NREGISTOS         TO PSCD2101-NREGISTOS.
+           MOVE PSCV4020-MVALOR            TO PSCD2101-MVALOR.
+
+      * Vem com a data corrente do sistema
+           MOVE VIAL0001-DATA-PROCESSO-I   TO PSCD2101-DPEDIDO.
+           MOVE VIAL0001-CUTILIZA-I        TO PSCD2101-CUSERID.
+
+           EXEC SQL
+              INSERT INTO
+                 PSVT2101
+                (
+                     CUTILIZA
+                   , DPEDIDO
+                   , HPEDIDO
+                   , NCLIENTE
+                   , NREGISTOS
+                   , MVALOR
+                   , CUSERID
+                   , HTIMEST
+                )
+                VALUES (
+                     :PSCD2101-CUTILIZA
+                   , :PSCD2101-DPEDIDO
+                   , CURRENT TIME
+                   , :PSCD2101-NCLIENTE
+                   , :PSCD2101-NREGISTOS
+                   , :PSCD2101-MVALOR
+                   , :PSCD2101-CUSERID
+                   , CURRENT TIMESTAMP
+                )
+           END-EXEC.
+
+           MOVE CON-PSVT2101               TO VIAL0002-TABLE-NAME.
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF DB2-DUPREC
+                 SET SW-EMITE-S            TO TRUE
+              ELSE
+                 IF NOT DB2-OK
+                    MOVE VIAK0002-ABEND-DB2
+                      TO VIAL0002-IND-ERROS
+                    MOVE VIAK0001-ERRO-DB2
+                      TO VIAL0002-COD-ERRO-GRAVE
+                 END-IF
+              END-IF
+           END-IF.
+
+       2219-INSERE-PST21-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2220-CALL-PSM5010
+      *--------------------------------------------------------------
+       2220-CALL-PSM5010.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2220-CALL-PSM5010'     TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE PSCL5010-DATA        REPLACING NUMERIC BY ZEROES
+                                                ALPHANUMERIC BY SPACES.
+
+      * STD BANKA
+           MOVE WS-PROGNAME                TO PSCL5010-PGMC.
+           MOVE PSCK0002-TTR-PS2           TO PSCL5010-TTR.
+           MOVE VIAL0001-CALLERID          TO PSCL5010-JOBNC.
+           MOVE VIAL0001-CUSER-EXTRN       TO PSCL5010-USERC.
+           MOVE VIAL0001-MSGQ              TO PSCL5010-PGMQC.
+           MOVE PSCK0002-RCODE-OK          TO PSCL5010-RCODE.
+           MOVE VIAL0001-CBANCO            TO PSCL5010-AT-CBAN.
+           MOVE VIAL0001-CBALM             TO PSCL5010-AT-BALM.
+           MOVE VIAL0001-DATA-EXTRN        TO PSCL5010-AT-DTOP.
+           MOVE VIAL0001-CMOEDA            TO PSCL5010-AT-CMOE.
+           MOVE VIAL0001-I-DEBUG           TO PSCL5010-AT-DEBUG.
+           MOVE PSCK0002-ESTR-NEXE         TO PSCL5010-ESTR.
+           MOVE PSCK0002-APTR-APL          TO PSCL5010-APTR.
+
+      * DADOS
+           MOVE VIAL0001-DATA-EXTRN        TO PSCL5010-DINT.
+           MOVE PSCV4020-MVALOR            TO PSCL5010-MONT.
+           MOVE PSCV4020-NREGISTOS         TO PSCL5010-NREG.
+           MOVE PSCV4020-NCLIENTE          TO PSCL5010-NCLI.
+
+           CALL CON-PSM5010 USING ETCL0002-COMMAREA
+                                  PSCL5010-DATA.
+
+           MOVE PSCL5010-RCODE             TO VIAW0020-RCODE.
+
+           PERFORM VIAP0020-TRATA-RCODE
+              THRU VIAP0020-TRATA-RCODE-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF PSCL5010-DUPFILE = 'Y'
+                 SET SW-EMITE-S            TO TRUE
+              END-IF
+           ELSE
+              IF VIAL0001-DEBUG-SIM
+                 MOVE 'PSM5010 COM ERRO'   TO VIAL0015-CALLER-ID
+                 MOVE 'PSCL5010-DINT-ST'   TO VIAL0015-CAMPO-NM (1)
+                 MOVE  PSCL5010-DINT-ST    TO VIAL0015-CAMPO-VLR(1)
+                 MOVE 'PSCL5010-MONT-ST'   TO VIAL0015-CAMPO-NM (2)
+                 MOVE  PSCL5010-MONT-ST    TO VIAL0015-CAMPO-VLR(2)
+                 MOVE 'PSCL5010-NREG-ST'   TO VIAL0015-CAMPO-NM (3)
+                 MOVE  PSCL5010-NREG-ST    TO VIAL0015-CAMPO-VLR(3)
+                 MOVE 'PSCL5010-NCLI-ST'   TO VIAL0015-CAMPO-NM (4)
+                 MOVE  PSCL5010-NCLI-ST    TO VIAL0015-CAMPO-VLR(4)
+                 PERFORM VIAP0016-TRATA-DEBUG
+                    THRU VIAP0016-TRATA-DEBUG-EXIT
+              END-IF
+
+              MOVE PSCL5010-MONT-ST        TO PSCV4021-MVALOR-ST
+              MOVE PSCL5010-NREG-ST        TO PSCV4021-NREGISTOS-ST
+              MOVE PSCL5010-NCLI-ST        TO PSCV4021-NCLIENTE-ST
+           END-IF.
+
+       2229-CALL-PSM5010-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2280-AVISA-DUPLICADO
+      *--------------------------------------------------------------
+       2280-AVISA-DUPLICADO.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2280-AVISA-DUPLICADO'  TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE 'Y'                        TO PSCV4021-IDUPLICADO.
+
+       2289-AVISA-DUPLICADO-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4021-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV4021-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV4021-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY AQCP0005.
+           COPY ETCP0002.
+           COPY VIAP0010.
+           COPY VIAP0016.
+           COPY VIAP0020.

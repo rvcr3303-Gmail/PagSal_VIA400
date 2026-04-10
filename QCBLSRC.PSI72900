@@ -1,0 +1,599 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI72900.
+      ******************************************************************
+      *     PROGRAMA PSI72900.                                         *
+      *                                                                *
+      *     Lista Movimentos
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI72900         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE ARCD1900 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV7290.
+       COPY PSCV7291.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY AQCW0005.
+       COPY DVCK0001.
+       COPY DVCW0080.
+       COPY BRCL1020.
+      *
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY ETCL0002.
+       COPY ETCL0075.
+      *COPY VIATW300.
+      *--------------------------------------------------------------
+      *            VARIAVEIS
+      *--------------------------------------------------------------
+       01  WS-VARIAVEIS.
+           05 WS-DATA-MOVIMENTO          PIC  9(08).
+           05 WS-INDICE                  PIC S9(05) VALUE ZEROES.
+           05 WS-NOPR                    PIC S9(09) VALUE ZEROES.
+      *--------------------------------------------------------------
+      *            SWITCH
+      *--------------------------------------------------------------
+       01  WS-SWITCHES.
+           05 WS-TEM-MOVIMENTOS          PIC  X(01) VALUE SPACES.
+              88 WS-SEM-MAIS-MOVIMENTOS             VALUE 'N'.
+              88 WS-COM-MAIS-MOVIMENTOS             VALUE 'S'.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01 WS-CONSTANTES.
+          05 WS-PROGNAME                 PIC X(10) VALUE 'PSI72900'.
+      *--------------------------------------------------------------
+      *              DECLARACOES DE CURSORES DB2                     *
+      *--------------------------------------------------------------
+      *
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI72900         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV7290-MSG.
+           MOVE PSCV7290-ASE               TO PSCV7291-ASE.
+      *
+           MOVE ZEROES                     TO PSCV7291-INDICE.
+           MOVE ZEROES                     TO WS-INDICE.
+           MOVE ZEROES                     TO PSCV7291-VLRDEB.
+           MOVE ZEROES                     TO PSCV7291-VLRCRE.
+           PERFORM 1100-LIMPA-OCCURS
+              THRU 1199-LIMPA-OCCURS-EXIT
+             UNTIL PSCV7291-PAGINA-CHEIA.
+
+           MOVE ZEROES                     TO PSCV7291-INDICE.
+           MOVE ZEROES                     TO WS-INDICE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            1100-LIMPA-OCCURS
+      *--------------------------------------------------------------
+       1100-LIMPA-OCCURS.
+      *
+           ADD 1                       TO PSCV7291-INDICE.
+           MOVE SPACES
+             TO PSCV7291-D-NBAL(PSCV7291-INDICE)
+           MOVE ZEROES
+             TO PSCV7291-D-NCONTA(PSCV7291-INDICE)
+           MOVE ZEROES
+             TO PSCV7291-D-NDOC(PSCV7291-INDICE)
+           MOVE ZEROES
+             TO PSCV7291-D-VLRDEB(PSCV7291-INDICE)
+           MOVE ZEROES
+             TO PSCV7291-D-VLRCRE(PSCV7291-INDICE)
+           MOVE SPACES
+             TO PSCV7291-D-CMOED(PSCV7291-INDICE)
+           MOVE VIAK0002-DATA-MINIMA
+             TO PSCV7291-D-DMOV(PSCV7291-INDICE).
+      *
+       1199-LIMPA-OCCURS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE 1                           TO PSCV7291-INDICE.
+           MOVE PSCV7290-NOPR               TO PSCV7291-NOPR .
+           MOVE PSCV7290-NOPS               TO PSCV7291-NOPS .
+           MOVE PSCV7290-DTOPS              TO PSCV7291-DTOPS.
+           MOVE PSCV7290-NORDP              TO PSCV7291-NORDP.
+
+           PERFORM 2010-CONS-MOVS-NOPR
+              THRU 2010-CONS-MOVS-NOPR-EXIT.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '****-AFTER-2010' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              IF WS-COM-MAIS-MOVIMENTOS
+              AND ETCL0075-RDMOV(1) NOT EQUAL SPACES
+                 PERFORM 2040-CONTINUA
+                    THRU 2049-CONTINUA-EXIT
+              ELSE
+                 COMPUTE PSCV7291-INDICE-INVERSO EQUAL
+                         PSCV7291-INDICE-INVERSO - PSCV7291-INDICE
+                 COMPUTE PSCV7291-DIMINUI-LENGTH EQUAL
+                         PSCV7291-INDICE-INVERSO * PSCV7291-LENGTH-OCCUR
+                 COMPUTE PSCV7291-LENGTH         EQUAL
+                         PSCV7291-LENGTH - PSCV7291-DIMINUI-LENGTH
+              END-IF
+           END-IF.
+      *
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   2010-CONS-MOVS-NOPR
+      *--------------------------------------------------------------
+       2010-CONS-MOVS-NOPR.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2010-CONS-MOVS-NOPR' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE ETCL0002-COMMAREA  REPLACING  NUMERIC BY ZEROES
+                                               ALPHANUMERIC BY SPACES.
+           INITIALIZE ETCL0075-DATA      REPLACING  NUMERIC BY ZEROES
+                                               ALPHANUMERIC BY SPACES.
+
+           MOVE VIAL0001-VERSAO-SYS         TO ETCL0075-VERSAO.
+
+           IF VIAL0001-VERSAO-V203
+              SET  ETCL0075-TTR-CS046       TO TRUE
+           ELSE
+              SET  ETCL0075-TTR-CSPMV       TO TRUE
+           END-IF
+
+           MOVE VIAL0001-PGMID              TO ETCL0075-PGMC.
+           MOVE VIAL0001-CALLERID           TO ETCL0075-JOBNC.
+           MOVE VIAL0001-CUSER-EXTRN        TO ETCL0075-USERC.
+           MOVE VIAL0001-MSGQ               TO ETCL0075-PGMQC.
+           MOVE ZEROES                      TO ETCL0075-RCODE.
+           SET  ETCL0075-ESTR-NEXE          TO TRUE.
+           SET  ETCL0075-APTR-APL           TO TRUE.
+PL2208*    MOVE +100                        TO ETCL0075-NREG.
+PL2208     MOVE +30                         TO ETCL0075-NREG.
+           MOVE '+'                         TO ETCL0075-TIPO.
+           MOVE 'N'                         TO ETCL0075-BYPAS.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2                      ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF
+
+           MOVE PSCV7290-NOPR               TO ETCL0075-NOPR .
+           MOVE ZEROES                      TO ETCL0075-NOPS .
+           MOVE ZEROES                      TO ETCL0075-DTPOS.
+           MOVE ZEROES                      TO ETCL0075-NORDP.
+
+           PERFORM CALL-ETR00075
+              THRU CALL-ETR00075-EXIT.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE 'CALL-ETR00075    '  TO VIAL0015-CALLER-ID
+              MOVE 'ETCL0075-RCODE'         TO VIAL0015-CAMPO-NM  (1)
+              MOVE  ETCL0075-RCODE          TO VIAL0015-CAMPO-VLR (1)
+
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * TRANSFORMA ERROS BANKA EM ERROS DA ARQUITECTURA VIA
+           MOVE ZEROES                     TO DVCW0080-COD-ERR
+           MOVE VIAL0001-MSGQ              TO DVCW0080-MSGQ
+           PERFORM DVCP0080-TRATA-ERRO-BANKA
+              THRU DVCP0080-TRATA-ERRO-BANKA-EXIT
+           IF DVCW0080-COD-ERR NOT EQUAL ZEROES
+              SET  PSCV7291-NOPR-1         TO TRUE
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV7291-NOPR-CAPLIC
+              MOVE DVCW0080-COD-ERR        TO PSCV7291-NOPR-MSG
+           END-IF
+
+           EVALUATE TRUE
+           WHEN ETCL0075-RCODE-OK
+                SET  WS-COM-MAIS-MOVIMENTOS TO TRUE
+                MOVE ETCL0075-DTPOS         TO PSCV7291-DTOPS
+                MOVE ETCL0075-NORDP         TO PSCV7291-NORDP
+           WHEN ETCL0075-RCODE-INF
+                SET  WS-SEM-MAIS-MOVIMENTOS TO TRUE
+           WHEN OTHER
+                SET  PSCV7290-NOPR-1        TO TRUE
+                SET  VIAL0002-ERROS-FUNCAO  TO TRUE
+                MOVE PSCK0002-CAPLIC-PS     TO PSCV7291-NOPR-CAPLIC
+                MOVE PSCK0001-ERR-NOPR      TO PSCV7291-NOPR-MSG
+           END-EVALUATE.
+      *
+       2010-CONS-MOVS-NOPR-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                       2040-CONTINUA
+      *--------------------------------------------------------------
+       2040-CONTINUA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2040-CONTINUA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      **R  MOVE +1                          TO PSCV7291-INDICE
+           MOVE +1                          TO WS-INDICE.
+
+           PERFORM 2050-TRATA-OCCURS
+              THRU 2059-TRATA-OCCURS-EXIT
+             UNTIL WS-SEM-MAIS-MOVIMENTOS
+                OR PSCV7291-PAGINA-CHEIA
+                OR NOT VIAL0002-SEM-ERROS.
+      **R
+           MOVE PSCV7290-NOPRA              TO PSCV7291-NOPRA.
+           MOVE PSCV7290-NOPRB              TO PSCV7291-NOPRB.
+           MOVE PSCV7290-NOPRC              TO PSCV7291-NOPRC.
+
+      * REMOVE A POSSIBILIDADE DE EXISTIREM NÚMERO DE OPERAÇÃO
+      * DUPLICADOS, PARA EVITAR LISTAR MAIS DO QUE UMA VEZ UM MOVIMENTO
+           IF VIAL0002-SEM-ERROS
+              IF PSCV7290-NOPRA EQUAL PSCV7290-NOPR
+              OR PSCV7290-NOPRA EQUAL PSCV7290-NOPRB
+              OR PSCV7290-NOPRA EQUAL PSCV7290-NOPRC
+                 MOVE ZEROES                TO PSCV7290-NOPRA
+              END-IF
+              IF PSCV7290-NOPRB EQUAL PSCV7290-NOPR
+              OR PSCV7290-NOPRB EQUAL PSCV7290-NOPRC
+                 MOVE ZEROES                TO PSCV7290-NOPRB
+              END-IF
+              IF PSCV7290-NOPRC EQUAL PSCV7290-NOPR
+                 MOVE ZEROES                TO PSCV7290-NOPRC
+              END-IF
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+             IF PSCV7290-NOPRA NOT EQUAL ZEROES
+               ADD 1 TO PSCV7291-INDICE
+               MOVE PSCV7290-NOPRA         TO WS-NOPR
+               PERFORM 2045-OBTEM-OPRA
+                  THRU 2045-OBTEM-OPRA-EXIT
+             END-IF
+           END-IF
+      *
+           IF VIAL0002-SEM-ERROS
+             IF PSCV7290-NOPRB NOT EQUAL ZEROES
+               ADD 1 TO PSCV7291-INDICE
+               MOVE PSCV7290-NOPRB         TO WS-NOPR
+               PERFORM 2045-OBTEM-OPRA
+                  THRU 2045-OBTEM-OPRA-EXIT
+             END-IF
+           END-IF
+      *
+           IF VIAL0002-SEM-ERROS
+             IF PSCV7290-NOPRC NOT EQUAL ZEROES
+               ADD 1 TO PSCV7291-INDICE
+               MOVE PSCV7290-NOPRC         TO WS-NOPR
+               PERFORM 2045-OBTEM-OPRA
+                  THRU 2045-OBTEM-OPRA-EXIT
+             END-IF
+           END-IF
+      **R
+           IF VIAL0002-SEM-ERROS
+              IF NOT PSCV7291-PAGINA-CHEIA
+                    COMPUTE PSCV7291-INDICE-INVERSO EQUAL
+                         PSCV7291-INDICE-INVERSO - PSCV7291-INDICE
+                    COMPUTE PSCV7291-DIMINUI-LENGTH EQUAL
+                         PSCV7291-INDICE-INVERSO * PSCV7291-LENGTH-OCCUR
+                    COMPUTE PSCV7291-LENGTH EQUAL PSCV7291-LENGTH -
+                         PSCV7291-DIMINUI-LENGTH
+                    SET  VIAL0002-FIM-CONSULTA TO TRUE
+              END-IF
+      * Impede sempre de fazer a paginação:
+              SET  VIAL0002-FIM-CONSULTA TO TRUE
+           END-IF.
+      *
+       2049-CONTINUA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2045-OBTEM-OPRA
+      *--------------------------------------------------------------
+       2045-OBTEM-OPRA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2045-OBTEM-OPRA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           SET WS-COM-MAIS-MOVIMENTOS TO TRUE.
+
+           PERFORM 2011-CONS-MOVS-NOPRA
+              THRU 2011-CONS-MOVS-NOPRA-EXIT.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '****-AFTER-2011-' TO VIAL0015-CALLER-ID
+              MOVE 'PSCV7291-INDICE      '  TO VIAL0015-CAMPO-NM  (1)
+              MOVE  PSCV7291-INDICE         TO VIAL0015-CAMPO-VLR (1)
+              MOVE 'VIAL0002-IND-ERROS    '  TO VIAL0015-CAMPO-NM  (2)
+              MOVE  VIAL0002-IND-ERROS       TO VIAL0015-CAMPO-VLR (2)
+              MOVE 'WS-TEM-MOVIMENTOS    '  TO VIAL0015-CAMPO-NM  (3)
+              MOVE  WS-TEM-MOVIMENTOS       TO VIAL0015-CAMPO-VLR (3)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      **R  ADD 1                       TO PSCV7291-INDICE.
+           MOVE 1                      TO WS-INDICE.
+
+           PERFORM 2050-TRATA-OCCURS
+              THRU 2059-TRATA-OCCURS-EXIT
+             UNTIL WS-SEM-MAIS-MOVIMENTOS
+                OR PSCV7291-PAGINA-CHEIA
+                OR NOT VIAL0002-SEM-ERROS.
+      *
+       2045-OBTEM-OPRA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   2011-CONS-MOVS-NOPRA
+      *--------------------------------------------------------------
+       2011-CONS-MOVS-NOPRA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2011-CONS-MOVS-NOPRA   ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE ETCL0002-COMMAREA  REPLACING  NUMERIC BY ZEROES
+                                               ALPHANUMERIC BY SPACES.
+           INITIALIZE ETCL0075-DATA      REPLACING  NUMERIC BY ZEROES
+                                               ALPHANUMERIC BY SPACES.
+
+           MOVE VIAL0001-VERSAO-SYS         TO ETCL0075-VERSAO.
+
+           IF VIAL0001-VERSAO-V203
+              SET  ETCL0075-TTR-CS046       TO TRUE
+           ELSE
+              SET  ETCL0075-TTR-CSPMV       TO TRUE
+           END-IF
+
+           MOVE VIAL0001-PGMID              TO ETCL0075-PGMC.
+           MOVE VIAL0001-CALLERID           TO ETCL0075-JOBNC.
+           MOVE VIAL0001-CUSER-EXTRN        TO ETCL0075-USERC.
+           MOVE VIAL0001-MSGQ               TO ETCL0075-PGMQC.
+           MOVE ZEROES                      TO ETCL0075-RCODE.
+           SET  ETCL0075-ESTR-NEXE          TO TRUE.
+           SET  ETCL0075-APTR-APL           TO TRUE.
+PL2208*    MOVE +100                        TO ETCL0075-NREG.
+PL2208     MOVE +30                         TO ETCL0075-NREG.
+           MOVE '+'                         TO ETCL0075-TIPO.
+           MOVE 'N'                         TO ETCL0075-BYPAS.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2                      ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF
+
+      *    MOVE PSCV7290-NOPRA              TO ETCL0075-NOPR .
+           MOVE WS-NOPR                     TO ETCL0075-NOPR .
+           MOVE ZEROES                      TO ETCL0075-NOPS .
+           MOVE ZEROES                      TO ETCL0075-DTPOS.
+           MOVE ZEROES                      TO ETCL0075-NORDP.
+
+           PERFORM CALL-ETR00075
+              THRU CALL-ETR00075-EXIT.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2011-CONS-MOVS-NOPRA   '  TO VIAL0015-CALLER-ID
+              MOVE 'ETCL0075-RCODE'           TO VIAL0015-CAMPO-NM  (1)
+              MOVE  ETCL0075-RCODE            TO VIAL0015-CAMPO-VLR (1)
+
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * TRANSFORMA ERROS BANKA EM ERROS DA ARQUITECTURA VIA
+           MOVE ZEROES                     TO DVCW0080-COD-ERR
+           MOVE VIAL0001-MSGQ              TO DVCW0080-MSGQ
+           PERFORM DVCP0080-TRATA-ERRO-BANKA
+              THRU DVCP0080-TRATA-ERRO-BANKA-EXIT
+           IF DVCW0080-COD-ERR NOT EQUAL ZEROES
+              SET  PSCV7291-NOPR-1         TO TRUE
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV7291-NOPR-CAPLIC
+              MOVE DVCW0080-COD-ERR        TO PSCV7291-NOPR-MSG
+           END-IF
+
+           EVALUATE TRUE
+           WHEN ETCL0075-RCODE-OK
+                SET  WS-COM-MAIS-MOVIMENTOS TO TRUE
+           WHEN ETCL0075-RCODE-INF
+                SET  WS-SEM-MAIS-MOVIMENTOS TO TRUE
+           WHEN OTHER
+                SET  PSCV7290-NOPR-1        TO TRUE
+                SET  VIAL0002-ERROS-FUNCAO  TO TRUE
+                MOVE PSCK0002-CAPLIC-PS     TO PSCV7291-NOPR-CAPLIC
+                MOVE PSCK0001-ERR-NOPR      TO PSCV7291-NOPR-MSG
+           END-EVALUATE.
+      *
+       2011-CONS-MOVS-NOPRA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2050-TRATA-OCCURS
+      *--------------------------------------------------------------
+       2050-TRATA-OCCURS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2050-TRATA-OCCURS      ' TO VIAL0015-CALLER-ID
+              MOVE 'WS-INDICE      '          TO VIAL0015-CAMPO-NM  (1)
+              MOVE  WS-INDICE                 TO VIAL0015-CAMPO-VLR (1)
+              MOVE 'PSCV7291-INDICE'          TO VIAL0015-CAMPO-NM  (2)
+              MOVE  PSCV7291-INDICE           TO VIAL0015-CAMPO-VLR (2)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           IF ETCL0075-RVLR  (WS-INDICE) < 0
+              COMPUTE PSCV7291-VLRDEB = PSCV7291-VLRDEB -
+                      ETCL0075-RVLR (WS-INDICE)
+
+              MOVE 0 TO PSCV7291-D-VLRCRE(PSCV7291-INDICE)
+              MOVE ETCL0075-RVLR  (WS-INDICE)
+                                  TO PSCV7291-D-VLRDEB(PSCV7291-INDICE)
+           ELSE
+              COMPUTE PSCV7291-VLRCRE = PSCV7291-VLRCRE +
+                      ETCL0075-RVLR (WS-INDICE)
+
+              MOVE 0 TO PSCV7291-D-VLRDEB(PSCV7291-INDICE)
+              MOVE ETCL0075-RVLR  (WS-INDICE)
+                                  TO PSCV7291-D-VLRCRE(PSCV7291-INDICE)
+           END-IF.
+
+      **R  MOVE ETCL0075-RBALM (PSCV7291-INDICE)
+      **R  MOVE ETCL0075-RBCCB (PSCV7291-INDICE)
+      **R                          TO PSCK0002-BAL-CBALM.
+      **R  MOVE PSCK0002-BAL-IDAGENCIA
+      **R                          TO PSCV7291-D-NBAL(PSCV7291-INDICE).
+
+           IF ETCL0075-RCNT  (WS-INDICE) EQUAL ZEROES
+              MOVE ETCL0075-RCCB (WS-INDICE)
+                                 TO PSCV7291-D-NCONTA (PSCV7291-INDICE)
+              MOVE SPACES        TO PSCV7291-D-DMOV(PSCV7291-INDICE)
+              MOVE ETCL0075-RBCCB (WS-INDICE)
+                                 TO PSCV7291-D-NBAL(PSCV7291-INDICE)
+           ELSE
+              MOVE ETCL0075-RCNT(WS-INDICE) TO PSCK0002-CNT-CONTA
+              MOVE PSCK0002-CNT-IDCONTA
+                                  TO PSCV7291-D-NCONTA(PSCV7291-INDICE)
+              MOVE SPACES         TO PSCV7291-D-NBAL(PSCV7291-INDICE)
+           END-IF.
+
+      * FORMATA DESCRITIVO DO MOVIMENTO PARA A GRELHA
+           MOVE ETCL0075-RDMOV (WS-INDICE)
+                               TO PSCV7291-D-RDMOV(PSCV7291-INDICE).
+           MOVE ETCL0075-NOPR
+                               TO PSCV7291-D-NOPR (PSCV7291-INDICE).
+
+      * CONVERTE DATA FINAL DE 9(08) PARA X(10)
+           MOVE ETCL0075-RDTL (WS-INDICE) TO AQCW0005-DT98
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT
+           MOVE AQCW0005-DTX10 TO PSCV7291-D-DMOV(PSCV7291-INDICE).
+
+           MOVE ETCL0075-RNDOC (WS-INDICE)
+                               TO PSCV7291-D-NDOC(PSCV7291-INDICE).
+           MOVE ETCL0075-RCOPE (WS-INDICE)
+                               TO PSCV7291-D-NCOPE(PSCV7291-INDICE).
+           MOVE ETCL0075-RMOED (WS-INDICE)
+                               TO PSCV7291-D-CMOED(PSCV7291-INDICE).
+
+           ADD 1                       TO WS-INDICE.
+
+           IF ETCL0075-RTDOC (WS-INDICE) EQUAL SPACES OR
+              ETCL0075-RTDOC (WS-INDICE) EQUAL ZEROES
+      **R     SUBTRACT 1                 FROM PSCV7291-INDICE
+              SET  WS-SEM-MAIS-MOVIMENTOS  TO TRUE
+           ELSE
+             ADD 1                       TO PSCV7291-INDICE
+           END-IF.
+      *
+       2059-TRATA-OCCURS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA' TO VIAL0015-CALLER-ID
+              MOVE 'VIAL0002-IND-ERROS'  TO VIAL0015-CAMPO-NM(1)
+              MOVE VIAL0002-IND-ERROS    TO VIAL0015-CAMPO-VLR(1)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE PSCV7291-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV7291-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV7291-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE PSCV7291-INDICE            TO VIAL0001-OCORRENCIAS.
+      *
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+           EXEC SQL INCLUDE DVCP0080 END-EXEC.
+      *==============================================================
+           COPY VIAP0015.
+           COPY VIAP0016.
+           COPY ETCP0075.
+           COPY AQCP0005.

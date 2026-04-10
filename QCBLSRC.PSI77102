@@ -1,0 +1,338 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI77102.
+      ******************************************************************
+      *     PROGRAMA PSI77102.
+      *
+      *     Emissão de Bordereaux
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI77102         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDTA00 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV7710.
+       COPY PSCV7711.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY ARCK0001.
+       COPY ARCK0002.
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY ETCL0002.
+       COPY AQCW0005.
+       COPY VIAW0020.
+       COPY VIAL9001.
+       COPY ARCL5005.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSDETALH PIC X(08) VALUE 'PSDETALH'.
+           05 WS-PROGNAME  PIC X(08) VALUE 'PSI77102'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI77102         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV7710-MSG.
+           MOVE PSCV7710-ASE       TO PSCV7711-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7710-ADE       TO PSCV7711-ADE.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 6000-CHAMA-WEBSERVICE
+                 THRU 6000-CHAMA-WEBSERVICE-EXIT
+           END-IF.
+      *
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA'   TO VIAL0015-CALLER-ID
+              MOVE 'PSCV7711-ORNCLI-S'     TO VIAL0015-CAMPO-NM(1)
+              MOVE PSCV7711-ORNCLI-S       TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'PSCV7711-ORDINT-S'     TO VIAL0015-CAMPO-NM(2)
+              MOVE PSCV7711-ORDINT-S       TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'PSCV7711-ORNFIC-S'     TO VIAL0015-CAMPO-NM(3)
+              MOVE PSCV7711-ORNFIC-S       TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7711-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV7711-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV7711-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       6000-CHAMA-WEBSERVICE.
+      ******************************************************************
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '6000-CHAMA-WEBSERVICE  ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+      * Obtém biblioteca para escrita do PDF
+      *
+           IF VIAL0002-SEM-ERROS
+              MOVE PSCK0002-TAB-BORDEREAUXS   TO ARCL5005-CTABELA
+              MOVE PSCK0002-TAB-BORD-BEN      TO ARCL5005-CCOD
+              MOVE SPACES                     TO ARCL5005-C2COD
+              MOVE PSCK0002-PT-PT             TO ARCL5005-CLINGUA
+              MOVE SPACES                     TO ARCL5005-GDESC
+              PERFORM 6300-OBTEM-CODIGO
+                 THRU 6300-OBTEM-CODIGO-EXIT
+              MOVE ARCL5005-GDESC             TO PSCV7711-ORBIBLI
+           END-IF.
+      *
+           IF VIAL0002-SEM-ERROS
+              PERFORM 6100-FORMATA-SERVICO
+                 THRU 6199-FORMATA-SERVICO-EXIT
+           END-IF.
+      *
+           IF VIAL0002-SEM-ERROS
+              PERFORM 6200-INVOCA-SERVICO
+                 THRU 6299-INVOCA-SERVICO-EXIT
+           END-IF.
+      *
+       6000-CHAMA-WEBSERVICE-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   6100-FORMATA-SERVICO
+      *--------------------------------------------------------------
+       6100-FORMATA-SERVICO.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '6100-FORMATA-SERVICO ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE PSCV7711-MSG               TO VIAL0001-MENSAGEM-INPUT.
+           MOVE PSCV7711-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV7711-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+      *
+           MOVE VIAL0001-COMMAREA          TO VIAL9001-COMMAREA.
+      *
+       6199-FORMATA-SERVICO-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   6200-INVOCA-SERVICO
+      *--------------------------------------------------------------
+       6200-INVOCA-SERVICO.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-INVOCA-SERVICO  ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+              MOVE SPACES                  TO VIAL0015-CAMPOS-CHAVE
+           END-IF.
+      *
+           PERFORM ETCP0002-FORM-ONLINE-IN
+              THRU ETCP0002-FORM-ONLINE-IN-EXIT.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '****-INVOCA-SERVICO  ' TO VIAL0015-CALLER-ID
+              MOVE 'VIAL9001-IND-ERROS   ' TO VIAL0015-CAMPO-NM(1)
+              MOVE VIAL9001-IND-ERROS      TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'VIAL0001-IND-ERROS   ' TO VIAL0015-CAMPO-NM(2)
+              MOVE VIAL0001-IND-ERROS      TO VIAL0015-CAMPO-VLR(2)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+              MOVE SPACES                  TO VIAL0015-CAMPOS-CHAVE
+           END-IF.
+      *
+           CALL  ARCK0002-WEBSERVICE  USING VIAL9001-COMMAREA
+                                            ETCL0002-COMMAREA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-FIM-EXECUÇÃO    ' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+              MOVE SPACES                  TO VIAL0015-CAMPOS-CHAVE
+           END-IF.
+      *
+           MOVE VIAL9001-MENSAGEM-OUTPUT   TO PSCV7711-MSG.
+      *
+           PERFORM ETCP0002-STD-END
+              THRU ETCP0002-STD-END-EXIT
+      *
+           IF VIAL0002-SEM-ERROS
+              MOVE ETCL0002-RCODE          TO VIAW0020-RCODE
+
+              PERFORM VIAP0020-TRATA-RCODE
+                 THRU VIAP0020-TRATA-RCODE-EXIT
+           END-IF.
+      *
+           IF NOT VIAL0002-SEM-ERROS
+              INITIALIZE PSCV7711-ASE
+                REPLACING NUMERIC BY ZEROES ALPHANUMERIC BY SPACES
+           END-IF.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '6200-INVOCA-SERVICO  ' TO VIAL0015-CALLER-ID
+              MOVE 'VIAL0001-IND-ERROS   ' TO VIAL0015-CAMPO-NM(1)
+              MOVE VIAL0001-IND-ERROS      TO VIAL0015-CAMPO-VLR(1)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+              MOVE SPACES                  TO VIAL0015-CAMPOS-CHAVE
+           END-IF.
+      *
+           IF NOT VIAL0002-SEM-ERROS
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO  TO PSCV7711-ORNFIC-S
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV7711-ORNFIC-CAPLIC
+              MOVE PSCK0001-ERRO-PDF       TO PSCV7711-ORNFIC-MSG
+           END-IF.
+      *
+           IF VIAL0002-SEM-ERROS
+              PERFORM 6280-VALIDA-OUTPUT
+                 THRU 6280-VALIDA-OUTPUT-EXIT
+           END-IF.
+      *
+       6299-INVOCA-SERVICO-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *
+      *--------------------------------------------------------------
+       6280-VALIDA-OUTPUT.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '6280-VALIDA-OUTPUT   ' TO VIAL0015-CALLER-ID
+              MOVE 'PSCV7711-ORNFICH     ' TO VIAL0015-CAMPO-NM(1)
+              MOVE PSCV7711-ORNFICH        TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'VIAL0002-IND-ERROS   ' TO VIAL0015-CAMPO-NM(2)
+              MOVE VIAL0002-IND-ERROS      TO VIAL0015-CAMPO-VLR(2)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           IF PSCV7711-ORNFICH EQUAL SPACES
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO  TO PSCV7711-ORNFIC-S
+              MOVE PSCK0002-CAPLIC-PS      TO PSCV7711-ORNFIC-CAPLIC
+              MOVE PSCK0001-PDF-SEM-NOME   TO PSCV7711-ORNFIC-MSG
+                                              VIAL0002-COD-ERRO-GRAVE
+           END-IF.
+      *
+       6280-VALIDA-OUTPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       6300-OBTEM-CODIGO.
+      ******************************************************************
+      *                                                                *
+           MOVE '6300-OBTEM-CODIGO    ' TO VIAL0015-CALLER-ID
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM CALL-ARM5005
+              THRU CALL-ARM5005-EXIT.
+      *
+           IF NOT ETCL0002-SEM-ERROS
+               MOVE VIAK0002-ERROS-FUNCAO    TO VIAL0002-IND-ERROS
+               MOVE PSCK0002-STATUS-ACTIVO   TO PSCV7711-ORNFIC-S
+               MOVE PSCK0001-HRNFIC-N-EXISTS TO PSCV7711-ORNFIC-MSG
+           END-IF.
+      *
+           MOVE 'PSCV7711-ORBIBLI         ' TO VIAL0015-CALLER-ID
+           MOVE PSCV7711-ORBIBLI            TO VIAL0015-CAMPO-NM(1)
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       6300-OBTEM-CODIGO-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY VIAP0016.
+           COPY ETCP0002.
+           COPY AQCP0005.
+           COPY VIAP0020.
+           COPY ARCR5005.

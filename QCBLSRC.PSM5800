@@ -1,0 +1,122 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSM5800.
+      ******************************************************************
+      *     PROGRAMA PSM5800.                                          *
+      *                                                                *
+      *     Trata Ficheiros eBanking
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSM5800         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE SQLCA      END-EXEC.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY AQCW0009.
+       COPY VIAL0015.
+       COPY VIAK0001.
+       COPY VIAK0002.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 WS-PROGNAME               PIC  X(10)  VALUE 'PSM5800'.
+           05 WS-PSB4400                PIC  X(10)  VALUE 'PSB4400'.
+           05 WS-PSB4111                PIC  X(10)  VALUE 'PSB4111'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSM5800         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+       COPY VIAL0004.
+      *--------------------------------------------------------------
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *--------------------------------------------------------------
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2099-PROC-PROGRAMA-EXIT
+           END-IF.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *--------------------------------------------------------------
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           SET  AQCW0009-RCODE-OK           TO TRUE.
+
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *--------------------------------------------------------------
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA'     TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * Obtenção de ficheiro PS2 do IFS
+           IF VIAL0002-SEM-ERROS
+              CALL WS-PSB4400 USING AQCW0009-DATA
+
+              IF NOT AQCW0009-SEM-ERROS
+                 MOVE VIAK0002-ABEND-DB2    TO VIAL0002-IND-ERROS
+                 MOVE VIAK0001-ERRO-DB2     TO VIAL0002-COD-ERRO-GRAVE
+              END-IF
+           END-IF.
+
+      * Carrega ficheiros no sistema - servidor eBanking
+           IF VIAL0002-SEM-ERROS
+              CALL WS-PSB4111 USING AQCW0009-DATA
+
+              IF NOT AQCW0009-SEM-ERROS
+                 MOVE VIAK0002-ABEND-DB2    TO VIAL0002-IND-ERROS
+                 MOVE VIAK0001-ERRO-DB2     TO VIAL0002-COD-ERRO-GRAVE
+              END-IF
+           END-IF.
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *--------------------------------------------------------------
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           CONTINUE.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           COPY VIAP0016.

@@ -1,0 +1,373 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI44900.
+      ******************************************************************
+      *     PROGRAMA PSI44900.                                         *
+      *                                                                *
+      *     Browse Parametrização
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI44900         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDRA00 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV4490.
+       COPY PSCV4491.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY AQCW0005.
+      *
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+      *--------------------------------------------------------------
+      *            SWITCH
+      *--------------------------------------------------------------
+       01  SW-SWITCH.
+           05 SW-CURSOR                  PIC X(01) VALUE SPACES.
+              88 SW-CURSOR-NONE                    VALUE '0'.
+              88 SW-CURSOR-1                       VALUE '1'.
+              88 SW-CURSOR-2                       VALUE '2'.
+              88 SW-CURSOR-3                       VALUE '3'.
+              88 SW-CURSOR-4                       VALUE '3'.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSPARAM PIC X(08) VALUE 'PSPARAM'.
+           05 WS-PROGNAME PIC X(08) VALUE 'PSI44900'.
+      *--------------------------------------------------------------
+      *              DECLARACOES DE CURSORES DB2                     *
+      *--------------------------------------------------------------
+      *
+       01  WS-CURSOR-VARS.
+           05 FILLER                     PIC X(01) VALUE SPACES.
+           EXEC SQL
+                DECLARE CURPST01 CURSOR FOR
+                 SELECT
+                       PRCODPAR
+                     , PRPARAM
+                     , PRTIPPAR
+                     , PRVALDAT
+                     , PRVALNUM
+                     , PRVALBOL
+                     , PRPARM0
+                     , PRPARM1
+                     , PRPARM2
+                     , PRPARM3
+                     , PRPARM4
+                     , PRPARM5
+                     , PRPARM6
+                     , PRPARM7
+                     , PRPARM8
+                     , PRPARM9
+                     , CUSERID
+                     , HTIMEEST
+                 FROM PSPARAM
+                 WHERE
+                    PRCODPAR > :PSCDRA00-PRCODPAR
+                     OR (PRCODPAR = :PSCDRA00-PRCODPAR
+                     AND PRPARAM >= :PSCDRA00-PRPARAM)
+                 ORDER BY
+                       PRCODPAR
+                     , PRPARAM
+           END-EXEC
+
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI44900         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV4490-MSG.
+           MOVE PSCV4490-ASE               TO PSCV4491-ASE.
+      *
+           MOVE ZEROES                     TO PSCV4491-INDICE.
+           PERFORM 1100-LIMPA-OCCURS
+              THRU 1199-LIMPA-OCCURS-EXIT
+             UNTIL PSCV4491-PAGINA-CHEIA.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            1100-LIMPA-OCCURS
+      *--------------------------------------------------------------
+       1100-LIMPA-OCCURS.
+      *
+           ADD 1                       TO PSCV4491-INDICE.
+           MOVE SPACES
+             TO PSCV4491-D-PRCODPAR(PSCV4491-INDICE)
+           MOVE SPACES
+             TO PSCV4491-D-PRPARAM(PSCV4491-INDICE)
+           MOVE SPACES
+             TO PSCV4491-D-PRTIPPAR(PSCV4491-INDICE)
+           MOVE VIAK0002-DATA-MINIMA
+             TO PSCV4491-D-PRVALDAT(PSCV4491-INDICE)
+           MOVE ZEROES
+             TO PSCV4491-D-PRVALNUM(PSCV4491-INDICE)
+           MOVE SPACES
+             TO PSCV4491-D-PRVALBOL(PSCV4491-INDICE)
+      *
+           .
+       1199-LIMPA-OCCURS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           MOVE PSCV4490-PRCODPAR
+             TO PSCV4491-PRCODPAR
+           MOVE PSCV4490-PRPARAM
+             TO PSCV4491-PRPARAM
+      *
+           PERFORM 2010-VALIDACOES
+              THRU 2019-VALIDACOES-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2020-OPEN
+                 THRU 2029-OPEN-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2030-FETCH
+                 THRU 2039-FETCH-EXIT
+
+              IF VIAL0002-SEM-ERROS
+                 IF DB2-OK
+                    PERFORM 2040-CONTINUA
+                       THRU 2049-CONTINUA-EXIT
+                 ELSE
+                    COMPUTE PSCV4491-DIMINUI-LENGTH EQUAL
+                         PSCV4491-INDICE-INVERSO * PSCV4491-LENGTH-OCCUR
+                    COMPUTE PSCV4491-LENGTH EQUAL PSCV4491-LENGTH
+                         - PSCV4491-DIMINUI-LENGTH
+                    MOVE VIAK0002-ERROS-FUNCAO
+                                           TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV4491-PRCODPAR-S
+                    MOVE PSCK0001-PRCODPAR-N-EXISTS
+                      TO PSCV4491-PRCODPAR-MSG
+                 END-IF
+              END-IF
+              PERFORM 2070-CLOSE
+                 THRU 2079-CLOSE-EXIT
+           END-IF.
+
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+
+      *--------------------------------------------------------------
+      *                   2010-VALIDACOES
+      *--------------------------------------------------------------
+       2010-VALIDACOES.
+
+
+           CONTINUE.
+
+       2019-VALIDACOES-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2020-OPEN
+      *--------------------------------------------------------------
+       2020-OPEN.
+
+           MOVE PSCV4490-PRCODPAR
+             TO PSCDRA00-PRCODPAR
+           MOVE PSCV4490-PRPARAM
+             TO PSCDRA00-PRPARAM
+
+           SET SW-CURSOR-NONE TO TRUE
+
+
+           IF SW-CURSOR-NONE
+              SET SW-CURSOR-1 TO TRUE
+           END-IF
+
+           EVALUATE TRUE
+               WHEN SW-CURSOR-1
+                    EXEC SQL
+                        OPEN CURPST01
+                    END-EXEC
+           END-EVALUATE.
+
+           MOVE CON-PSPARAM               TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2029-OPEN-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2030-FETCH
+      *--------------------------------------------------------------
+       2030-FETCH.
+
+           EVALUATE TRUE
+               WHEN SW-CURSOR-1
+                    EXEC SQL
+                       FETCH CURPST01
+                       INTO
+                           :PSCDRA00-PRCODPAR
+                         , :PSCDRA00-PRPARAM
+                         , :PSCDRA00-PRTIPPAR
+                         , :PSCDRA00-PRVALDAT
+                         , :PSCDRA00-PRVALNUM
+                         , :PSCDRA00-PRVALBOL
+                         , :PSCDRA00-PRPARM0
+                         , :PSCDRA00-PRPARM1
+                         , :PSCDRA00-PRPARM2
+                         , :PSCDRA00-PRPARM3
+                         , :PSCDRA00-PRPARM4
+                         , :PSCDRA00-PRPARM5
+                         , :PSCDRA00-PRPARM6
+                         , :PSCDRA00-PRPARM7
+                         , :PSCDRA00-PRPARM8
+                         , :PSCDRA00-PRPARM9
+                         , :PSCDRA00-CUSERID
+                         , :PSCDRA00-HTIMEEST
+                    END-EXEC
+
+
+           END-EVALUATE.
+
+           MOVE CON-PSPARAM               TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2039-FETCH-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                       2040-CONTINUA
+      *--------------------------------------------------------------
+       2040-CONTINUA.
+
+           MOVE ZEROES                     TO PSCV4491-INDICE.
+           PERFORM 2050-TRATA-OCCURS
+              THRU 2059-TRATA-OCCURS-EXIT
+             UNTIL DB2-NOTFND
+                OR PSCV4491-PAGINA-CHEIA
+                OR NOT VIAL0002-SEM-ERROS.
+
+           IF VIAL0002-SEM-ERROS
+              IF NOT PSCV4491-PAGINA-CHEIA
+                    COMPUTE PSCV4491-INDICE-INVERSO EQUAL
+                         PSCV4491-INDICE-INVERSO - PSCV4491-INDICE
+                    COMPUTE PSCV4491-DIMINUI-LENGTH EQUAL
+                         PSCV4491-INDICE-INVERSO * PSCV4491-LENGTH-OCCUR
+                    COMPUTE PSCV4491-LENGTH EQUAL PSCV4491-LENGTH -
+                         PSCV4491-DIMINUI-LENGTH
+                    SET  VIAL0002-FIM-CONSULTA TO TRUE
+              END-IF
+           END-IF.
+
+       2049-CONTINUA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2050-TRATA-OCCURS
+      *--------------------------------------------------------------
+       2050-TRATA-OCCURS.
+      *
+           ADD 1                       TO PSCV4491-INDICE.
+           MOVE PSCDRA00-PRCODPAR
+             TO PSCV4491-D-PRCODPAR(PSCV4491-INDICE).
+           MOVE PSCDRA00-PRPARAM
+             TO PSCV4491-D-PRPARAM(PSCV4491-INDICE).
+           MOVE PSCDRA00-PRTIPPAR
+             TO PSCV4491-D-PRTIPPAR(PSCV4491-INDICE).
+           MOVE PSCDRA00-PRVALDAT
+             TO AQCW0005-DT98
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT
+           MOVE AQCW0005-DTX10
+             TO PSCV4491-D-PRVALDAT(PSCV4491-INDICE).
+           MOVE PSCDRA00-PRVALNUM
+             TO PSCV4491-D-PRVALNUM(PSCV4491-INDICE).
+           MOVE PSCDRA00-PRVALBOL
+             TO PSCV4491-D-PRVALBOL(PSCV4491-INDICE).
+      *
+           PERFORM 2030-FETCH
+              THRU 2039-FETCH-EXIT.
+      *
+       2059-TRATA-OCCURS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2070-CLOSE
+      *--------------------------------------------------------------
+       2070-CLOSE.
+
+           EVALUATE TRUE
+               WHEN SW-CURSOR-1
+                    EXEC SQL
+                        CLOSE CURPST01
+                    END-EXEC
+           END-EVALUATE.
+
+       2079-CLOSE-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+
+           MOVE PSCV4491-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV4491-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV4491-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE PSCV4491-INDICE            TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+       COPY AQCP0005.

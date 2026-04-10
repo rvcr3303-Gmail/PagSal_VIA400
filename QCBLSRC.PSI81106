@@ -1,0 +1,531 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI81106.
+      ******************************************************************
+      *     PROGRAMA PSI81102.
+      *
+      *     Registos
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES. DECIMAL-POINT IS COMMA.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI81102         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE ARCD3301   END-EXEC.
+           EXEC SQL INCLUDE PSCDDET003 END-EXEC.
+           EXEC SQL INCLUDE SQLCA      END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV8110.
+       COPY PSCV8111.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY AQCW0005.
+       COPY ARCL2805.
+       COPY ETCL0002.
+       COPY ARCK0001.
+       COPY VIAW0020.
+      *
+      *
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSDETALH PIC X(08) VALUE 'PSDETALH'.
+           05 CON-ARCD3301 PIC X(08) VALUE 'ARVT3301'.
+
+       01  WS-VARIAVEIS.
+           05 WS-DTTOPE9                PIC  9(02).
+           05 WS-VALOR                  PIC  ZZZZ.ZZZ.ZZ9,99.
+           05 WS-NIB.
+              10 WS-BANCO               PIC  9(04).
+              10 WS-BALCAO              PIC  9(04).
+              10 WS-CONTA               PIC  9(11).
+              10 WS-CHECK               PIC  9(02).
+           05 WS-MESES.
+              10 FILLER                 PIC  X(15) VALUE '7Janeiro'.
+              10 FILLER                 PIC  X(15) VALUE '9Fevereiro'.
+              10 FILLER                 PIC  X(15) VALUE '5Março'.
+              10 FILLER                 PIC  X(15) VALUE '5Abril'.
+              10 FILLER                 PIC  X(15) VALUE '4Maio'.
+              10 FILLER                 PIC  X(15) VALUE '5Junho'.
+              10 FILLER                 PIC  X(15) VALUE '5Julho'.
+              10 FILLER                 PIC  X(15) VALUE '6Agosto'.
+              10 FILLER                 PIC  X(15) VALUE '8Setembro'.
+              10 FILLER                 PIC  X(15) VALUE '7Outubro'.
+              10 FILLER                 PIC  X(15) VALUE '8Novembro'.
+              10 FILLER                 PIC  X(15) VALUE '8Dezembro'.
+           05 WS-RED-MESES REDEFINES WS-MESES OCCURS 12 TIMES.
+              10 WS-TAMANHO-MESES       PIC  9.
+              10 WS-VALOR-MESES         PIC  X(14).
+      *--------------------------------------------------------------
+      *            PROGRAM CONTROL
+      *--------------------------------------------------------------
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME            PIC  X(08) VALUE 'PSI81102'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI81102         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV8110-MSG.
+           MOVE PSCV8110-ASE       TO PSCV8111-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV8110-ADE       TO PSCV8111-ADE.
+
+
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2100-OBTEM-DADOS
+                 THRU 2199-OBTEM-DADOS-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-OBTEM-COMPROVATIVO
+                 THRU 2200-OBTEM-COMPROVATIVO-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              IF PSCV8111-ZSEQ EQUAL ZEROES
+                 PERFORM 2300-GERAR-COMPROVATIVO
+                    THRU 2300-GERAR-COMPROVATIVO-EXIT
+              END-IF
+           END-IF.
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2100-OBTEM-DADOS
+      *--------------------------------------------------------------
+       2100-OBTEM-DADOS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-OBTEM-DADOS' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV8110-DTNCLI             TO PSDETALHE-DTNCLI
+           MOVE PSCV8110-DTDINT             TO AQCW0005-DTX10
+              PERFORM AQCP0005-CONV-DT10INDT8
+                 THRU AQCP0005-CONV-DT10INDT8-EXIT
+              MOVE AQCW0005-DT98            TO PSDETALHE-DTDINT
+           MOVE PSCV8110-DTNFIC             TO PSDETALHE-DTNFIC
+           MOVE PSCV8110-DTNREG             TO PSDETALHE-DTNREG
+
+           EXEC SQL
+                 SELECT
+                       DTNCLI
+                     , DTDINT
+                     , DTNFIC
+                     , DTNREG
+                     , DTREF
+                     , DTTREG
+                     , DTTOPE
+                     , DTSITC
+                     , DTSITR
+                     , DTCBAN
+                     , DTCBAL
+                     , DTCNTA
+                     , DTCDIG
+                     , DTMONT
+                     , DTNOME
+                     , DTREFTR
+                     , DTDVAL
+                     , DTNTRY
+                     , DTNOCB
+                     , DTSITU
+                     , DTMAIL
+                     , CUSERID
+                     , HTIMEEST
+                 INTO
+                       :PSDETALHE-DTNCLI
+                     , :PSDETALHE-DTDINT
+                     , :PSDETALHE-DTNFIC
+                     , :PSDETALHE-DTNREG
+                     , :PSDETALHE-DTREF
+                     , :PSDETALHE-DTTREG
+                     , :PSDETALHE-DTTOPE
+                     , :PSDETALHE-DTSITC
+                     , :PSDETALHE-DTSITR
+                     , :PSDETALHE-DTCBAN
+                     , :PSDETALHE-DTCBAL
+                     , :PSDETALHE-DTCNTA
+                     , :PSDETALHE-DTCDIG
+                     , :PSDETALHE-DTMONT
+                     , :PSDETALHE-DTNOME
+                     , :PSDETALHE-DTREFTR
+                     , :PSDETALHE-DTDVAL
+                     , :PSDETALHE-DTNTRY
+                     , :PSDETALHE-DTNOCB
+                     , :PSDETALHE-DTSITU
+                     , :PSDETALHE-DTMAIL
+                     , :PSDETALHE-CUSERID
+                     , :PSDETALHE-HTIMEEST
+                 FROM PSDETALHE3
+                 WHERE
+                    DTNCLI = :PSDETALHE-DTNCLI
+                     AND DTDINT = :PSDETALHE-DTDINT
+                     AND DTNFIC = :PSDETALHE-DTNFIC
+                     AND DTNREG = :PSDETALHE-DTNREG
+           END-EXEC
+
+
+           MOVE CON-PSDETALH
+             TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF DB2-OK
+                 IF VIAL0001-CRIACAO
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTNCLI-S
+                    MOVE PSCK0001-DTNCLI-EXISTS
+                      TO PSCV8111-DTNCLI-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTNCLI-CAPLIC
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTDINT-S
+                    MOVE PSCK0001-DTDINT-EXISTS
+                      TO PSCV8111-DTDINT-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTDINT-CAPLIC
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTNFIC-S
+                    MOVE PSCK0001-DTNFIC-EXISTS
+                      TO PSCV8111-DTNFIC-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTNFIC-CAPLIC
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTNREG-S
+                    MOVE PSCK0001-DTNREG-EXISTS
+                      TO PSCV8111-DTNREG-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTNREG-CAPLIC
+                 ELSE
+                    MOVE PSDETALHE-DTNCLI
+                      TO PSCV8111-DTNCLI
+                    MOVE PSDETALHE-DTDINT   TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10     TO PSCV8111-DTDINT
+                    MOVE PSDETALHE-DTNFIC
+                      TO PSCV8111-DTNFIC
+                    MOVE PSDETALHE-DTNREG
+                      TO PSCV8111-DTNREG
+                    MOVE PSDETALHE-DTCBAN   TO WS-BANCO
+                    MOVE PSDETALHE-DTCBAL   TO WS-BALCAO
+                    MOVE PSDETALHE-DTCNTA   TO WS-CONTA
+                    MOVE PSDETALHE-DTCDIG   TO WS-CHECK
+                    MOVE WS-NIB             TO PSCV8111-DTNIB
+      *          ...Conversao alfanum
+                    MOVE PSDETALHE-DTTOPE
+                      TO WS-DTTOPE9
+                    MOVE WS-DTTOPE9
+                      TO PSCV8111-DTTOPE
+                    MOVE PSDETALHE-DTMONT
+                      TO PSCV8111-DTMONT
+                    MOVE PSDETALHE-DTREFTR
+                      TO PSCV8111-DTREFTR
+                    MOVE PSDETALHE-DTDVAL   TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10     TO PSCV8111-DTDVAL
+                    IF NOT VIAL0001-VISUALIZACAO
+                        CONTINUE
+                    END-IF
+                 END-IF
+              ELSE
+                 IF NOT VIAL0001-CRIACAO
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTNCLI-S
+                    MOVE PSCK0001-DTNCLI-N-EXISTS
+                      TO PSCV8111-DTNCLI-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTNCLI-CAPLIC
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTDINT-S
+                    MOVE PSCK0001-DTDINT-N-EXISTS
+                      TO PSCV8111-DTDINT-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTDINT-CAPLIC
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTNFIC-S
+                    MOVE PSCK0001-DTNFIC-N-EXISTS
+                      TO PSCV8111-DTNFIC-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTNFIC-CAPLIC
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV8111-DTNREG-S
+                    MOVE PSCK0001-DTNREG-N-EXISTS
+                      TO PSCV8111-DTNREG-MSG
+                    MOVE PSCK0002-CAPLIC-PS
+                      TO PSCV8111-DTNREG-CAPLIC
+                 END-IF
+              END-IF
+           END-IF.
+
+
+       2199-OBTEM-DADOS-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+       2200-OBTEM-COMPROVATIVO.
+      *--------------------------------------------------------------
+           MOVE '2200-OBTEM-COMPROVATIVO'   TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * Se ja tiver um comprovativo emitido, obtem os dados
+      * Senao gera um comprovativo e regista-o na tabela
+           INITIALIZE                       DCLARCD3301.
+           MOVE 'PSTRFOIC'                  TO ARCD3301-CCOD.
+           MOVE PSDETALHE-DTNCLI            TO ARCD3301-NCLI.
+           MOVE PSDETALHE-DTNOCB            TO ARCD3301-NOPR.
+           MOVE PSDETALHE-DTDINT            TO AQCW0005-DT98.
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT.
+           MOVE AQCW0005-DTX10              TO ARCD3301-DTGER.
+
+           EXEC SQL
+                SELECT IFNULL(MAX(ZSEQ), 0)
+                  INTO :ARCD3301-ZSEQ
+                  FROM ARVT3301_HISTCOMPROV
+                 WHERE CCOD = :ARCD3301-CCOD
+                   AND NCLI = :ARCD3301-NCLI
+                   AND NOPR = :ARCD3301-NOPR
+           END-EXEC.
+
+           MOVE CON-ARCD3301                TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              EVALUATE TRUE
+              WHEN DB2-OK
+                   MOVE ARCD3301-CCOD       TO PSCV8110-CCOD
+                   MOVE ARCD3301-ZSEQ       TO PSCV8110-ZSEQ
+                   MOVE ARCD3301-NOPR       TO PSCV8110-NOPR
+                   MOVE ARCD3301-NCLI       TO PSCV8110-NCLI
+                   MOVE ARCD3301-DTGER      TO PSCV8110-DTGER
+                   MOVE ARCD3301-CCOD       TO PSCV8111-CCOD
+                   MOVE ARCD3301-ZSEQ       TO PSCV8111-ZSEQ
+                   MOVE ARCD3301-NOPR       TO PSCV8111-NOPR
+                   MOVE ARCD3301-NCLI       TO PSCV8111-NCLI
+                   MOVE ARCD3301-DTGER      TO PSCV8111-DTGER
+              WHEN DB2-NOTFND
+                   CONTINUE
+              WHEN OTHER
+                   MOVE VIAK0002-ABEND-DB2  TO VIAL0002-IND-ERROS
+                   MOVE VIAK0001-ERRO-DB2   TO VIAL0002-COD-ERRO-GRAVE
+              END-EVALUATE
+           END-IF.
+
+       2200-OBTEM-COMPROVATIVO-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+       2300-GERAR-COMPROVATIVO.
+      *--------------------------------------------------------------
+           MOVE '2300-GERAR-COMPROVATIVO'   TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE ARCL2805-DATA.
+
+           MOVE 'PSTRFOIC'                  TO ARCL2805-CCOD.
+           MOVE 'HTML'                      TO ARCL2805-CTIPO.
+           MOVE PSCV8111-NOPR               TO ARCL2805-NOPR.
+           MOVE PSCV8111-NCLI               TO ARCL2805-NCLI.
+           MOVE PSCV8111-DTDINT             TO ARCL2805-DTGER.
+
+      *    #01 - NOME
+           MOVE PSDETALHE-DTNOME            TO ARCL2805-VALOR  (01).
+           MOVE 40                          TO ARCL2805-TAMANHO(01).
+      *    #05 - CIDADE
+           MOVE 'Maputo'                    TO ARCL2805-VALOR  (05).
+           MOVE 6                           TO ARCL2805-TAMANHO(05).
+      *    #06 - DIA
+           MOVE PSDETALHE-DTDVAL            TO AQCW0005-DT98.
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT.
+           MOVE AQCW0005-DTX10-D            TO ARCL2805-VALOR  (06).
+           MOVE 2                           TO ARCL2805-TAMANHO(06).
+      *    #07 - MES
+           MOVE WS-VALOR-MESES   (AQCW0005-DTX10-M)
+                                            TO ARCL2805-VALOR  (07).
+           MOVE WS-TAMANHO-MESES (AQCW0005-DTX10-M)
+                                            TO ARCL2805-TAMANHO(07).
+      *    #08 - ANO
+           MOVE AQCW0005-DTX10-A            TO ARCL2805-VALOR  (08).
+           MOVE 4                           TO ARCL2805-TAMANHO(08).
+      *    #09 - MOEDA
+           MOVE 'MZN'                       TO ARCL2805-VALOR  (09).
+           MOVE 3                           TO ARCL2805-TAMANHO(09).
+      *    #10 - VALOR
+           MOVE PSDETALHE-DTMONT            TO WS-VALOR.
+           MOVE WS-VALOR                    TO ARCL2805-VALOR  (10).
+           MOVE 15                          TO ARCL2805-TAMANHO(10).
+      *    #11 - CONTA/NIB
+           MOVE WS-NIB                      TO ARCL2805-VALOR  (11).
+           MOVE 21                          TO ARCL2805-TAMANHO(11).
+      *    #12 - TIPO OPERACAO
+           EVALUATE PSDETALHE-DTTOPE
+           WHEN 8
+                MOVE 'Pag. de Salários'     TO ARCL2805-VALOR  (12)
+                MOVE 16                     TO ARCL2805-TAMANHO(12)
+           WHEN 9
+                MOVE 'Pag. a fornecedores'  TO ARCL2805-VALOR  (12)
+                MOVE 18                     TO ARCL2805-TAMANHO(12)
+           END-EVALUATE.
+      *    #13 - NOME ORDENANTE
+           MOVE 'Nome do ordenante'         TO ARCL2805-VALOR  (13).
+           MOVE 17                          TO ARCL2805-TAMANHO(13).
+      *    #14 - DESCRICAO MOVIMENTO
+           MOVE PSDETALHE-DTREFTR           TO ARCL2805-VALOR  (14).
+           MOVE 20                          TO ARCL2805-TAMANHO(14).
+      *    #15 - DATA VALOR PROCESSAMENTO
+           MOVE PSDETALHE-DTDINT            TO AQCW0005-DT98.
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT.
+           MOVE AQCW0005-DTX10              TO ARCL2805-VALOR  (16).
+           MOVE 10                          TO ARCL2805-TAMANHO(16).
+      *    #16 - DATA VENCIMENTO/DISPONIBILIDADE
+           MOVE PSDETALHE-DTDVAL            TO AQCW0005-DT98.
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT.
+           MOVE AQCW0005-DTX10              TO ARCL2805-VALOR  (16).
+           MOVE 10                          TO ARCL2805-TAMANHO(16).
+
+           PERFORM ETCP0002-FORM-ONLINE-IN
+              THRU ETCP0002-FORM-ONLINE-IN-EXIT.
+
+           CALL ARCL2805-ROTINA          USING ETCL0002-COMMAREA
+                                               ARCL2805-DATA.
+
+           PERFORM ETCP0002-STD-END
+              THRU ETCP0002-STD-END-EXIT.
+
+           EVALUATE TRUE
+           WHEN ETCL0002-SEM-ERROS
+                MOVE ARCL2805-CCOD          TO PSCV8110-CCOD
+                MOVE ARCL2805-ZSEQ          TO PSCV8110-ZSEQ
+                MOVE ARCL2805-NOPR          TO PSCV8110-NOPR
+                MOVE ARCL2805-NCLI          TO PSCV8110-NCLI
+                MOVE ARCL2805-DTGER         TO PSCV8110-DTGER
+                MOVE ARCL2805-CCOD          TO PSCV8111-CCOD
+                MOVE ARCL2805-ZSEQ          TO PSCV8111-ZSEQ
+                MOVE ARCL2805-NOPR          TO PSCV8111-NOPR
+                MOVE ARCL2805-NCLI          TO PSCV8111-NCLI
+                MOVE ARCL2805-DTGER         TO PSCV8111-DTGER
+           WHEN OTHER
+                MOVE ETCL0002-IND-ERROS     TO VIAL0002-IND-ERROS
+                MOVE ETCL0002-ST-ERRO       TO VIAL0002-COD-ERRO-GRAVE
+                MOVE ETCL0002-CAPLIC-ERRO   TO VIAL0002-CAPLIC-ERRO
+           END-EVALUATE.
+
+       2300-GERAR-COMPROVATIVO-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV8111-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV8111-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV8111-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY VIAP0016.
+           COPY AQCP0005.
+           COPY ETCP0002.
+           COPY VIAP0020.

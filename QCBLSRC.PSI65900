@@ -1,0 +1,331 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI65900.
+      ******************************************************************
+      *     PROGRAMA PSI65900.                                         *
+      *                                                                *
+      *     Lista Sugestão de Ação
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI65900         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDSUGEST END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV6590.
+       COPY PSCV6591.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+      *
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+      *--------------------------------------------------------------
+      *            SWITCH
+      *--------------------------------------------------------------
+       01  SW-SWITCH.
+           05 SW-CURSOR                  PIC X(01) VALUE SPACES.
+              88 SW-CURSOR-NONE                    VALUE '0'.
+              88 SW-CURSOR-1                       VALUE '1'.
+              88 SW-CURSOR-2                       VALUE '2'.
+              88 SW-CURSOR-3                       VALUE '3'.
+              88 SW-CURSOR-4                       VALUE '3'.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSSUGEST PIC X(08) VALUE 'PSSUGEST'.
+      *--------------------------------------------------------------
+      *              DECLARACOES DE CURSORES DB2                     *
+      *--------------------------------------------------------------
+      *
+       01  WS-CURSOR-VARS.
+           05 FILLER                     PIC X(01) VALUE SPACES.
+           EXEC SQL
+                DECLARE CURPST01 CURSOR FOR
+                 SELECT
+                       TMTEMP
+                     , TMICONTA
+                     , TMSUGACAO
+                     , CUSERID
+                     , HTIMEEST
+                 FROM PSSUGEST
+                 WHERE
+                    TMTEMP > :PSCDSUGEST-TMTEMP
+                     OR (TMTEMP = :PSCDSUGEST-TMTEMP
+                     AND TMICONTA >= :PSCDSUGEST-TMICONTA)
+                 ORDER BY
+                       TMTEMP
+                     , TMICONTA
+           END-EXEC
+
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI65900         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV6590-MSG.
+           MOVE PSCV6590-ASE               TO PSCV6591-ASE.
+      *
+           MOVE ZEROES                     TO PSCV6591-INDICE.
+           PERFORM 1100-LIMPA-OCCURS
+              THRU 1199-LIMPA-OCCURS-EXIT
+             UNTIL PSCV6591-PAGINA-CHEIA.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            1100-LIMPA-OCCURS
+      *--------------------------------------------------------------
+       1100-LIMPA-OCCURS.
+      *
+           ADD 1                       TO PSCV6591-INDICE.
+           MOVE SPACES
+             TO PSCV6591-D-TMTEMP(PSCV6591-INDICE)
+           MOVE ZEROES
+             TO PSCV6591-D-TMICONTA(PSCV6591-INDICE)
+           MOVE SPACES
+             TO PSCV6591-D-TMSUGACAO(PSCV6591-INDICE)
+      *
+           .
+       1199-LIMPA-OCCURS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           MOVE PSCV6590-TMTEMP
+             TO PSCV6591-TMTEMP
+           MOVE PSCV6590-TMSUGACAO
+             TO PSCV6591-TMSUGACAO
+      *
+           PERFORM 2010-VALIDACOES
+              THRU 2019-VALIDACOES-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2020-OPEN
+                 THRU 2029-OPEN-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2030-FETCH
+                 THRU 2039-FETCH-EXIT
+
+              IF VIAL0002-SEM-ERROS
+                 IF DB2-OK
+                    PERFORM 2040-CONTINUA
+                       THRU 2049-CONTINUA-EXIT
+                 ELSE
+                    COMPUTE PSCV6591-DIMINUI-LENGTH EQUAL
+                         PSCV6591-INDICE-INVERSO * PSCV6591-LENGTH-OCCUR
+                    COMPUTE PSCV6591-LENGTH EQUAL PSCV6591-LENGTH
+                         - PSCV6591-DIMINUI-LENGTH
+                    MOVE VIAK0002-ERROS-FUNCAO
+                                           TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV6591-TMTEMP-S
+                    MOVE PSCK0001-TMTEMP-N-EXISTS
+                      TO PSCV6591-TMTEMP-MSG
+                 END-IF
+              END-IF
+              PERFORM 2070-CLOSE
+                 THRU 2079-CLOSE-EXIT
+           END-IF.
+
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+
+      *--------------------------------------------------------------
+      *                   2010-VALIDACOES
+      *--------------------------------------------------------------
+       2010-VALIDACOES.
+
+
+           CONTINUE.
+
+       2019-VALIDACOES-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2020-OPEN
+      *--------------------------------------------------------------
+       2020-OPEN.
+
+           MOVE PSCV6590-TMTEMP
+             TO PSCDSUGEST-TMTEMP
+      * TO DO - FORMATAR CHAVE PAGINACAO CURSOR - CHAVE: TMICONTA
+           MOVE PSCV6590-TMSUGACAO
+             TO PSCDSUGEST-TMSUGACAO
+
+           SET SW-CURSOR-NONE TO TRUE
+
+
+           IF SW-CURSOR-NONE
+              SET SW-CURSOR-1 TO TRUE
+           END-IF
+
+           EVALUATE TRUE
+               WHEN SW-CURSOR-1
+                    EXEC SQL
+                        OPEN CURPST01
+                    END-EXEC
+           END-EVALUATE.
+
+           MOVE CON-PSSUGEST               TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2029-OPEN-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2030-FETCH
+      *--------------------------------------------------------------
+       2030-FETCH.
+
+           EVALUATE TRUE
+               WHEN SW-CURSOR-1
+                    EXEC SQL
+                       FETCH CURPST01
+                       INTO
+                           :PSCDSUGEST-TMTEMP
+                         , :PSCDSUGEST-TMICONTA
+                         , :PSCDSUGEST-TMSUGACAO
+                         , :PSCDSUGEST-CUSERID
+                         , :PSCDSUGEST-HTIMEEST
+                    END-EXEC
+
+
+           END-EVALUATE.
+
+           MOVE CON-PSSUGEST               TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2039-FETCH-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                       2040-CONTINUA
+      *--------------------------------------------------------------
+       2040-CONTINUA.
+
+           MOVE ZEROES                     TO PSCV6591-INDICE.
+           PERFORM 2050-TRATA-OCCURS
+              THRU 2059-TRATA-OCCURS-EXIT
+             UNTIL DB2-NOTFND
+                OR PSCV6591-PAGINA-CHEIA
+                OR NOT VIAL0002-SEM-ERROS.
+
+           IF VIAL0002-SEM-ERROS
+              IF NOT PSCV6591-PAGINA-CHEIA
+                    COMPUTE PSCV6591-INDICE-INVERSO EQUAL
+                         PSCV6591-INDICE-INVERSO - PSCV6591-INDICE
+                    COMPUTE PSCV6591-DIMINUI-LENGTH EQUAL
+                         PSCV6591-INDICE-INVERSO * PSCV6591-LENGTH-OCCUR
+                    COMPUTE PSCV6591-LENGTH EQUAL PSCV6591-LENGTH -
+                         PSCV6591-DIMINUI-LENGTH
+                    SET  VIAL0002-FIM-CONSULTA TO TRUE
+              END-IF
+           END-IF.
+
+       2049-CONTINUA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2050-TRATA-OCCURS
+      *--------------------------------------------------------------
+       2050-TRATA-OCCURS.
+      *
+           ADD 1                       TO PSCV6591-INDICE.
+           MOVE PSCDSUGEST-TMTEMP
+             TO PSCV6591-D-TMTEMP(PSCV6591-INDICE).
+           MOVE PSCDSUGEST-TMICONTA
+             TO PSCV6591-D-TMICONTA(PSCV6591-INDICE).
+           MOVE PSCDSUGEST-TMSUGACAO
+             TO PSCV6591-D-TMSUGACAO(PSCV6591-INDICE).
+      *
+           PERFORM 2030-FETCH
+              THRU 2039-FETCH-EXIT.
+      *
+       2059-TRATA-OCCURS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2070-CLOSE
+      *--------------------------------------------------------------
+       2070-CLOSE.
+
+           EVALUATE TRUE
+               WHEN SW-CURSOR-1
+                    EXEC SQL
+                        CLOSE CURPST01
+                    END-EXEC
+           END-EVALUATE.
+
+       2079-CLOSE-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+
+           MOVE PSCV6591-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV6591-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV6591-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE PSCV6591-INDICE            TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+      *
+

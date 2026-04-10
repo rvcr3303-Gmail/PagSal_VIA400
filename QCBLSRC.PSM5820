@@ -1,0 +1,445 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID.    PSM5820.
+      ******************************************************************
+      *                                                                *
+      *   PS - PAGAMENTO DE SALARIOS                                   *
+      *                                                                *
+      ******************************************************************
+      * Processo Aprovação Colegial - Servidor                         *
+      ******************************************************************
+      * Este processo vai pesquisando os processos que se encontram a  *
+      * aguardar aprovação e vai chamando os webservices para verificar*
+      * o estado. Quando recebe a aprovação, chama novamente o serviço *
+      * para obter o numero de autorização e atualiza a tabela         *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME               PIC  X(10) VALUE 'PSM5820'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY ETCL0002.
+           COPY PSCL5810.
+           COPY PSCK0001.
+           COPY PSCK0002.
+           COPY ARCK0001.
+           COPY ARCK0002.
+           COPY VIAW0012.
+           COPY VIAW0020.
+           COPY VIAK0001.
+           COPY VIAK0002.
+           COPY VIAL0015.
+           COPY AQCW0005.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 WS-PSHEADER7              PIC  X(10) VALUE 'PSHEADER7 '.
+           05 WS-PSVT5201               PIC  X(10) VALUE 'PSVT5201  '.
+      *
+           05 CON-TRUE                  PIC  X(05) VALUE 'true'.
+           05 CON-FALSE                 PIC  X(05) VALUE 'false'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 FILLER                    PIC  X(01).
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA     END-EXEC.
+           EXEC SQL INCLUDE PSCD5201  END-EXEC.
+           EXEC SQL INCLUDE PSCDHEAD7 END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PST52 CURSOR FOR
+                SELECT NCLI
+                     , DINT
+                     , NFIC
+                     , PID
+                     , GUSER
+                     , NMONTANTE
+                     , TSTATUS
+                     , TREGISTOS
+                     , DTPARECER
+                     , STATUSAP
+                     , STATUSQ
+                     , WSOUT
+                     , IDCANCEL
+                     , WSTATION
+                     , TGRANT
+                     , CMOEDA
+                     , NGRANT
+                     , GUSERISERIES
+                     , CUSERID
+                     , HTIMEST
+                  FROM PSVT5201
+                 WHERE STATUSAP = :PSCD5201-STATUSAP
+           END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY VIAL0004.
+
+      ******************************************************************
+           EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           MOVE '0000-MAINLINE            ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT
+           END-IF.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           COPY VIAP0004.
+
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           MOVE '1000-INICIO-PROGRAMA     ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           MOVE '2000-PROC-PROGRAMA       ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 2100-OPEN-CURSOR
+              THRU 2100-OPEN-CURSOR-EXIT
+
+           IF VIAL0002-SEM-ERROS
+              IF DB2-OK
+                 PERFORM 2200-FETCH-CURSOR
+                    THRU 2200-FETCH-CURSOR-EXIT
+              END-IF
+
+              PERFORM 2300-PROC-CURSOR
+                 THRU 2300-PROC-CURSOR-EXIT
+                      UNTIL NOT VIAL0002-SEM-ERROS
+                         OR NOT DB2-OK
+           END-IF.
+
+           EXEC SQL
+                CLOSE CRS_PSHEADER
+           END-EXEC.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-OPEN-CURSOR.
+      ******************************************************************
+           MOVE '2100-OPEN-CURSOR         ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLPSCD5201           REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           EXEC SQL
+                OPEN CRS_PST52
+           END-EXEC.
+
+           MOVE WS-PSVT5201                 TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2100-OPEN-CURSOR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-FETCH-CURSOR.
+      ******************************************************************
+           MOVE '2200-FETCH-CURSOR        ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+                FETCH CRS_PST52
+                 INTO :PSCD5201-NCLI
+                    , :PSCD5201-DINT
+                    , :PSCD5201-NFIC
+                    , :PSCD5201-PID
+                    , :PSCD5201-GUSER
+                    , :PSCD5201-NMONTANTE
+                    , :PSCD5201-TSTATUS
+                    , :PSCD5201-TREGISTOS
+                    , :PSCD5201-DTPARECER
+                    , :PSCD5201-STATUSAP
+                    , :PSCD5201-STATUSQ
+                    , :PSCD5201-WSOUT
+                    , :PSCD5201-IDCANCEL
+                    , :PSCD5201-WSTATION
+                    , :PSCD5201-TGRANT
+                    , :PSCD5201-CMOEDA
+                    , :PSCD5201-NGRANT
+                    , :PSCD5201-GUSERISERIES
+                    , :PSCD5201-CUSERID
+                    , :PSCD5201-HTIMEST
+           END-EXEC.
+
+           MOVE WS-PSVT5201                 TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2200-FETCH-CURSOR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-PROC-CURSOR.
+      ******************************************************************
+           MOVE '2300-PROC-CURSOR         ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE PSCL5810-COMMAREA     REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           SET  PSCL5810-CONSULTAR-PROCESSO TO TRUE.
+
+           MOVE PSCD5201-PID                TO PSCL5810-PID.
+
+           PERFORM ETCP0002-FORM-ONLINE-IN
+              THRU ETCP0002-FORM-ONLINE-IN-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              PERFORM CALL-PSM5810
+                 THRU CALL-PSM5810-EXIT
+           END-IF.
+
+           PERFORM ETCP0002-STD-END
+              THRU ETCP0002-STD-END-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              MOVE ETCL0002-RCODE           TO VIAW0020-RCODE
+
+              PERFORM VIAP0020-TRATA-RCODE
+                 THRU VIAP0020-TRATA-RCODE-EXIT
+           END-IF.
+
+           EVALUATE TRUE
+              WHEN NOT VIAL0002-SEM-ERROS
+                 CONTINUE
+              WHEN PSCL5810-STATUSQ  EQUAL CON-TRUE
+                 PERFORM 2400-UPDATE-AUTORIZACAO
+                    THRU 2400-UPDATE-AUTORIZACAO-EXIT
+              WHEN PSCL5810-STATUSQ  EQUAL CON-FALSE
+                 PERFORM 2500-REJEITA-AUTORIZACAO
+                    THRU 2500-REJEITA-AUTORIZACAO-EXIT
+           END-EVALUATE.
+      *
+           IF VIAL0002-SEM-ERROS
+              CONTINUE
+           ELSE
+              MOVE 'ETCL0002-IND-ERROS '    TO VIAL0015-CAMPO-NM (1)
+              MOVE  ETCL0002-IND-ERROS      TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'ETCL0002-CAPLIC-ERR'    TO VIAL0015-CAMPO-NM (2)
+              MOVE  ETCL0002-CAPLIC-ERRO    TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'ETCL0002-NR-ERRO   '    TO VIAL0015-CAMPO-NM (3)
+              MOVE  ETCL0002-NR-ERRO        TO VIAL0015-CAMPO-VLR(3)
+
+              IF VIAL0001-DEBUG-SIM
+                 PERFORM VIAP0016-TRATA-DEBUG
+                    THRU VIAP0016-TRATA-DEBUG-EXIT
+              END-IF
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-FETCH-CURSOR
+                 THRU 2200-FETCH-CURSOR-EXIT
+           END-IF.
+
+       2300-PROC-CURSOR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2400-UPDATE-AUTORIZACAO.
+      ******************************************************************
+           MOVE '2400-UPDATE-AUTORIZACAO  ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              MOVE 'PSHEADER-HRNCLI       ' TO VIAL0015-CAMPO-NM (1)
+              MOVE 'PSHEADER-HRDINT       ' TO VIAL0015-CAMPO-NM (2)
+              MOVE 'PSHEADER-HRNFIC       ' TO VIAL0015-CAMPO-NM (3)
+              MOVE 'PSHEADER-HRSITU       ' TO VIAL0015-CAMPO-NM (4)
+              MOVE 'PSHEADER-HRAUTR       ' TO VIAL0015-CAMPO-NM (5)
+              MOVE  PSCD5201-NCLI           TO VIAL0015-CAMPO-NM (1)
+              MOVE  PSCD5201-DINT           TO VIAL0015-CAMPO-NM (2)
+              MOVE  PSCD5201-NFIC           TO VIAL0015-CAMPO-NM (3)
+              MOVE  PSCK0002-FIC-EM-PROC    TO VIAL0015-CAMPO-NM (4)
+              MOVE  PSCL5810-NGRANT         TO VIAL0015-CAMPO-NM (5)
+
+              MOVE 'PSCD5201-PID          ' TO VIAL0015-CAMPO-NM (6)
+              MOVE  PSCD5201-PID            TO VIAL0015-CAMPO-NM (6)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE REG-PSHEADER          REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCD5201-NCLI               TO PSHEADER-HRNCLI.
+           MOVE PSCD5201-DINT               TO PSHEADER-HRDINT.
+           MOVE PSCD5201-NFIC               TO PSHEADER-HRNFIC.
+
+           MOVE PSCK0002-FIC-AGUARDA-EXEC   TO PSHEADER-HRSITU.
+           MOVE PSCL5810-NGRANT             TO PSHEADER-HRAUTR.
+           MOVE WS-PROGNAME                 TO PSHEADER-CUSERID.
+
+           EXEC SQL
+                UPDATE PSHEADER7
+                   SET HRSITU    =  :PSHEADER-HRSITU
+                     , HRAUTR    =  :PSHEADER-HRAUTR
+                     , CUSERID   =  :PSHEADER-CUSERID
+                     , HTIMEEST  =  CURRENT TIMESTAMP
+                 WHERE HRNCLI    =  :PSHEADER-HRNCLI
+                   AND HRDINT    =  :PSHEADER-HRDINT
+                   AND HRNFIC    =  :PSHEADER-HRNFIC
+           END-EXEC.
+
+           MOVE WS-PSHEADER7                TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2400-UPDATE-AUTORIZACAO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2500-REJEITA-AUTORIZACAO.
+      ******************************************************************
+           MOVE '2500-REJEITA-AUTORIZACAO ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE REG-PSHEADER          REPLACING NUMERIC BY ZEROES
+                                                 ALPHANUMERIC BY SPACES.
+
+           MOVE PSCD5201-NCLI               TO PSHEADER-HRNCLI.
+           MOVE PSCD5201-DINT               TO PSHEADER-HRDINT.
+           MOVE PSCD5201-NFIC               TO PSHEADER-HRNFIC.
+
+           MOVE PSCK0002-FIC-VALIDO         TO PSHEADER-HRSITU.
+           MOVE WS-PROGNAME                 TO PSHEADER-CUSERID.
+
+           EXEC SQL
+                UPDATE PSHEADER7
+                   SET HRSITU    =  :PSHEADER-HRSITU
+                     , CUSERID   =  :PSHEADER-CUSERID
+                     , HTIMEEST  =  CURRENT TIMESTAMP
+                 WHERE HRNCLI    =  :PSHEADER-HRNCLI
+                   AND HRDINT    =  :PSHEADER-HRDINT
+                   AND HRNFIC    =  :PSHEADER-HRNFIC
+           END-EXEC.
+
+           MOVE WS-PSHEADER7                TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+       2500-REJEITA-AUTORIZACAO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           MOVE '3000-FIM-PROGRAMA        ' TO VIAL0015-CALLER-ID.
+           IF VIAL0001-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+
+       3000-FIM-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                     Procedimentos Externos                     *
+      ******************************************************************
+           COPY VIAP0016.
+           COPY ETCP0002.
+           COPY PSCP5810.
+           COPY VIAP0012.
+           COPY VIAP0020.
+           COPY AQCP0005.
+
+      ******************************************************************
+      *                       Via Consulting Way                       *
+      ******************************************************************

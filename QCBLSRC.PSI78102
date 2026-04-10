@@ -1,0 +1,370 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI78102.
+      ******************************************************************
+      *     PROGRAMA PSI78102.
+      *
+      *     Emissao Bordereaux Ordenante 2a via
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI78102         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCD0201 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV7810.
+       COPY PSCV7811.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY AQCW0005.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY ETCL0002.
+       COPY ARCL5005.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSVT0201 PIC X(08) VALUE 'PSVT0201'.
+           05 WS-PROGNAME  PIC X(08) VALUE 'PSI78102'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI78102         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV7810-MSG.
+           MOVE PSCV7810-ASE       TO PSCV7811-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7810-ADE       TO PSCV7811-ADE.
+
+
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2100-OBTEM-DADOS
+                 THRU 2199-OBTEM-DADOS-EXIT
+           END-IF
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2100-OBTEM-DADOS
+                 THRU 2199-OBTEM-DADOS-EXIT
+           END-IF
+
+      * Obtém descritivo para 2ª via
+      *
+           IF VIAL0002-SEM-ERROS
+              MOVE PSCK0002-TAB-2VIA          TO ARCL5005-CTABELA
+              MOVE PSCK0002-CCOD-2VIA         TO ARCL5005-CCOD
+              MOVE SPACES                     TO ARCL5005-C2COD
+              MOVE PSCK0002-PT-PT             TO ARCL5005-CLINGUA
+              MOVE SPACES                     TO ARCL5005-GDESC
+              PERFORM 6300-OBTEM-CODIGO
+                 THRU 6300-OBTEM-CODIGO-EXIT
+              MOVE ARCL5005-GDESC             TO PSCV7811-I2VIA
+           END-IF.
+      *
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2100-OBTEM-DADOS
+      *--------------------------------------------------------------
+       2100-OBTEM-DADOS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-OBTEM-DADOS' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE PSCV7810-NCLI              TO PSCD0201-NCLI .
+           MOVE PSCV7810-DINT              TO AQCW0005-DTX10.
+           PERFORM AQCP0005-CONV-DT10INDT8
+              THRU AQCP0005-CONV-DT10INDT8-EXIT.
+           MOVE AQCW0005-DT98              TO PSCD0201-DINT.
+           MOVE PSCV7810-NFIC              TO PSCD0201-NFIC.
+           MOVE PSCV7810-DGER              TO AQCW0005-DTX10.
+           PERFORM AQCP0005-CONV-DT10INDT8
+              THRU AQCP0005-CONV-DT10INDT8-EXIT.
+           MOVE AQCW0005-DT98              TO PSCD0201-DGER.
+           MOVE PSCV7810-NFICH             TO PSCD0201-NFICH.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-OBTEM-DADOS     ' TO VIAL0015-CALLER-ID
+              MOVE 'PSCD0201-NCLI        ' TO VIAL0015-CAMPO-NM (1)
+              MOVE  PSCD0201-NCLI          TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'PSCD0201-DINT        ' TO VIAL0015-CAMPO-NM (2)
+              MOVE  PSCD0201-DINT          TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'PSCD0201-NFIC        ' TO VIAL0015-CAMPO-NM (3)
+              MOVE  PSCD0201-NFIC          TO VIAL0015-CAMPO-VLR(3)
+              MOVE 'PSCD0201-DGER        ' TO VIAL0015-CAMPO-NM (4)
+              MOVE  PSCD0201-DGER          TO VIAL0015-CAMPO-VLR(4)
+              MOVE 'PSCD0201-NFICH       ' TO VIAL0015-CAMPO-NM (5)
+              MOVE  PSCD0201-NFICH         TO VIAL0015-CAMPO-VLR(5)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EXEC SQL
+              SELECT   NCLI
+                     , NMCLI
+                     , DINT
+                     , NFIC
+                     , DGER
+                     , NFICH
+                     , BIBLI
+                     , NREG
+                     , MOR1
+                     , PROV
+                     , BALC
+                     , NATR
+                     , NSEQ
+                     , DPRC
+                     , MOED
+                     , TOTS
+                     , TCOM
+                     , ISEL
+                     , VDEB
+                     , CDESC
+                     , REFE
+                     , RPROC
+                     , RNPRC
+                     , RTPRC
+                     , VPROC
+                     , VNPRC
+                     , VTPRC
+                     , CUSERID
+                     , HTIMEST
+                 INTO  :PSCD0201-NCLI
+                     , :PSCD0201-NMCLI
+                     , :PSCD0201-DINT
+                     , :PSCD0201-NFIC
+                     , :PSCD0201-DGER
+                     , :PSCD0201-NFICH
+                     , :PSCD0201-BIBLI
+                     , :PSCD0201-NREG
+                     , :PSCD0201-MOR1
+                     , :PSCD0201-PROV
+                     , :PSCD0201-BALC
+                     , :PSCD0201-NATR
+                     , :PSCD0201-NSEQ
+                     , :PSCD0201-DPRC
+                     , :PSCD0201-MOED
+                     , :PSCD0201-TOTS
+                     , :PSCD0201-TCOM
+                     , :PSCD0201-ISEL
+                     , :PSCD0201-VDEB
+                     , :PSCD0201-CDESC
+                     , :PSCD0201-REFE
+                     , :PSCD0201-RPROC
+                     , :PSCD0201-RNPRC
+                     , :PSCD0201-RTPRC
+                     , :PSCD0201-VPROC
+                     , :PSCD0201-VNPRC
+                     , :PSCD0201-VTPRC
+                     , :PSCD0201-CUSERID
+                     , :PSCD0201-HTIMEST
+                 FROM PSVT0201
+                   WHERE NCLI  = :PSCD0201-NCLI
+                     AND DINT  = :PSCD0201-DINT
+                     AND NFIC  = :PSCD0201-NFIC
+                     AND DGER  = :PSCD0201-DGER
+                     AND NFICH = :PSCD0201-NFICH
+           END-EXEC.
+      *
+           MOVE CON-PSVT0201               TO VIAL0002-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           IF VIAL0002-SEM-ERROS
+              IF DB2-OK
+                    MOVE PSCD0201-NCLI
+                      TO PSCV7811-NCLI
+                    MOVE PSCD0201-NMCLI
+                      TO PSCV7811-NMCLI
+                    MOVE PSCD0201-DINT     TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10    TO PSCV7811-DINT
+                    MOVE PSCD0201-NFIC
+                      TO PSCV7811-NFIC
+                    MOVE PSCD0201-DGER     TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10    TO PSCV7811-DGER
+                    MOVE PSCD0201-NFICH
+                      TO PSCV7811-NFICH
+                    MOVE PSCD0201-BIBLI
+                      TO PSCV7811-BIBLI
+                    MOVE PSCD0201-MOED
+                      TO PSCV7811-MOED
+                    MOVE PSCD0201-TOTS
+                      TO PSCV7811-TOTS
+                    MOVE PSCD0201-TCOM
+                      TO PSCV7811-TCOM
+                    MOVE PSCD0201-ISEL
+                      TO PSCV7811-ISEL
+                    MOVE PSCD0201-VDEB
+                      TO PSCV7811-VDEB
+                    MOVE PSCD0201-CDESC
+                      TO PSCV7811-CDESC
+                    MOVE PSCD0201-RPROC
+                      TO PSCV7811-RPROC
+                    MOVE PSCD0201-RNPRC
+                      TO PSCV7811-RNPRC
+                    MOVE PSCD0201-RTPRC
+                      TO PSCV7811-RTPRC
+                    MOVE PSCD0201-VPROC
+                      TO PSCV7811-VPROC
+                    MOVE PSCD0201-VNPRC
+                      TO PSCV7811-VNPRC
+                    MOVE PSCD0201-VTPRC
+                      TO PSCV7811-VTPRC
+              ELSE
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV7811-NCLI-S
+                    MOVE PSCK0001-NCLI-N-EXISTS
+                      TO PSCV7811-NCLI-MSG
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV7811-DINT-S
+                    MOVE PSCK0001-DINT-N-EXISTS
+                      TO PSCV7811-DINT-MSG
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV7811-NFIC-S
+                    MOVE PSCK0001-NFIC-N-EXISTS
+                      TO PSCV7811-NFIC-MSG
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV7811-DGER-S
+                    MOVE PSCK0001-DGER-N-EXISTS
+                      TO PSCV7811-DGER-MSG
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV7811-NFICH-S
+                    MOVE PSCK0001-NFICH-N-EXISTS
+                      TO PSCV7811-NFICH-MSG
+              END-IF
+           END-IF.
+      *
+       2199-OBTEM-DADOS-EXIT.
+           EXIT.
+      *
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7811-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV7811-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV7811-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *               6300-OBTEM-CODIGO
+      *--------------------------------------------------------------
+       6300-OBTEM-CODIGO.
+      *                                                                *
+           MOVE '6300-OBTEM-CODIGO       ' TO VIAL0015-CALLER-ID
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM CALL-ARM5005
+              THRU CALL-ARM5005-EXIT.
+      *
+           IF NOT ETCL0002-SEM-ERROS
+               MOVE VIAK0002-ERROS-FUNCAO    TO VIAL0002-IND-ERROS
+               MOVE PSCK0002-STATUS-ACTIVO   TO PSCV7811-NFIC-S
+               MOVE PSCK0001-HRNFIC-N-EXISTS TO PSCV7811-NFIC-MSG
+           END-IF.
+      *
+           MOVE 'PSCV7811-BIBLI            ' TO VIAL0015-CALLER-ID
+           MOVE  PSCV7811-BIBLI              TO VIAL0015-CAMPO-NM(1)
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       6300-OBTEM-CODIGO-EXIT.
+           EXIT.
+      *
+      *--------------------------------------------------------------
+           COPY ARCR5005.
+           COPY AQCP0005.
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+           COPY VIAP0016.

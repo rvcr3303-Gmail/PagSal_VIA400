@@ -1,0 +1,292 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI43106.
+      ******************************************************************
+      *     PROGRAMA PSI43106.                                         *
+      *                                                                *
+      *     Download
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI43106         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE ARCD0500 END-EXEC.
+           EXEC SQL INCLUDE PSCDWN00 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV4310.
+       COPY PSCV4311.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0010.
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY ETCL0002.
+      *
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSDOWNL    PIC X(08) VALUE 'PSDOWNL'.
+ES         05 CON-PSORIGINAL PIC X(10) VALUE 'PSORIGINAL'.
+           05 CON-CTABELA    PIC X(05) VALUE 'PS618'.
+           05 CON-LIBOUTPUT  PIC X(50) VALUE 'O'.
+           05 CON-LIBORIG    PIC X(50) VALUE 'A'.
+           05 CON-CLINGUA    PIC X(10) VALUE 'PT-PT'.
+           05 WS-PROGNAME    PIC X(08) VALUE 'PSI43106'.
+      *--------------------------------------------------------------
+      *            VARIAVEIS
+      *--------------------------------------------------------------
+       01  WS-VARIAVEIS.
+           05 WS-AREA-CL.
+              10 WS-FILENAME                PIC X(10).
+              10 WS-LIBIN                   PIC X(10).
+              10 WS-LIBOUT                  PIC X(10).
+              10 WS-RCODE                   PIC X(02).
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI43106         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV4310-MSG.
+           MOVE PSCV4310-ASE               TO PSCV4311-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+
+           MOVE PSCV4310-ADE               TO PSCV4311-ADE.
+
+           PERFORM 2100-VALIDACOES
+              THRU 2199-VALIDACOES-EXIT
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2150-OBTEM-LIB-OUTPUT
+                 THRU 2159-OBTEM-LIB-OUTPUT-EXIT
+           END-IF
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2170-OBTEM-LIB-ORIGINAL
+                 THRU 2179-OBTEM-LIB-ORIGINAL-EXIT
+           END-IF
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-MODIFICA-DADOS
+                 THRU 2299-MODIFICA-DADOS-EXIT
+           END-IF
+           .
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2100-VALIDACOES
+      *--------------------------------------------------------------
+       2100-VALIDACOES.
+      *
+           IF PSCV4310-FCFORM EQUAL PSCK0002-FORM-EBANK
+              MOVE VIAK0002-ERROS-FUNCAO
+                TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO
+                TO PSCV4311-FCNCLI-S
+              MOVE PSCK0001-DOWNL-INDISP
+                TO PSCV4311-FCNCLI-MSG
+           END-IF.
+      *
+       2199-VALIDACOES-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   2150-OBTEM-LIB-OUTPUT
+      *--------------------------------------------------------------
+       2150-OBTEM-LIB-OUTPUT.
+
+      * OBTEM BIBLIOTECA DE OUTPUT DA CODESTABLE
+           MOVE CON-CTABELA            TO ARCD0500-CTABELA
+           MOVE CON-LIBOUTPUT          TO ARCD0500-CCOD
+           MOVE CON-CLINGUA            TO ARCD0500-CLINGUA
+           MOVE SPACES                 TO ARCD0500-GDESC
+
+           PERFORM 2160-READ-CODESTABLE
+              THRU 2169-READ-CODESTABLE-EXIT
+
+ES         MOVE ARCD0500-GDESC         TO WS-LIBOUT
+           .
+       2159-OBTEM-LIB-OUTPUT-EXIT.
+           EXIT.
+
+ES    *--------------------------------------------------------------
+ES    *                   2170-OBTEM-LIB-ORIGINAL
+ES    *--------------------------------------------------------------
+ES     2170-OBTEM-LIB-ORIGINAL.
+ES
+ES    * OBTEM BIBLIOTECA DE OUTPUT DA CODESTABLE
+ES         MOVE CON-CTABELA            TO ARCD0500-CTABELA
+ES         MOVE CON-LIBORIG            TO ARCD0500-CCOD
+ES         MOVE CON-CLINGUA            TO ARCD0500-CLINGUA
+ES         MOVE SPACES                 TO ARCD0500-GDESC
+ES
+ES         PERFORM 2160-READ-CODESTABLE
+ES            THRU 2169-READ-CODESTABLE-EXIT
+ES
+ES         MOVE ARCD0500-GDESC             TO WS-LIBIN
+ES                                            PSCV4311-FCBIBLI.
+ES    *
+ES     2179-OBTEM-LIB-ORIGINAL-EXIT.
+ES         EXIT.
+
+      *--------------------------------------------------------------
+      *                   2160-READ-CODESTABLE
+      *--------------------------------------------------------------
+       2160-READ-CODESTABLE.
+
+           EXEC SQL
+             SELECT GDESC
+               INTO :ARCD0500-GDESC
+               FROM ART0500001
+              WHERE CTABELA = :ARCD0500-CTABELA
+                AND CCOD    = :ARCD0500-CCOD
+                AND CLINGUA = :ARCD0500-CLINGUA
+              FETCH FIRST ROW ONLY
+           END-EXEC
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '*APOS SELECT '          TO VIAL0015-CALLER-ID
+              MOVE 'SQLCODE'               TO VIAL0015-CAMPO-NM(1)
+              MOVE SQLCODE                 TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'ARCD0500-CTABELA'      TO VIAL0015-CAMPO-NM(2)
+              MOVE ARCD0500-CTABELA        TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'ARCD0500-CCOD   '      TO VIAL0015-CAMPO-NM(3)
+              MOVE ARCD0500-CCOD           TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              IF NOT DB2-OK
+                 MOVE VIAK0002-ERROS-FUNCAO
+                   TO VIAL0002-IND-ERROS
+                 MOVE PSCK0002-STATUS-ACTIVO
+                   TO PSCV4311-FCNCLI-S
+                 MOVE PSCK0001-CPY-ERR
+                   TO PSCV4311-FCNCLI-MSG
+              END-IF
+           END-IF.
+
+       2169-READ-CODESTABLE-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   2200-MODIFICA-DADOS
+      *--------------------------------------------------------------
+       2200-MODIFICA-DADOS.
+
+           MOVE PSCV4310-FCNOMEF           TO WS-FILENAME
+ES    *    MOVE PSCV4310-FCBIBLI           TO WS-LIBIN
+ES    *    MOVE ARCD0500-GDESC             TO WS-LIBOUT
+           MOVE ZEROES                     TO WS-RCODE
+
+           CALL CON-PSORIGINAL USING WS-FILENAME WS-LIBIN
+                                     WS-LIBOUT   WS-RCODE.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-MODIFICA-DADOS'   TO VIAL0015-CALLER-ID
+              MOVE 'WS-FILENAME'           TO VIAL0015-CAMPO-NM(1)
+              MOVE WS-FILENAME             TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'WS-LIBIN'              TO VIAL0015-CAMPO-NM(2)
+              MOVE WS-LIBIN                TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'WS-LIBOUT'             TO VIAL0015-CAMPO-NM(3)
+              MOVE WS-LIBOUT               TO VIAL0015-CAMPO-VLR(3)
+              MOVE 'WS-RCODE'              TO VIAL0015-CAMPO-NM(4)
+              MOVE WS-RCODE                TO VIAL0015-CAMPO-VLR(4)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF WS-RCODE EQUAL ZEROES
+              MOVE PSCV4310-FCNCLI
+                TO PSCV4311-FCNCLI
+              MOVE PSCV4310-FCDINT
+                TO PSCV4311-FCDINT
+              MOVE PSCV4310-FCNFIC
+                TO PSCV4311-FCNFIC
+              MOVE PSCV4310-FCNOMEF
+                TO PSCV4311-FCNOMEF
+           ELSE
+              MOVE VIAK0002-ERROS-FUNCAO
+                TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO
+                TO PSCV4311-FCNCLI-S
+              MOVE PSCK0001-CPY-ERR
+                TO PSCV4311-FCNCLI-MSG
+           END-IF.
+
+       2299-MODIFICA-DADOS-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+
+           MOVE PSCV4311-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV4311-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV4311-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY VIAP0010.
+           COPY VIAP0016.

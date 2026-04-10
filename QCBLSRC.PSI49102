@@ -1,0 +1,206 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI49102.
+      ******************************************************************
+      *     PROGRAMA PSI49102.
+      *
+      *     AprovacaoColegialWS
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI49102         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV4910.
+       COPY PSCV4911.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY VSCK0001.
+       COPY VSCK0002.
+      *
+       COPY ARCK0001.
+       COPY ARCK0002.
+       COPY AQCW0005.
+       COPY VIAW0020.
+       COPY ETCL0002.
+       COPY VIAL9001.
+      *
+       COPY PSCL5810.
+      *
+      *--------------------------------------------------------------
+      *            PROGRAM CONTROL
+      *--------------------------------------------------------------
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME            PIC  X(08) VALUE 'PSI49102'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI49102         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV4910-MSG.
+           MOVE PSCV4910-ASE       TO PSCV4911-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4910-ADE       TO PSCV4911-ADE.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-OBTEM-DADOS
+                 THRU 2299-OBTEM-DADOS-EXIT
+           END-IF.
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2200-OBTEM-DADOS
+      *--------------------------------------------------------------
+       2200-OBTEM-DADOS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-OBTEM-DADOS' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE PSCL5810-COMMAREA    REPLACING NUMERIC BY ZEROES
+                                                ALPHANUMERIC BY SPACES.
+
+           SET  PSCL5810-CRIAR-PROCESSO    TO TRUE.
+
+           MOVE PSCV4910-GUSER             TO PSCL5810-GUSER.
+           MOVE PSCV4910-MONTANTE          TO PSCL5810-NMONTANTE.
+           MOVE PSCV4910-NCLIENTE          TO PSCL5810-NCLI.
+           MOVE PSCV4910-PID               TO PSCL5810-PID.
+
+           PERFORM ETCP0002-FORM-ONLINE-IN
+              THRU ETCP0002-FORM-ONLINE-IN-EXIT.
+
+           PERFORM CALL-PSM5810
+              THRU CALL-PSM5810-EXIT
+
+           PERFORM ETCP0002-STD-END
+              THRU ETCP0002-STD-END-EXIT
+
+           IF VIAL0002-SEM-ERROS
+              MOVE ETCL0002-RCODE          TO VIAW0020-RCODE
+
+              PERFORM VIAP0020-TRATA-RCODE
+                 THRU VIAP0020-TRATA-RCODE-EXIT
+           END-IF.
+
+           IF VIAL0002-SEM-ERROS
+              MOVE PSCL5810-GUSER       TO PSCV4911-GUSER
+              MOVE PSCL5810-NMONTANTE   TO PSCV4911-MONTANTE
+              MOVE PSCL5810-NCLI        TO PSCV4911-NCLIENTE
+              MOVE PSCL5810-PID         TO PSCV4911-PID
+              MOVE PSCL5810-TSTATUS     TO PSCV4911-TSTATUS
+              MOVE PSCL5810-TREGISTOS   TO PSCV4911-TREGISTOS
+              MOVE PSCL5810-DTPARECER   TO PSCV4911-DTPARECER
+              MOVE PSCL5810-STATUSAP    TO PSCV4911-STATUSAP
+              MOVE PSCL5810-STATUSQ     TO PSCV4911-STATUSQ
+              MOVE PSCL5810-WSOUT       TO PSCV4911-WSOUT
+              MOVE PSCL5810-IDCANCEL    TO PSCV4911-IDCANCEL
+           ELSE
+              MOVE ETCL0002-IND-ERROS
+                TO VIAL0002-IND-ERROS
+              MOVE VSCK0002-STATUS-ACTIVO
+                TO PSCV4911-PID-S
+              MOVE ETCL0002-CAPLIC-ERRO
+                TO PSCV4911-PID-CAPLIC
+              MOVE ETCL0002-NR-ERRO
+                TO PSCV4911-PID-MSG
+           END-IF.
+
+       2299-OBTEM-DADOS-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4911-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV4911-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV4911-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY VIAP0016.
+           COPY AQCP0005.
+           COPY ETCP0002.
+           COPY VIAP0020.
+           COPY PSCP5810.

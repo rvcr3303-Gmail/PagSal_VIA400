@@ -1,0 +1,283 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI73102.
+      ******************************************************************
+      *     PROGRAMA PSI73102.
+      *
+      *     Historico de Altercoes - Pedido de Dados
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI73102         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDHISALT END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV7310.
+       COPY PSCV7311.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY AQCL0001.
+       COPY AQCW0005.
+       COPY AQCW0009.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY SXCL0002.
+       COPY SXCL0380.
+       COPY VIAL0015.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+      *
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSHISTAL             PIC  X(08) VALUE 'PSHISTAL'.
+           05 WS-PROGNAME              PIC  X(08) VALUE 'PSI73102'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI73102         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV7310-MSG.
+           MOVE PSCV7310-ASE       TO PSCV7311-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7310-ADE       TO PSCV7311-ADE.
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2100-OBTEM-DADOS
+                 THRU 2199-OBTEM-DADOS-EXIT
+           END-IF.
+
+           PERFORM 4110-OBTEM-NOME-CLI
+              THRU 4119-OBTEM-NOME-CLI-EXIT.
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2100-OBTEM-DADOS
+      *--------------------------------------------------------------
+       2100-OBTEM-DADOS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-OBTEM-DADOS' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7310-HATTR             TO PSHISALT-HATTR .
+           MOVE PSCV7310-HANCLI            TO PSHISALT-HANCLI.
+           MOVE PSCV7310-HADINT            TO AQCW0005-DTX10 .
+              PERFORM AQCP0005-CONV-DT10INDT8
+                 THRU AQCP0005-CONV-DT10INDT8-EXIT
+           MOVE AQCW0005-DT98              TO PSHISALT-HADINT.
+           MOVE PSCV7310-HANFIC            TO PSHISALT-HANFIC.
+           MOVE PSCV7310-HANREG            TO PSHISALT-HANREG.
+           MOVE PSCV7310-HAZALT            TO PSHISALT-HAZALT.
+
+           EXEC SQL
+              SELECT   HATTR
+                     , HANCLI
+                     , HADINT
+                     , HANFIC
+                     , HANREG
+                     , HAZALT
+                     , HAVALOR
+                     , HACMOED
+                     , HASITC
+                     , HANIBO
+                     , HANIBA
+                     , CUSERID
+                     , HTIMEEST
+                 INTO  :PSHISALT-HATTR
+                     , :PSHISALT-HANCLI
+                     , :PSHISALT-HADINT
+                     , :PSHISALT-HANFIC
+                     , :PSHISALT-HANREG
+                     , :PSHISALT-HAZALT
+                     , :PSHISALT-HAVALOR
+                     , :PSHISALT-HACMOED
+                     , :PSHISALT-HASITC
+                     , :PSHISALT-HANIBO
+                     , :PSHISALT-HANIBA
+                     , :PSHISALT-CUSERID
+                     , :PSHISALT-HTIMEEST
+                 FROM   PSHISTALT
+                WHERE   HATTR  = :PSHISALT-HATTR
+                    AND HANCLI = :PSHISALT-HANCLI
+                    AND HADINT = :PSHISALT-HADINT
+                    AND HANFIC = :PSHISALT-HANFIC
+                    AND HANREG = :PSHISALT-HANREG
+                    AND HAZALT = :PSHISALT-HAZALT
+           END-EXEC.
+
+           MOVE CON-PSHISTAL               TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF DB2-OK
+                 MOVE PSHISALT-HATTR       TO PSCV7311-HATTR
+                 MOVE PSHISALT-HANCLI      TO PSCV7311-HANCLI
+                 MOVE PSHISALT-HADINT      TO AQCW0005-DT98
+
+                 PERFORM AQCP0005-CONV-DT10INDT8
+                    THRU AQCP0005-CONV-DT10INDT8-EXIT
+
+                 MOVE AQCW0005-DTX10       TO PSCV7311-HADINT
+                 MOVE PSHISALT-HANFIC      TO PSCV7311-HANFIC
+                 MOVE PSHISALT-HANREG      TO PSCV7311-HANREG
+                 MOVE PSHISALT-HAZALT      TO PSCV7311-HAZALT
+                 MOVE PSHISALT-HAVALOR     TO PSCV7311-HAVALOR
+                 MOVE PSHISALT-HACMOED     TO PSCV7311-HACMOED
+                 MOVE PSHISALT-HASITC      TO PSCV7311-HASITC
+                 MOVE PSHISALT-HANIBO      TO PSCV7311-HANIBO
+                 MOVE PSHISALT-HANIBA      TO PSCV7311-HANIBA
+                 MOVE PSHISALT-CUSERID     TO PSCV7311-CUSERID
+                 MOVE PSHISALT-HTIMEEST    TO PSCV7311-HTIMEEST
+              ELSE
+                 MOVE VIAK0002-ERROS-FUNCAO
+                                           TO VIAL0002-IND-ERROS
+                 MOVE PSCK0002-STATUS-ACTIVO
+                                           TO PSCV7311-HAZALT-S
+                 MOVE PSCK0001-HAZALT-N-EXISTS
+                                           TO PSCV7311-HAZALT-MSG
+              END-IF
+           END-IF.
+
+       2199-OBTEM-DADOS-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   4110-OBTEM-NOME-CLI
+      *--------------------------------------------------------------
+       4110-OBTEM-NOME-CLI.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '4110-OBTEM-NOME-CLI'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE SXCL0380-DATA.
+
+           MOVE VIAL0001-VERSAO-SYS        TO SXCL0380-VERSAO
+           MOVE WS-PROGNAME                TO SXCL0380-PGMC.
+           MOVE PSCK0002-TTR-NOME-CLI      TO SXCL0380-TTR.
+           MOVE VIAL0001-CALLERID          TO SXCL0380-JOBNC.
+           MOVE VIAL0001-CUSER-EXTRN       TO SXCL0380-USERC.
+           MOVE VIAL0001-MSGQ              TO SXCL0380-PGMQC.
+           MOVE PSCK0002-RCODE-OK          TO SXCL0380-RCODE.
+           MOVE PSCK0002-ESTR-NEXE         TO SXCL0380-ESTR.
+           MOVE PSCK0002-APTR-APL          TO SXCL0380-APTR.
+           MOVE PSCK0002-HCLI-VMSG         TO SXCL0380-HCLI.
+           MOVE PSCK0002-VNCR-NVAL         TO SXCL0380-VNCR.
+           MOVE ZEROES                     TO SXCL0380-CLBAL.
+           MOVE PSCV7310-HANCLI            TO SXCL0380-CLNCLI.
+
+           CALL SXCL0380-ROTINA         USING SXCL0002-COMMAREA,
+                                              SXCL0380-DATA.
+
+           MOVE SXCL0380-RCODE             TO AQCW0009-RCODE.
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           IF AQCL0001-COM-ERROS
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO  TO PSCV7311-HANCLI-S
+              MOVE PSCK0001-COCCLI-N-EXISTS TO PSCV7311-HANCLI-MSG
+           ELSE
+              MOVE SXCL0380-DWT OF SXCL0380-WT OF SXCL0380-DATA(1)
+                                           TO PSCV7311-HANMCLI
+           END-IF.
+      *
+       4119-OBTEM-NOME-CLI-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV7311-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV7311-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV7311-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES                     TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY AQCP0005.
+           COPY AQCP0009.
+           COPY VIAP0016.

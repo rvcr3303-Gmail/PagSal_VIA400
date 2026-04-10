@@ -1,0 +1,307 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI44104.
+      ******************************************************************
+      *     PROGRAMA PSI44104.                                         *
+      *                                                                *
+      *     Parametrização
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI44104         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDRA00 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+       01 WS-SQL-AUXILIARY.
+         05 IND-NULL                       PIC S9(04) BINARY.
+
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV4410.
+       COPY PSCV4411.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0010.
+       COPY VIAW0005.
+       COPY VIAL0015.
+       COPY AQCW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY ETCL0002.
+      *
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSPARAM PIC X(08) VALUE 'PSPARAM'.
+           05 WS-PROGNAME PIC X(08) VALUE 'PSI44104'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI44104         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '0000-MAINLINE.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV4410-MSG.
+           MOVE PSCV4410-ASE               TO PSCV4411-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4410-ADE               TO PSCV4411-ADE.
+
+           PERFORM 2100-VALIDACOES
+              THRU 2199-VALIDACOES-EXIT
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-INSERE-DADOS
+                 THRU 2299-INSERE-DADOS-EXIT
+           END-iF
+           .
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   2100-VALIDACOES
+      *--------------------------------------------------------------
+       2100-VALIDACOES.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-VALIDACOES.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+
+
+           CONTINUE
+           .
+
+       2199-VALIDACOES-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                   2200-INSERE-DADOS
+      *--------------------------------------------------------------
+       2200-INSERE-DADOS.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-INSERE-DADOS.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4410-PRCODPAR
+             TO PSCDRA00-PRCODPAR
+           MOVE PSCV4410-PRPARAM
+             TO PSCDRA00-PRPARAM
+           MOVE PSCV4410-PRTIPPAR
+             TO PSCDRA00-PRTIPPAR
+           MOVE PSCV4410-PRVALDAT
+             TO AQCW0005-DTX10
+            PERFORM AQCP0005-CONV-DT10INDT8
+               THRU AQCP0005-CONV-DT10INDT8-EXIT
+            MOVE AQCW0005-DT98
+             TO PSCDRA00-PRVALDAT
+           MOVE PSCV4410-PRVALNUM
+             TO PSCDRA00-PRVALNUM
+           MOVE PSCV4410-PRVALBOL
+             TO PSCDRA00-PRVALBOL
+           MOVE PSCV4410-PRPARM0
+             TO PSCDRA00-PRPARM0
+           MOVE PSCV4410-PRPARM1
+             TO PSCDRA00-PRPARM1
+           MOVE PSCV4410-PRPARM2
+             TO PSCDRA00-PRPARM2
+           MOVE PSCV4410-PRPARM3
+             TO PSCDRA00-PRPARM3
+           MOVE PSCV4410-PRPARM4
+             TO PSCDRA00-PRPARM4
+           MOVE PSCV4410-PRPARM5
+             TO PSCDRA00-PRPARM5
+           MOVE PSCV4410-PRPARM6
+             TO PSCDRA00-PRPARM6
+           MOVE PSCV4410-PRPARM7
+             TO PSCDRA00-PRPARM7
+           MOVE PSCV4410-PRPARM8
+             TO PSCDRA00-PRPARM8
+           MOVE PSCV4410-PRPARM9
+             TO PSCDRA00-PRPARM9
+           MOVE VIAL0001-CUTILIZA-I
+             TO PSCDRA00-CUSERID
+
+
+           IF VIAL0002-SEM-ERROS
+
+           EXEC SQL
+                 INSERT INTO
+                PSPARAM
+                (
+                   PRCODPAR
+                 , PRPARAM
+                 , PRTIPPAR
+                 , PRVALDAT
+                 , PRVALNUM
+                 , PRVALBOL
+                 , PRPARM0
+                 , PRPARM1
+                 , PRPARM2
+                 , PRPARM3
+                 , PRPARM4
+                 , PRPARM5
+                 , PRPARM6
+                 , PRPARM7
+                 , PRPARM8
+                 , PRPARM9
+                 , CUSERID
+                 , HTIMEEST
+                )
+                VALUES (
+                       :PSCDRA00-PRCODPAR
+                     , :PSCDRA00-PRPARAM
+                     , :PSCDRA00-PRTIPPAR
+                     , :PSCDRA00-PRVALDAT
+                     , :PSCDRA00-PRVALNUM
+                     , :PSCDRA00-PRVALBOL
+                     , :PSCDRA00-PRPARM0
+                     , :PSCDRA00-PRPARM1
+                     , :PSCDRA00-PRPARM2
+                     , :PSCDRA00-PRPARM3
+                     , :PSCDRA00-PRPARM4
+                     , :PSCDRA00-PRPARM5
+                     , :PSCDRA00-PRPARM6
+                     , :PSCDRA00-PRPARM7
+                     , :PSCDRA00-PRPARM8
+                     , :PSCDRA00-PRPARM9
+                     , :PSCDRA00-CUSERID
+                     , CURRENT TIMESTAMP
+                )
+           END-EXEC
+
+
+              MOVE CON-PSPARAM               TO VIAL0002-TABLE-NAME
+
+              PERFORM 9020-DB2CHECK
+                 THRU 9029-DB2CHECK-EXIT
+
+              IF VIAL0002-SEM-ERROS
+                 IF DB2-DUPREC
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                      MOVE PSCK0002-STATUS-ACTIVO
+                        TO PSCV4411-PRCODPAR-S
+                      MOVE PSCK0001-PRCODPAR-A-EXISTS
+                        TO PSCV4411-PRCODPAR-MSG
+                      MOVE PSCK0002-STATUS-ACTIVO
+                        TO PSCV4411-PRPARAM-S
+                      MOVE PSCK0001-PRPARAM-A-EXISTS
+                        TO PSCV4411-PRPARAM-MSG
+                 ELSE
+                    IF NOT DB2-OK
+                       MOVE VIAK0002-ABEND-DB2
+                         TO VIAL0002-IND-ERROS
+                       MOVE VIAK0001-ERRO-DB2
+                         TO VIAL0002-COD-ERRO-GRAVE
+                    END-IF
+                 END-IF
+              END-IF
+           END-IF
+
+
+           IF VIAL0002-SEM-ERROS
+                        CONTINUE
+           END-IF
+           .
+
+       2299-INSERE-DADOS-EXIT.
+           EXIT.
+
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV4411-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV4411-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV4411-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+       COPY VIAP0016.
+       COPY AQCP0005.
+           COPY VIAP0010.

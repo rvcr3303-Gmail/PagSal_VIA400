@@ -1,0 +1,513 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSM5750.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Registo e validação de emissões de Bordereaux - BENEFICIARIOS  *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+      ******************************************************************
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSM5750'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY VIAW0005.
+           COPY PSCK0001.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY SXCL0900.
+           COPY SXCL0901.
+           COPY SXCW0902.
+      * VARIAVEIS DE LINKAGE DO MODULO DE DEBUG
+           COPY VIAL0015.
+           COPY VIAK0001.
+           COPY VIAK0002.
+           COPY AQCW0005.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA DE BORDEREAUXS DE BENEFICIÁRIOS
+           EXEC SQL INCLUDE PSCD0401 END-EXEC.
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 CON-PSVT0401             PIC  X(10) VALUE 'PSVT0401'.
+           05 CON-01                   PIC S9(02) VALUE 01.
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-INDICE                PIC S9(02) VALUE ZEROES.
+              88 WS-INDICE-MAX                    VALUE 80.
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 WS-DUMMY                  PIC X(01).
+      ******************************************************************
+      * APIS
+      ******************************************************************
+
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+           COPY SXCL0002.
+           COPY SXCL0045.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+       COPY ETCL0002.
+       COPY PSCL5750.
+      ******************************************************************
+       PROCEDURE DIVISION USING ETCL0002-COMMAREA
+                                PSCL5750-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT
+           END-IF.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+      *
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+      *                           Validação                            *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA'  TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE WS-SWITCHES.
+
+           SET ETCL0002-RCODE-OK        TO TRUE
+
+      * validação dos campos standard da api:
+           PERFORM 1100-VALIDA-DADOS-API
+              THRU 1100-VALIDA-DADOS-API-EXIT.
+
+      * valida a integridade dos dados da linkage:
+           IF ETCL0002-SEM-ERROS
+              PERFORM 1200-VALIDA-LINKAGE
+                 THRU 1200-VALIDA-LINKAGE-EXIT
+           END-IF.
+      *
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-VALIDA-DADOS-API.
+      ******************************************************************
+
+           CONTINUE.
+
+       1100-VALIDA-DADOS-API-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1200-VALIDA-LINKAGE.
+      ******************************************************************
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '1200-VALIDA-LINKAGE'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EVALUATE TRUE
+           WHEN PSCL5750-AT-CBAN   EQUAL ZEROES
+           WHEN PSCL5750-AT-BALM   EQUAL ZEROES
+           WHEN PSCL5750-AT-DTOP   EQUAL ZEROES
+           WHEN PSCL5750-AT-CMOE   EQUAL SPACES
+           WHEN PSCL5750-AT-DEBUG  EQUAL SPACES
+                SET  ETCL0002-RCODE-VAL         TO TRUE
+                SET  ETCL0002-ERROS-FUNCAO      TO TRUE
+                MOVE PSCK0001-AREA-ARQUITECTURA TO ETCL0002-ST-ERRO
+                MOVE PSCK0002-CAPLIC-PS         TO ETCL0002-CAPLIC-ERRO
+           END-EVALUATE.
+      *
+           EVALUATE TRUE
+           WHEN PSCL5750-NCLI      EQUAL ZEROES
+           WHEN PSCL5750-DINT      EQUAL ZEROES
+           WHEN PSCL5750-NFIC      EQUAL ZEROES
+           WHEN PSCL5750-NREG      EQUAL ZEROES
+                SET  ETCL0002-RCODE-VAL         TO TRUE
+                SET  ETCL0002-ERROS-FUNCAO      TO TRUE
+                MOVE PSCK0001-AREA-ARQUITECTURA TO ETCL0002-ST-ERRO
+                MOVE PSCK0002-CAPLIC-PS         TO ETCL0002-CAPLIC-ERRO
+           END-EVALUATE.
+      *
+       1200-VALIDA-LINKAGE-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                    Processamento Principal                     *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA '   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE RBENBRD.
+      *
+           EVALUATE TRUE
+             WHEN PSCL5750-TTR-INSERE
+                PERFORM 2100-INSERE-DADOS
+                   THRU 2100-INSERE-DADOS-EXIT
+             WHEN PSCL5750-TTR-VALIDA
+                PERFORM 2200-VALIDA-EMISSAO
+                   THRU 2200-VALIDA-EMISSAO-EXIT
+             WHEN OTHER
+                SET  ETCL0002-RCODE-VAL         TO TRUE
+                SET  ETCL0002-ERROS-FUNCAO      TO TRUE
+                MOVE PSCK0001-TTR-INVALIDA      TO ETCL0002-ST-ERRO
+                MOVE PSCK0002-CAPLIC-PS         TO ETCL0002-CAPLIC-ERRO
+           END-EVALUATE.
+      *
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-INSERE-DADOS.
+      ******************************************************************
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '2100-INSERE-DADOS  '   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM 2110-INSERE-DADOS
+              THRU 2110-INSERE-DADOS-EXIT.
+      *
+       2100-INSERE-DADOS-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                   2110-INSERE-DADOS                           *
+      ******************************************************************
+       2110-INSERE-DADOS.
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '2110-INSERE-DADOS '   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM 2300-INFORMA-CAMPOS
+              THRU 2300-INFORMA-CAMPOS-EXIT
+
+           MOVE ETCL0002-USER-EXTRN           TO PSCD0401-CUSERID
+
+      * CONVERTE DATA DE X(10) PARA 9(08)
+           MOVE ETCL0002-DOPER                TO AQCW0005-DTX10
+           PERFORM AQCP0005-CONV-DT10INDT8
+              THRU AQCP0005-CONV-DT10INDT8-EXIT
+           MOVE AQCW0005-DT98                 TO PSCD0401-DGER
+
+           EXEC SQL
+             INSERT INTO PSVT0401
+                  ( NCLI
+                  , DINT
+                  , NFIC
+                  , NREG
+                  , NFICH
+                  , DGER
+                  , NMORD
+                  , ORMOR1
+                  , TOPE
+                  , DTOPE
+                  , CBAN
+                  , CBAL
+                  , CNTA
+                  , CDIG
+                  , MONT
+                  , NMBEN
+                  , REFTR
+                  , BNMOR1
+                  , PROV
+                  , DVAL
+                  , NIB
+                  , MOED
+                  , REFORD
+                  , AGEN
+                  , BIBLI
+                  , CUSERID
+                  , HTIMEST  )
+            VALUES (:PSCD0401-NCLI
+                ,   :PSCD0401-DINT
+                ,   :PSCD0401-NFIC
+                ,   :PSCD0401-NREG
+                ,   :PSCD0401-NFICH
+                ,   :PSCD0401-DGER
+                ,   :PSCD0401-NMORD
+                ,   :PSCD0401-ORMOR1
+                ,   :PSCD0401-TOPE
+                ,   :PSCD0401-DTOPE
+                ,   :PSCD0401-CBAN
+                ,   :PSCD0401-CBAL
+                ,   :PSCD0401-CNTA
+                ,   :PSCD0401-CDIG
+                ,   :PSCD0401-MONT
+                ,   :PSCD0401-NMBEN
+                ,   :PSCD0401-REFTR
+                ,   :PSCD0401-BNMOR1
+                ,   :PSCD0401-PROV
+                ,   :PSCD0401-DVAL
+                ,   :PSCD0401-NIB
+                ,   :PSCD0401-MOED
+                ,   :PSCD0401-REFORD
+                ,   :PSCD0401-AGEN
+                ,   :PSCD0401-BIBLI
+                ,   :PSCD0401-CUSERID
+                ,   CURRENT_TIMESTAMP )
+           END-EXEC.
+
+           MOVE CON-PSVT0401            TO ETCL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF DB2-OK
+             CONTINUE
+           ELSE
+             IF DB2-DUPREC
+                SET PSCL5750-DUPLICADO-SIM TO TRUE
+             ELSE
+                SET  ETCL0002-RCODE-VAL       TO TRUE
+                MOVE VIAK0002-ABEND-DB2       TO ETCL0002-IND-ERROS
+                MOVE VIAK0001-ERRO-DB2        TO ETCL0002-ST-ERRO
+                MOVE PSCK0002-CAPLIC-PS       TO ETCL0002-CAPLIC-ERRO
+             END-IF
+           END-IF.
+      *
+       2110-INSERE-DADOS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-VALIDA-EMISSAO.
+      ******************************************************************
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '2200-VALIDA-EMISSAO'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM 2300-INFORMA-CAMPOS
+              THRU 2300-INFORMA-CAMPOS-EXIT.
+      *
+           MOVE PSCL5750-NCLI              TO PSCD0401-NCLI
+           MOVE PSCL5750-DINT              TO PSCD0401-DINT
+           MOVE PSCL5750-NFIC              TO PSCD0401-NFIC
+           MOVE PSCL5750-NREG              TO PSCD0401-NREG
+      *
+           EXEC SQL
+             SELECT NFICH
+                  , BIBLI
+               INTO :PSCD0401-NFICH
+                  , :PSCD0401-BIBLI
+               FROM PSVT0401
+              WHERE NCLI   = :PSCD0401-NCLI
+                AND DINT   = :PSCD0401-DINT
+                AND NFIC   = :PSCD0401-NFIC
+                AND NREG   = :PSCD0401-NREG
+                AND NMORD  = :PSCD0401-NMORD
+                AND ORMOR1 = :PSCD0401-ORMOR1
+                AND TOPE   = :PSCD0401-TOPE
+                AND DTOPE  = :PSCD0401-DTOPE
+                AND CBAN   = :PSCD0401-CBAN
+                AND CBAL   = :PSCD0401-CBAL
+                AND CNTA   = :PSCD0401-CNTA
+                AND CDIG   = :PSCD0401-CDIG
+                AND MONT   = :PSCD0401-MONT
+                AND NMBEN  = :PSCD0401-NMBEN
+                AND REFTR  = :PSCD0401-REFTR
+                AND BNMOR1 = :PSCD0401-BNMOR1
+                AND PROV   = :PSCD0401-PROV
+                AND DVAL   = :PSCD0401-DVAL
+                AND NIB    = :PSCD0401-NIB
+                AND MOED   = :PSCD0401-MOED
+                AND REFORD = :PSCD0401-REFORD
+           END-EXEC.
+
+           MOVE CON-PSVT0401            TO ETCL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF DB2-OK
+              SET  PSCL5750-DUPLICADO-SIM   TO TRUE
+              MOVE PSCD0401-NFICH           TO PSCL5750-NFICH
+              MOVE PSCD0401-BIBLI           TO PSCL5750-BIBLI
+           ELSE
+             IF DB2-NOTFND
+                SET PSCL5750-DUPLICADO-NAO  TO TRUE
+                MOVE SPACES                   TO PSCL5750-NFICH
+                MOVE SPACES                   TO PSCL5750-BIBLI
+             ELSE
+                SET  ETCL0002-RCODE-VAL    TO TRUE
+                MOVE VIAK0002-ABEND-DB2    TO ETCL0002-IND-ERROS
+                MOVE VIAK0001-ERRO-DB2     TO ETCL0002-ST-ERRO
+                MOVE PSCK0002-CAPLIC-PS    TO ETCL0002-CAPLIC-ERRO
+             END-IF
+           END-IF.
+      *
+       2200-VALIDA-EMISSAO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-INFORMA-CAMPOS.
+      ******************************************************************
+      *
+           IF ETCL0002-DEBUG-SIM
+              MOVE '2300-INFORMA-CAMPOS '   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE PSCL5750-NCLI              TO PSCD0401-NCLI
+           MOVE PSCL5750-DINT              TO PSCD0401-DINT
+           MOVE PSCL5750-NFIC              TO PSCD0401-NFIC
+           MOVE PSCL5750-NREG              TO PSCD0401-NREG
+           MOVE PSCL5750-NFICH             TO PSCD0401-NFICH
+           MOVE PSCL5750-DGER              TO PSCD0401-DGER
+           MOVE PSCL5750-NMORD             TO PSCD0401-NMORD
+           MOVE PSCL5750-ORMOR1            TO PSCD0401-ORMOR1
+           MOVE PSCL5750-TOPE              TO PSCD0401-TOPE
+           MOVE PSCL5750-DTOPE             TO PSCD0401-DTOPE
+           MOVE PSCL5750-CBAN              TO PSCD0401-CBAN
+           MOVE PSCL5750-CBAL              TO PSCD0401-CBAL
+           MOVE PSCL5750-CNTA              TO PSCD0401-CNTA
+           MOVE PSCL5750-CDIG              TO PSCD0401-CDIG
+           MOVE PSCL5750-MONT              TO PSCD0401-MONT
+           MOVE PSCL5750-NMBEN             TO PSCD0401-NMBEN
+           MOVE PSCL5750-REFTR             TO PSCD0401-REFTR
+           MOVE PSCL5750-BNMOR1            TO PSCD0401-BNMOR1
+           MOVE PSCL5750-PROV              TO PSCD0401-PROV
+           MOVE PSCL5750-DVAL              TO PSCD0401-DVAL
+           MOVE PSCL5750-NIB               TO PSCD0401-NIB
+           MOVE PSCL5750-MOED              TO PSCD0401-MOED
+           MOVE PSCL5750-REFORD            TO PSCD0401-REFORD
+           MOVE PSCL5750-AGEN              TO PSCD0401-AGEN
+           MOVE PSCL5750-BIBLI             TO PSCD0401-BIBLI.
+      *
+       2300-INFORMA-CAMPOS-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                             Final                              *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+
+           IF ETCL0002-DEBUG-SIM
+             MOVE '****-FIM-PROGRAMA'     TO VIAL0015-CALLER-ID
+             MOVE 'PSCL5750-DUPLICADO'    TO VIAL0015-CAMPO-NM(1)
+             MOVE PSCL5750-DUPLICADO       TO VIAL0015-CAMPO-VLR(1)
+             MOVE 'RCODE         '        TO VIAL0015-CAMPO-NM(2)
+             MOVE ETCL0002-RCODE          TO VIAL0015-CAMPO-VLR(2)
+             MOVE 'IND-ERROS     '        TO VIAL0015-CAMPO-NM(3)
+             MOVE ETCL0002-IND-ERROS      TO VIAL0015-CAMPO-VLR(3)
+             PERFORM VIAP0015-TRATA-DEBUG
+                THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+      *                     Procedimentos Internos                     *
+      ******************************************************************
+
+      ******************************************************************
+      *                     Procedimentos Externos                     *
+      ******************************************************************
+      ******************************************************************
+      * 9020-DB2CHECK (INFORMA ETCL0002)
+           COPY VIAP0099.
+      * PROCEDURE DE CALL AO MODULO DE DEBUG
+           COPY VIAP0015.
+           COPY AQCP0005.
+      ******************************************************************
+      *                       Via Consulting Way                       *
+      ******************************************************************
