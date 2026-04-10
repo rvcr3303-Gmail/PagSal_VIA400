@@ -1,0 +1,71 @@
+      *****************************************************************
+      * NOME:      AQCW0001                                           *
+      * DESCRICAO: CONSTANTES DO SISTEMA                              *
+      * CRICAO:    20-08-2010                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01  AQCW0001-CONSTANTES.
+
+      * SIGLA APLICACIONAL
+           05 AQCW0001-APLICACAO         PIC  X(02) VALUE SPACES.
+      * PROGRAMA A EVOCAR
+           05 AQCW0001-PROGRAM-CALL      PIC  X(08) VALUE SPACES.
+      * MESSAGE FILE DE MENSAGENS
+           05 AQCW0001-MESS-FILE         PIC  X(07) VALUE SPACES.
+      * DATAS
+           05 AQCW0001-DATA-MIN          PIC  9(08) VALUE 00010101.
+           05 AQCW0001-DATA-MAX          PIC  9(08) VALUE 99991231.
+      * ESTADO DE INDICADORES
+           05 AQCW0001-IND-ON            PIC     1  VALUE B'1'.
+           05 AQCW0001-IND-OFF           PIC     1  VALUE B'0'.
+      * VALORES DAS OPCOES DAS TRANSACCOES
+           05 AQCW0001-TRATAR            PIC  X(01) VALUE '1'.
+           05 AQCW0001-ALTERAR           PIC  X(01) VALUE '2'.
+           05 AQCW0001-ELIMINAR          PIC  X(01) VALUE '4'.
+           05 AQCW0001-VISUALIZAR        PIC  X(01) VALUE '5'.
+           05 AQCW0001-OPC-6             PIC  X(01) VALUE '6'.
+           05 AQCW0001-OPC-7             PIC  X(01) VALUE '7'.
+           05 AQCW0001-OPC-8             PIC  X(01) VALUE '8'.
+           05 AQCW0001-OPC-9             PIC  X(01) VALUE '9'.
+      * AQCW0001-COMUM-APIs.
+           05 AQCW0001-RCODE              PIC  9(01) VALUE ZEROES.
+              88 AQCW0001-SEM-ERROS       VALUE 0, 1.
+              88 AQCW0001-ABEND           VALUE 3.
+              88 AQCW0001-RCODE-OK        VALUE 0.
+              88 AQCW0001-RCODE-INF       VALUE 1.
+              88 AQCW0001-RCODE-VAL       VALUE 2.
+              88 AQCW0001-RCODE-APL       VALUE 3.
+           05 AQCW0001-ESTR-NEXE       PIC  X(01) VALUE '0'.
+           05 AQCW0001-ESTR-EXE        PIC  X(01) VALUE '1'.
+           05 AQCW0001-APTR-APL        PIC  X(01) VALUE 'A'.
+           05 AQCW0001-APTR-VAL        PIC  X(01) VALUE 'V'.
+      * VALORES PARA INDICADORES DE ERRO DOS CAMPOS  (ICE)
+           05 AQCW0001-ICE-OK            PIC  X(01) VALUE '0'.
+           05 AQCW0001-ICE-ERRO          PIC  X(01) VALUE '1'.
+      * VALORES PARA EXECUTOR
+           05 AQCW0001-EXC-APLIC         PIC  X(01) VALUE 'A'.
+           05 AQCW0001-EXC-COMP          PIC  X(01) VALUE 'C'.
+           05 AQCW0001-EXC-CAIXAFO       PIC  X(01) VALUE 'F'.
+           05 AQCW0001-EXC-TRANSF        PIC  X(01) VALUE 'T'.
+           05 AQCW0001-EXC-UTILIZ        PIC  X(01) VALUE 'U'.
+      *-
+      *- ERROS - INFORMAÇÃO ADICIONAL
+           05 AQCW0001-1000              PIC  X(20) VALUE
+                                         '1000-INICIO-PROGRAMA'.
+           05 AQCW0001-1100              PIC  X(20) VALUE
+                                        '1100-PROC-INICIAL   '.
+
+           05 AQCW0001-LITERAIS.
+      * HEADER KEYER KEY
+              10 AQCW0001-HEAD-KEY       PIC  X(30)
+                       VALUE 'CHAVE DO PARAMETRO            '.
+              10 AQCW0001-MASC-FMT       PIC  X(30)
+                       VALUE 'MASCARA DE FORMATACAO  . . . .'.
+              10 AQCW0001-HEAD-DET       PIC  X(30)
+                       VALUE 'PARAMETROS                    '.
+              10 AQCW0001-NOME-FLD       PIC  X(30)
+                       VALUE 'DESCRITIVO . . . . . . . . . .'.
+              10 AQCW0001-APLICACAO      PIC  X(09)
+                       VALUE 'APLICAÇÃO'.
+              10 AQCW0001-MANDATORIO     PIC  X(01)
+                       VALUE 'M'.

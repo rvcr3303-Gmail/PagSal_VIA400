@@ -1,0 +1,20 @@
+      ******************************************************************
+      *                                                                *
+      *       AQCW0010   SQLCODES DB2                                  *
+      *                                                                *
+      ******************************************************************
+      *
+       01  AQCW0010-SQLCODE                  PIC S9(03) VALUE ZEROS.
+           88 DB2-OK                         VALUE +0.
+           88 DB2-NOTFND                     VALUE +100.
+           88 DB2-DUPREC                     VALUE -803.
+           88 DB2-DUPLINE                    VALUE -811.
+           88 AQCW0010-NOTFND                VALUE +100.
+           88 AQCW0010-OK                    VALUE +0.
+           88 AQCW0010-DUPREC                VALUE -803.
+           88 AQCW0010-MULTROW               VALUE -811.
+           88 AQCW0010-DB2-NOT-EXIST         VALUE -924.
+           88 AQCW0010-FKNTFND               VALUE -530.
+           88 AQCW0010-FNC-NOT-FND           VALUE -305.
+           88 AQCW0010-RESTRICT              VALUE -532.
+           88 AQCW0010-DATAS                 VALUE -180 -181.

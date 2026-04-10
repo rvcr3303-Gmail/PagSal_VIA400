@@ -1,0 +1,84 @@
+      *****************************************************************
+      * NOME:      AQCW0005                                           *
+      * DESCRICAO: VARIAVEIS DO PROCEDURE DE CONVERSAO DE DATAS       *
+      * CRICAO:    2011-01-02                                         *
+      * AUTOR:     ANTONIO RODRIGUES                                  *
+      *===============================================================*
+      *****************************************************************
+      *    AQCW0005 - CONVERTE DATA X(10) PARA 9(8) E VICE VERSA      *
+      *****************************************************************
+       01 AQCW0005-DATA.
+          05 AQCW0005-DTX10.
+             10 AQCW0005-DTX10-A          PIC  9(04) VALUE ZEROES.
+             10 FILLER                    PIC  X(01) VALUE '-'.
+             10 AQCW0005-DTX10-M          PIC  9(02) VALUE ZEROES.
+             10 FILLER                    PIC  X(01) VALUE '-'.
+             10 AQCW0005-DTX10-D          PIC  9(02) VALUE ZEROES.
+          05 AQCW0005-DTX10B.
+             10 AQCW0005-DTX10B-D         PIC  9(02) VALUE ZEROES.
+             10 FILLER                    PIC  X(01) VALUE '-'.
+             10 AQCW0005-DTX10B-M         PIC  9(02) VALUE ZEROES.
+             10 FILLER                    PIC  X(01) VALUE '-'.
+             10 AQCW0005-DTX10B-A         PIC  9(04) VALUE ZEROES.
+          05 AQCW0005-DT98                PIC  9(08) VALUE ZEROES.
+          05 AQCW0005-DT98-O REDEFINES AQCW0005-DT98.
+             10 AQCW0005-DT98-A           PIC  9(04).
+             10 AQCW0005-DT98-M           PIC  9(02).
+             10 AQCW0005-DT98-D           PIC  9(02).
+          05 AQCW0005-TM08.
+             10 AQCW0005-TM08-H           PIC  9(02) VALUE ZEROES.
+             10 FILLER                    PIC  X(01) VALUE ':'.
+             10 AQCW0005-TM08-M           PIC  9(02) VALUE ZEROES.
+             10 FILLER                    PIC  X(01) VALUE ':'.
+             10 AQCW0005-TM08-S           PIC  9(02) VALUE ZEROES.
+          05 AQCW0005-TM06                PIC  9(06) VALUE ZEROES.
+          05 AQCW0005-TM06-O REDEFINES AQCW0005-TM06.
+             10 AQCW0005-TM06-H           PIC  9(02).
+             10 AQCW0005-TM06-M           PIC  9(02).
+             10 AQCW0005-TM06-S           PIC  9(02).
+          05 AQCW0005-TIMESTAMP.
+             10 AQCW0005-TIMESTAMP-DATA        PIC  X(10)  VALUE SPACES.
+             10 AQCW0005-TIMESTAMP-FIL-M       PIC  X(01)  VALUE '-'   .
+             10 AQCW0005-TIMESTAMP-HORA.
+                15 AQCW0005-TIMESTAMP-HR.
+                   20 AQCW0005-TIMESTAMP-H-H   PIC  X(02)  VALUE SPACES.
+                   20 AQCW0005-TIMESTAMP-HF1   PIC  X(01)  VALUE '.'   .
+                   20 AQCW0005-TIMESTAMP-H-M   PIC  X(02)  VALUE SPACES.
+                   20 AQCW0005-TIMESTAMP-HF2   PIC  X(01)  VALUE '.'   .
+                   20 AQCW0005-TIMESTAMP-H-S   PIC  X(02)  VALUE SPACES.
+                15 AQCW0005-TIMESTAMP-MS       PIC  X(07)  VALUE SPACES.
+          05 AQCW0005-DATETIME.
+             10 AQCW0005-DATETIME-DATA         PIC  X(10)  VALUE SPACES.
+             10 AQCW0005-DATETIME-FIL-T        PIC  X(01)  VALUE 'T'   .
+             10 AQCW0005-DATETIME-HORA.
+                15 AQCW0005-DATETIME-H-H       PIC  X(02)  VALUE SPACES.
+                15 AQCW0005-DATETIME-HF1       PIC  X(01)  VALUE ':'   .
+                15 AQCW0005-DATETIME-H-M       PIC  X(02)  VALUE SPACES.
+                15 AQCW0005-DATETIME-HF2       PIC  X(01)  VALUE ':'   .
+                15 AQCW0005-DATETIME-H-S       PIC  X(02)  VALUE SPACES.
+          05 AQCW0005-TMST9-DATA               PIC  9(14).
+          05 REDEFINES AQCW0005-TMST9-DATA.
+             10 AQCW0005-TMST9-A        PIC  X(04).
+             10 AQCW0005-TMST9-M        PIC  X(02).
+             10 AQCW0005-TMST9-D        PIC  X(02).
+             10 AQCW0005-TMST9-H        PIC  X(02).
+             10 AQCW0005-TMST9-MM       PIC  X(02).
+             10 AQCW0005-TMST9-S        PIC  X(02).
+          05 AQCW0005-TMSTX-DATA.
+             10 AQCW0005-TMSTX-A        PIC  X(04) VALUE SPACES.
+             10 FILLER                 PIC  X(01) VALUE '-'   .
+             10 AQCW0005-TMSTX-M        PIC  X(02) VALUE SPACES.
+             10 FILLER                 PIC  X(01) VALUE '-'.
+             10 AQCW0005-TMSTX-D        PIC  X(02) VALUE SPACES.
+             10 FILLER                 PIC  X(01) VALUE '-'.
+             10 AQCW0005-TMSTX-H        PIC  X(02) VALUE SPACES.
+             10 FILLER                 PIC  X(01) VALUE '.'.
+             10 AQCW0005-TMSTX-MM       PIC  X(02) VALUE SPACES.
+             10 FILLER                 PIC  X(01) VALUE '.'.
+             10 AQCW0005-TMSTX-S        PIC  X(02) VALUE SPACES.
+             10 FILLER                 PIC  X(01) VALUE '.'.
+             10 AQCW0005-TMSTX-MS       PIC  X(06) VALUE SPACES.
+          05 AQCW0005-AUX.
+             10 AQCW0005-ORD-DATE       PIC 9(07) VALUE ZEROES.
+             10 AQCW0005-DATE-INT       PIC 9(08) VALUE ZEROES.
+             10 AQCW0005-DATE-NUM8      PIC 9(08) VALUE ZEROES.
