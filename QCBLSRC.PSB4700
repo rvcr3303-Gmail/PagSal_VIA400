@@ -1,0 +1,901 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4700.
+      ******************************************************************
+      *                                                                *
+      *                            - PS -                              *
+      *                                                                *
+      ******************************************************************
+      * Valida a cópia de ficheiros recebidos no eBanking para Central *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+           SELECT PSF4700-FILE
+              ASSIGN                       TO DISK-PSF4700
+              FILE STATUS                  IS VIAW0011-FSTATUS.
+      *
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       FD  PSF4700-FILE.
+       01  PSCF4700-REG.
+           05 PSCF4700-LINHAS              PIC  X(20).
+      *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME                  PIC  X(10) VALUE 'PSB4700'.
+           05 WS-PARAGRAPH-NAME            PIC  X(30) VALUE SPACES.
+      *
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+       01  DCLBBLOGFX.
+           COPY DDS-ALL-FORMATS OF BBLOGFX PREFIX BY 'BBLOGFX-'.
+      *
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+      *    05 FILLER                   PIC  X(01).
+           05 CON-PSF4700              PIC  X(10) VALUE 'PSF4700'.
+           05 CON-QCMDEXC              PIC  X(10) VALUE 'QCMDEXC'.
+           05 CON-LENGTH               PIC S9(10)V9(5) COMP-3
+                                                  VALUE 256.
+           05 CON-FICH-CARREGADO       PIC  X(01) VALUE 'C'.
+           05 CON-PARM-LAST-LOG        PIC  X(10) VALUE 'LOG_NORD'.
+      *
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-PATH-IFS              PIC X(50) VALUE SPACES.
+           05 WS-BIBL-AS400            PIC X(50) VALUE SPACES.
+           05 WS-NOME-LSOUT            PIC X(50) VALUE SPACES.
+           05 WS-TOT-READ-VSF00008     PIC  9(06) VALUE ZEROS.
+           05 WS-TOT-NO-WRITE          PIC  9(06) VALUE ZEROS.
+           05 WS-COMMAND               PIC  X(256) VALUE SPACES.
+           05 WS-VSCF00008.
+              10 WS-ORINOM             PIC  X(50).
+              10 FILLER REDEFINES WS-ORINOM.
+                 15 WS-AAAAMMDD        PIC  9(08).
+                 15 WS-SEQUENC         PIC  9(04).
+                 15 WS-EXTENSAO        PIC  X(04).
+                 15 WS-RESTO           PIC  X(34).
+              10 FILLER                PIC X(206).
+           05 WS-FILE-DATE             PIC  X(10).
+           05 WS-DATE                  PIC  9(08).
+           05 WS-COUNTER               PIC  X(01).
+           05 WS-COUNTER-N REDEFINES
+              WS-COUNTER               PIC  9(01) VALUE ZEROES.
+      *
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 FILLER                   PIC  X(01).
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCL0001.
+           COPY AQCW0109.
+           COPY ARCK0001.
+           COPY ARCK0002.
+           COPY VIAL0015.
+           COPY VIAL0100.
+           COPY VIAW0011.
+           COPY VIAW0012.
+           COPY ARCL7210.
+           COPY ARCL7155.
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+           COPY PSCK0002.
+      ******************************************************************
+      * MODULOS
+      ******************************************************************
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+      *
+      *****************************************************************
+      *                   DECLARAÇÃO DE CURSORES                      *
+      *****************************************************************
+      *
+           EXEC SQL
+              DECLARE CRS_LOG CURSOR WITH HOLD FOR
+                 SELECT BBLFNORD
+                      , BBLFDATA
+                      , BBLFHORA
+                      , BBLFCODU
+                      , BBLFNOMO
+                      , BBLFNOMD
+                   FROM BBLOGFX
+                  WHERE BBLFNORD  >= :BBLOGFX-BBLFNORD
+                   WITH UR
+           END-EXEC.
+      *
+      ******************************************************************
+       01  FILLER                          PIC X(40) VALUE
+                                               'FIM DA WORKING-STORAGE'.
+      *
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+           COPY AQCW0009.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+       0000-MAINLINE.
+      *                                                                *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT
+           END-IF.
+      *
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+      *
+       0000-MAINLINE-EXIT.
+           GOBACK.
+      *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           MOVE '1000-INICIO-PROGRAMA' TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           IF AQCW0009-RCODE NOT NUMERIC
+              MOVE ZEROES              TO AQCW0009-RCODE
+           END-IF.
+      *
+           PERFORM 1100-PROCESSOS-INICIAIS
+              THRU 1100-PROCESSOS-INICIAIS-EXIT.
+      *
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-PROCESSOS-INICIAIS.
+      ******************************************************************
+           MOVE '1100-PROCESSOS-INICIAIS.'   TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM AQCP0100-REG-INICIO
+              THRU AQCP0100-REG-INICIO-EXIT
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+           INITIALIZE ETCL0002-COMMAREA REPLACING NUMERIC BY ZEROES
+                                             ALPHANUMERIC BY SPACES.
+      *
+           INITIALIZE WS-VARIAVEIS.
+           INITIALIZE WS-SWITCHES.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM 1110-OBTEM-PARM-FICH
+                 THRU 1110-OBTEM-PARM-FICH-EXIT
+           END-IF.
+      *
+       1100-PROCESSOS-INICIAIS-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       1110-OBTEM-PARM-FICH.
+      ******************************************************************
+      *
+           MOVE '1110-OBTEM-PARM-FICH '     TO VIAL0015-CALLER-ID
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE ARCL2205-DATA REPLACING NUMERIC BY ZEROES
+                                         ALPHANUMERIC BY SPACES.
+
+           MOVE PSCK0002-CAPLIC            TO ARCL2205-CAPLIC.
+           MOVE CON-PARM-LAST-LOG          TO ARCL2205-CPARAM
+      *
+           PERFORM ETCP0003-STD-INIT
+              THRU ETCP0003-STD-INIT-EXIT.
+      *
+           PERFORM CALL-ARM2206
+              THRU CALL-ARM2206-EXIT.
+      *
+           PERFORM ETCP0003-STD-END
+              THRU ETCP0003-STD-END-EXIT.
+      *
+           IF ETCL0002-SEM-ERROS
+              MOVE ARCL2205-GVALOR1        TO WS-STR-LOG
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE VIAW0012-TABLE-NAME     TO AQCW0100-NM-ENTIDADE
+              MOVE ETCL0002-NR-ERRO        TO AQCW0100-SQLCODE
+              MOVE 'ERRO OBTER LAST LOG  ' TO AQCW0100-DESC1
+              MOVE SPACES                  TO AQCW0100-DESC2
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       1110-OBTEM-PARM-FICH-EXIT.
+           EXIT.
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           MOVE '2000-PROC-PROGRAMA.'   TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2120-OBTEM-LISTA
+                 THRU 2120-OBTEM-LISTA-EXIT
+           END-IF.
+
+      * ATRIBUI MEMBRO LSOUTPUT AO FICHEIRO VSF00008 PARA LEITURA
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2130-ASSIGNA-LISTA
+                 THRU 2130-ASSIGNA-LISTA-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2140-ABRE-LISTA
+                 THRU 2140-ABRE-LISTA-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2150-LE-LISTA
+                 THRU 2150-LE-LISTA-EXIT
+           END-IF.
+
+           PERFORM 2200-PROCESSA-LISTA
+              THRU 2200-PROCESSA-LISTA-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                OR NOT VIAW0011-OK.
+
+           PERFORM 2160-FECHA-LISTA
+              THRU 2160-FECHA-LISTA-EXIT.
+      *
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+       2120-OBTEM-LISTA.
+      ******************************************************************
+           MOVE '2120-OBTEM-LISTA    '     TO VIAL0015-CALLER-ID
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE ARCL7210-DATA REPLACING NUMERIC BY ZEROES
+                                         ALPHANUMERIC BY SPACES.
+      *
+           MOVE WS-BIBL-AS400              TO ARCL7210-LIB.
+           MOVE WS-NOME-LSOUT              TO ARCL7210-FILEOUT.
+           MOVE WS-PATH-IFS                TO ARCL7210-PATH.
+      *
+           CALL ARCL7210-ROTINA USING ARCL7210-RCODE
+                                      ARCL7210-LIB
+                                      ARCL7210-FILEOUT
+                                      ARCL7210-PATH.
+      *
+      * Nao precisa tratamento de erro pois esta rotina nao devolve erros
+      *
+       2120-OBTEM-LISTA-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2130-ASSIGNA-LISTA.
+      *****************************************************************
+           MOVE '2130-ASSIGNA-LISTA'       TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE SPACES                     TO WS-COMMAND.
+           STRING 'OVRDBF ' CON-VSF00008 ' '  DELIMITED BY SIZE
+                  WS-BIBL-AS400               DELIMITED BY SPACES
+                  '/' WS-NOME-LSOUT           DELIMITED BY SIZE
+                                         INTO WS-COMMAND.
+
+           CALL CON-QCMDEXC USING WS-COMMAND, CON-LENGTH.
+      *
+       2130-ASSIGNA-LISTA-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2140-ABRE-LISTA.
+      *****************************************************************
+           MOVE '2140-ABRE-LISTA'          TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           OPEN INPUT VSF00008-FILE.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF NOT VIAW0011-OK
+              SET  AQCW0009-RCODE-APL       TO TRUE
+              MOVE VIAL0015-CALLER-ID       TO AQCW0100-PARAGRAPH
+              MOVE WS-PROGNAME              TO AQCW0100-PGMNAME
+              MOVE CON-VSF00008             TO AQCW0100-NM-ENTIDADE
+              MOVE ZERO                     TO AQCW0100-SQLCODE
+              MOVE VIAW0011-FSTATUS         TO AQCW0100-FILE-STATUS
+              MOVE SPACES                   TO AQCW0100-ACCESS-KEY
+              MOVE 'ABRIR FICHEIRO'         TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       2140-ABRE-LISTA-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2150-LE-LISTA.
+      *****************************************************************
+           MOVE '2150-LE-LISTA'            TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           READ VSF00008-FILE.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF NOT VIAW0011-OK
+           AND NOT VIAW0011-EOF
+              SET  AQCW0009-RCODE-APL       TO TRUE
+              MOVE VIAL0015-CALLER-ID       TO AQCW0100-PARAGRAPH
+              MOVE WS-PROGNAME              TO AQCW0100-PGMNAME
+              MOVE CON-VSF00008             TO AQCW0100-NM-ENTIDADE
+              MOVE ZERO                     TO AQCW0100-SQLCODE
+              MOVE VIAW0011-FSTATUS         TO AQCW0100-FILE-STATUS
+              MOVE SPACES                   TO AQCW0100-ACCESS-KEY
+              MOVE 'LER FICHEIRO'           TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       2150-LE-LISTA-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2200-PROCESSA-LISTA.
+      *****************************************************************
+           MOVE '2200-PROCESSA-LISTA'      TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE VSCF00008-RECORD           TO WS-VSCF00008.
+      *
+           PERFORM 2205-VALIDA-NOME
+              THRU 2205-VALIDA-NOME-EXIT.
+      *
+           IF WS-ORINOM NOT EQUAL SPACES
+              IF AQCW0009-SEM-ERROS
+                 PERFORM 2210-VERIF-VST60
+                    THRU 2210-VERIF-VST60-EXIT
+              END-IF
+
+              IF AQCW0009-SEM-ERROS
+              AND VIAW0012-NOTFND
+                 SET  VIAW0012-OK          TO TRUE
+                 PERFORM 2215-VERIF-VST60
+                    THRU 2215-VERIF-VST60-EXIT
+                 VARYING WS-COUNTER-N FROM 1 BY 1
+                   UNTIL NOT AQCW0009-SEM-ERROS
+                      OR VIAW0012-NOTFND
+              END-IF
+
+              IF AQCW0009-SEM-ERROS
+              AND VIAW0012-NOTFND
+                 PERFORM 2225-COPIA-DO-IFS
+                    THRU 2225-COPIA-DO-IFS-EXIT
+              END-IF
+
+              IF  AQCW0009-SEM-ERROS
+              AND VIAW0012-NOTFND
+                 PERFORM 2250-INSERT-VST60
+                    THRU 2250-INSERT-VST60-EXIT
+              END-IF
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2150-LE-LISTA
+                 THRU 2150-LE-LISTA-EXIT
+           END-IF.
+      *
+       2200-PROCESSA-LISTA-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2205-VALIDA-NOME.
+      ******************************************************************
+      *
+           MOVE '2205-VALIDA-NOME'      TO VIAL0015-CALLER-ID
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+      * A estrutura do ficheiro tem de respeitar a seguinte estrutura:
+      * - AAAAMMDDSSSS.inp
+           IF WS-AAAAMMDD IS NUMERIC
+              MOVE WS-AAAAMMDD          TO AQCW0005-DT98
+              PERFORM AQCP0005-CONV-DT8INDT10
+                 THRU AQCP0005-CONV-DT8INDT10-EXIT
+              MOVE AQCW0005-DTX10       TO WS-FILE-DATE
+      *
+              EXEC SQL
+                 SET :WS-FILE-DATE = ( DATE( :WS-FILE-DATE )
+                                     + 1 DAY ) - 1 DAY
+              END-EXEC
+      *
+              MOVE WS-FILE-DATE         TO AQCW0005-DTX10
+              PERFORM AQCP0005-CONV-DT10INDT8
+                 THRU AQCP0005-CONV-DT10INDT8-EXIT
+              MOVE AQCW0005-DT98        TO WS-DATE
+      *
+           END-IF.
+      *
+           EVALUATE TRUE
+              WHEN WS-ORINOM   EQUAL SPACES
+                 CONTINUE
+              WHEN WS-AAAAMMDD IS NOT NUMERIC
+              WHEN WS-DATE     NOT EQUAL WS-AAAAMMDD
+              WHEN WS-SEQUENC  IS NOT NUMERIC
+              WHEN WS-EXTENSAO NOT EQUAL CON-EXTENSAO-OK
+              WHEN WS-RESTO    NOT EQUAL SPACES
+                 MOVE SPACES            TO WS-ORINOM
+           END-EVALUATE.
+      *
+       2205-VALIDA-NOME-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2210-VERIF-VST60.
+      ******************************************************************
+           MOVE '2210-VERIF-VST60'      TO VIAL0015-CALLER-ID
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLVSCD6001 REPLACING NUMERIC BY ZEROES
+                                       ALPHANUMERIC BY SPACES.
+           MOVE CON-EDST                   TO VSCD6001-CTIPOFIC
+           MOVE VSCF00008-RECORD           TO VSCD6001-CNOMEO
+
+           EXEC SQL
+               SELECT CNOMEO
+                 INTO :VSCD6001-CNOMEO
+                 FROM VSVT6001
+                WHERE CTIPOFIC = :VSCD6001-CTIPOFIC
+                  AND CNOMEO   = :VSCD6001-CNOMEO
+           END-EXEC.
+
+           MOVE CON-VSVT6001               TO VIAW0012-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT VIAW0012-OK AND NOT VIAW0012-NOTFND
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE VIAW0012-TABLE-NAME     TO AQCW0100-NM-ENTIDADE
+              MOVE VIAW0012-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE VSCD6001-CTIPOFIC       TO AQCW0100-ACCESS-KEY
+              MOVE 'ERRO NO SELECT   '     TO AQCW0100-DESC1
+              MOVE 'VSVT6001         '     TO AQCW0100-DESC2
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2210-VERIF-VST60-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2215-VERIF-VST60.
+      ******************************************************************
+           MOVE '2215-VERIF-VST60'      TO VIAL0015-CALLER-ID
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLVSCD6001 REPLACING NUMERIC BY ZEROES
+                                       ALPHANUMERIC BY SPACES.
+           MOVE CON-EDST                   TO VSCD6001-CTIPOFIC
+           STRING 'DST'                       DELIMITED BY SIZE
+                  VSCF00008-RECORD(3:6)       DELIMITED BY SPACES
+                  WS-COUNTER                  DELIMITED BY SPACES
+                                         INTO VSCD6001-CNOMEF.
+
+           EXEC SQL
+               SELECT CNOMEO
+                 INTO :VSCD6001-CNOMEO
+                 FROM VSVT6001
+                WHERE CTIPOFIC = :VSCD6001-CTIPOFIC
+                  AND CNOMEF   = :VSCD6001-CNOMEF
+           END-EXEC.
+
+           MOVE CON-VSVT6001               TO VIAW0012-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT VIAW0012-OK AND NOT VIAW0012-NOTFND
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE VIAW0012-TABLE-NAME     TO AQCW0100-NM-ENTIDADE
+              MOVE VIAW0012-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE VSCD6001-CTIPOFIC       TO AQCW0100-ACCESS-KEY
+              MOVE 'ERRO NO SELECT   '     TO AQCW0100-DESC1
+              MOVE 'VSVT6001         '     TO AQCW0100-DESC2
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2215-VERIF-VST60-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+      *    TRATA DA COPIA DO FICHEIRO QUE ESTA NO IFS
+      ******************************************************************
+       2225-COPIA-DO-IFS.
+      *
+           MOVE '2225-COPIA-DO-IFS'      TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE ARCL7155-DATA     REPLACING NUMERIC BY ZEROES
+                                             ALPHANUMERIC BY SPACES.
+      *
+           MOVE WS-PATH-IFS                TO ARCL7155-PATHI.
+           MOVE VSCF00008-RECORD           TO ARCL7155-FILEI.
+           MOVE WS-BIBL-AS400              TO ARCL7155-BIBLO.
+      *    STRING 'DST'                       DELIMITED BY SIZE
+      *           VSCF00008-RECORD(3:6)       DELIMITED BY SPACES
+      *                                  INTO ARCL7155-FILEO.
+           MOVE VSCD6001-CNOMEF            TO ARCL7155-FILEO.
+           MOVE 378                        TO ARCL7155-FSIZE.
+      *
+           PERFORM ETCP0003-STD-INIT
+              THRU ETCP0003-STD-INIT-EXIT.
+      *
+           PERFORM CALL-ARM70155
+              THRU CALL-ARM70155-EXIT.
+      *
+           PERFORM ETCP0003-STD-END
+              THRU ETCP0003-STD-END-EXIT.
+      *
+           MOVE ETCL0002-RCODE             TO AQCW0009-RCODE.
+      *
+           IF AQCW0009-SEM-ERROS
+              CONTINUE
+           ELSE
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE ARCL7155-ROTINA         TO AQCW0100-NM-ENTIDADE
+              MOVE 'ERRO NO ACESSO A '     TO AQCW0100-DESC1
+              MOVE 'ARM70155       '       TO AQCW0100-DESC2
+              MOVE  AQCW0009-RCODE         TO AQCW0100-DESC3
+              MOVE  ARCL7155-DATA          TO AQCW0100-ACCESS-KEY
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       2225-COPIA-DO-IFS-EXIT.
+           EXIT.
+      ******************************************************************
+       2250-INSERT-VST60.
+      ******************************************************************
+           MOVE '2250-INSERT-VST60   '     TO VIAL0015-CALLER-ID
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'AQCW0009-RCODE      '  TO VIAL0015-CAMPO-NM (1)
+              MOVE  AQCW0009-RCODE         TO VIAL0015-CAMPO-VLR(1)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE DCLVSCD6001 REPLACING NUMERIC BY ZEROES
+                                       ALPHANUMERIC BY SPACES
+           MOVE CON-EDST                   TO VSCD6001-CTIPOFIC
+           MOVE CON-INTERBANCOS            TO VSCD6001-CORIGEM
+      * CONVERTE DATA PARA FORMATO X(10)
+           MOVE AQCW0100-AT-DTOP           TO AQCW0005-DT98
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT
+           MOVE AQCW0005-DTX10             TO VSCD6001-DATEXTRC
+           PERFORM 2251-SEQUENCIA-FICHEIRO
+              THRU 2251-SEQUENCIA-FICHEIRO-EXIT
+           MOVE VSCF00008-RECORD           TO VSCD6001-CNOMEO
+           MOVE WS-BIBL-AS400              TO VSCD6001-CBIBLI
+           MOVE ARCL7155-FILEO             TO VSCD6001-CNOMEF
+           MOVE CON-FICH-CARREGADO         TO VSCD6001-CAPLVSCM
+                                                VSCD6001-CAPLVSAR
+                                                VSCD6001-CAPLPP.
+           MOVE CON-NAO-PROCESSADO         TO VSCD6001-CPROCESS.
+           MOVE WS-PROGNAME                TO VSCD6001-CUSERID.
+
+           IF AQCW0009-SEM-ERROS
+              EXEC SQL
+                 INSERT INTO
+                VSVT6001
+                (
+                  CTIPOFIC
+                , DATEXTRC
+                , CORIGEM
+                , ZSEQFIC
+                , CNOMEO
+                , CBIBLI
+                , CNOMEF
+                , CAPLVSCM
+                , CAPLVSAR
+                , CAPLPP
+                , DVALOR
+                , CPROCESS
+                , CUSERID
+                , HTIMEST
+                )
+              VALUES (
+                   :VSCD6001-CTIPOFIC
+                 , :VSCD6001-DATEXTRC
+                 , :VSCD6001-CORIGEM
+                 , :VSCD6001-ZSEQFIC
+                 , :VSCD6001-CNOMEO
+                 , :VSCD6001-CBIBLI
+                 , :VSCD6001-CNOMEF
+                 , :VSCD6001-CAPLVSCM
+                 , :VSCD6001-CAPLVSAR
+                 , :VSCD6001-CAPLPP
+                 , :VSCD6001-DVALOR
+                 , :VSCD6001-CPROCESS
+                 , :VSCD6001-CUSERID
+                 ,  CURRENT TIMESTAMP
+                )
+              END-EXEC
+
+              MOVE CON-VSVT6001            TO VIAW0012-TABLE-NAME
+
+              PERFORM 9020-DB2CHECK
+                 THRU 9029-DB2CHECK-EXIT
+
+              IF NOT VIAW0012-OK
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAW0012-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE VIAW0012-SQLCODE     TO AQCW0100-SQLCODE
+                 MOVE WS-ORINOM            TO AQCW0100-ACCESS-KEY
+                 MOVE 'ERRO NO INSERT TABELA ' TO AQCW0100-DESC1
+                 MOVE 'VSVT6001          ' TO AQCW0100-DESC2
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+              END-IF
+           END-IF.
+      *
+       2250-INSERT-VST60-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2251-SEQUENCIA-FICHEIRO.
+      *****************************************************************
+           MOVE '2251-SEQUENCIA-FICHEIRO'  TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+               SELECT IFNULL(MAX(ZSEQFIC), 0)
+                 INTO :VSCD6001-ZSEQFIC
+                 FROM VSVT6001
+                WHERE CTIPOFIC = :VSCD6001-CTIPOFIC
+                  AND DATEXTRC = :VSCD6001-DATEXTRC
+           END-EXEC
+
+           MOVE CON-VSVT6001               TO VIAW0012-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAW0012-OK
+           OR VIAW0012-NOTFND
+              ADD 1                        TO VSCD6001-ZSEQFIC
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAW0012-TABLE-NAME     TO AQCW0100-NM-ENTIDADE
+              MOVE VIAW0012-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE VSCD6001-CTIPOFIC       TO AQCW0100-ACCESS-KEY
+              MOVE 'ERRO NO SELECT TABELA' TO AQCW0100-DESC1
+              MOVE 'VST60                ' TO AQCW0100-DESC2
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       2251-SEQUENCIA-FICHEIRO-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2160-FECHA-LISTA.
+      *****************************************************************
+           MOVE '2160-FECHA-LISTA'         TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           CLOSE VSF00008-FILE.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF NOT VIAW0011-OK
+              SET  AQCW0009-RCODE-APL       TO TRUE
+              MOVE VIAL0015-CALLER-ID       TO AQCW0100-PARAGRAPH
+              MOVE WS-PROGNAME              TO AQCW0100-PGMNAME
+              MOVE CON-VSF00008             TO AQCW0100-NM-ENTIDADE
+              MOVE ZERO                     TO AQCW0100-SQLCODE
+              MOVE VIAW0011-FSTATUS         TO AQCW0100-FILE-STATUS
+              MOVE SPACES                   TO AQCW0100-ACCESS-KEY
+              MOVE 'FECHAR FICHEIRO'        TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       2160-FECHA-LISTA-EXIT.
+           EXIT.
+
+      *****************************************************************
+       3000-FIM-PROGRAMA.
+      *****************************************************************
+           MOVE '3000-FIM-PROGRAMA.'   TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 3100-DISPLAY-ESTATISTICAS
+              THRU 3100-DISPLAY-ESTATISTICAS-EXIT.
+
+           PERFORM 3200-PROCESSOS-FINAIS
+              THRU 3200-PROCESSOS-FINAIS-EXIT.
+
+           PERFORM 3300-COMMIT-CONTROL
+              THRU 3300-COMMIT-CONTROL-EXIT.
+
+       3000-FIM-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3100-DISPLAY-ESTATISTICAS.
+      ******************************************************************
+           MOVE '3100-DISPLAY-ESTATISTICAS.'   TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE SPACE                    TO VIAL0015-CAMPOS-CHAVE.
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT.
+
+       3100-DISPLAY-ESTATISTICAS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3200-PROCESSOS-FINAIS.
+      ******************************************************************
+           MOVE '3200-PROCESSOS-FINAIS' TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           PERFORM AQCP0100-REG-FIM
+              THRU AQCP0100-REG-FIM-EXIT.
+
+       3200-PROCESSOS-FINAIS-EXIT.
+           EXIT.
+
+      *****************************************************************
+       3300-COMMIT-CONTROL.
+      *****************************************************************
+           MOVE '3300-COMMIT-CONTROL'  TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE AQCW0009-RCODE          TO VIAL0015-CAMPOS-CHAVE
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE AQCW0009-RCODE             TO AQCL0001-RCODE.
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+       3300-COMMIT-CONTROL-EXIT.
+           EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0109.
+           COPY VIAP0011.
+           COPY VIAP0012.
+           COPY VIAP0015.
+           COPY ARCP7155.

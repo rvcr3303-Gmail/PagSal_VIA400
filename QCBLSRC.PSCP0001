@@ -1,0 +1,84 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                      **
+      *  MÓDULO:           PARAMETROS                                 **
+      *  FUNÇÃO:           CONSULTA DE PARAMETRIZACAO                 **
+      *  PROGRAMA:         PSCPARAM.                                  **
+      *  CRIACAO:          2012.01.04                                 **
+      *  AUTOR:            VIA CONSULTING                             **
+      *  DESCRIÇÃO:        CONSULTA TABELA DE PARAMETROS PSPARAM      **
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S           **
+      *          *        *        *                                  **
+      ******************************************************************
+       PSCP0001-PARAMETRIZACAO.
+      ******************************************************************
+      * Limpa os campos de output para que fiquem limpos em caso de erro
+           INITIALIZE PSPARAM-PRTIPPAR
+                      PSPARAM-PRVALDAT
+                      PSPARAM-PRVALNUM
+                      PSPARAM-PRVALBOL
+                      PSPARAM-PRPARM0
+                      PSPARAM-PRPARM1
+                      PSPARAM-PRPARM2
+                      PSPARAM-PRPARM3
+                      PSPARAM-PRPARM4
+                      PSPARAM-PRPARM5
+                      PSPARAM-PRPARM6
+                      PSPARAM-PRPARM7
+                      PSPARAM-PRPARM8
+                      PSPARAM-PRPARM9
+                      .
+
+      * efectua a consulta da parametrização
+           EXEC SQL
+                SELECT  PRTIPPAR
+                     ,  PRVALDAT
+                     ,  PRVALNUM
+                     ,  PRVALBOL
+                     ,  PRPARM0
+                     ,  PRPARM1
+                     ,  PRPARM2
+                     ,  PRPARM3
+                     ,  PRPARM4
+                     ,  PRPARM5
+                     ,  PRPARM6
+                     ,  PRPARM7
+                     ,  PRPARM8
+                     ,  PRPARM9
+                  INTO :PSPARAM-PRTIPPAR
+                     , :PSPARAM-PRVALDAT
+                     , :PSPARAM-PRVALNUM
+                     , :PSPARAM-PRVALBOL
+                     , :PSPARAM-PRPARM0
+                     , :PSPARAM-PRPARM1
+                     , :PSPARAM-PRPARM2
+                     , :PSPARAM-PRPARM3
+                     , :PSPARAM-PRPARM4
+                     , :PSPARAM-PRPARM5
+                     , :PSPARAM-PRPARM6
+                     , :PSPARAM-PRPARM7
+                     , :PSPARAM-PRPARM8
+                     , :PSPARAM-PRPARM9
+                  FROM  PSPARAM
+                 WHERE  PRCODPAR = :PSPARAM-PRCODPAR
+                   AND  PRPARAM  = :PSPARAM-PRPARAM
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-PAVLR-INVALIDO       TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       PSCP0001-PARAMETRIZACAO-EXIT.
+           EXIT.

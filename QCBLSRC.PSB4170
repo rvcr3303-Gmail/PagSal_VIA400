@@ -1,0 +1,502 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4170.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Módulo que passa mensagens para histórico
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB4170'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+      *    COPY VIAK0001.
+      *    COPY VIAK0002.
+           COPY AQCL0001.
+           COPY AQCK0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY SXCL0900.
+           COPY SXCL0901.
+           COPY SXCL0760.
+           COPY SXCW0902.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+      *    COPY PSCW0050.
+      *    COPY SXCL0025.
+      *    COPY SXCW0025.
+           COPY SXCL0430.
+           COPY SXCL0445.
+           COPY SXCL0002.
+           COPY AQCW0109.
+           COPY VIAW0050.
+           COPY BRCL1020.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA PSMENSAG  (MENSAGENS)
+           EXEC SQL INCLUDE PSCDMENSAG END-EXEC.
+      * TABELA PSHMENSAG (HIST MENSAGENS)
+           EXEC SQL INCLUDE PSCDHMENSA END-EXEC.
+      * TABELA PSPARAM   (PARAMETROS    )
+           EXEC SQL INCLUDE PSCDPARAM  END-EXEC.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 FILLER                   PIC  X.
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 FILLER                   PIC  X.
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 FILLER                   PIC  X.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PSMENSAG CURSOR FOR
+                SELECT  MSNCLI
+                     ,  MSDINT
+                     ,  MSNFIC
+                     ,  MSTEMP
+                     ,  MSNREG
+                     ,  MSOGER
+                     ,  MSAGEN
+                     ,  MSREF
+                     ,  MSTREG
+                     ,  MSTOPE
+                     ,  MSSITC
+                     ,  MSSITR
+                     ,  MSCBAN
+                     ,  MSCBAL
+                     ,  MSCNTA
+                     ,  MSCDIG
+                     ,  MSMONT
+                     ,  MSNOME
+                     ,  MSREFTR
+                     ,  MSDVAL
+                     ,  MSCEST
+                     ,  CUSERID
+                  FROM  PSMENSAG
+           END-EXEC.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT
+                   UNTIL NOT AQCW0009-SEM-ERROS
+                          OR NOT AQCW0011-OK.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+      *                  11      000     000     000                   *
+      *                 1 1     0  00   0  00   0  00                  *
+      *                   1     0 0 0   0 0 0   0 0 0                  *
+      *                   1     00  0   00  0   00  0                  *
+      *                 11111    000     000     000                   *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES.
+
+           MOVE WS-PROGNAME                      TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE                   TO SXCW0902-MFILE.
+           MOVE ZEROES                           TO AQCW0009-RCODE.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+           PERFORM 1100-ABERTURA-CURSOR
+              THRU 1100-ABERTURA-CURSOR-EXIT.
+
+           PERFORM 1200-LEITURA-CURSOR
+              THRU 1200-LEITURA-CURSOR-EXIT.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-ABERTURA-CURSOR.
+      ******************************************************************
+           EXEC SQL
+                OPEN CRS_PSMENSAG
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-OPEN-PSMENSAG        TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       1100-ABERTURA-CURSOR-EXIT.
+            EXIT.
+
+      ******************************************************************
+       1200-LEITURA-CURSOR.
+      ******************************************************************
+           EXEC SQL
+                FETCH CRS_PSMENSAG
+                 INTO :PSMENSAG-MSNCLI
+                    , :PSMENSAG-MSDINT
+                    , :PSMENSAG-MSNFIC
+                    , :PSMENSAG-MSTEMP
+                    , :PSMENSAG-MSNREG
+                    , :PSMENSAG-MSOGER
+                    , :PSMENSAG-MSAGEN
+                    , :PSMENSAG-MSREF
+                    , :PSMENSAG-MSTREG
+                    , :PSMENSAG-MSTOPE
+                    , :PSMENSAG-MSSITC
+                    , :PSMENSAG-MSSITR
+                    , :PSMENSAG-MSCBAN
+                    , :PSMENSAG-MSCBAL
+                    , :PSMENSAG-MSCNTA
+                    , :PSMENSAG-MSCDIG
+                    , :PSMENSAG-MSMONT
+                    , :PSMENSAG-MSNOME
+                    , :PSMENSAG-MSREFTR
+                    , :PSMENSAG-MSDVAL
+                    , :PSMENSAG-MSCEST
+                    , :PSMENSAG-CUSERID
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-SELECT-PSMENSAG    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       1200-LEITURA-CURSOR-EXIT.
+            EXIT.
+
+      ******************************************************************
+      *                  222     000     000     000                   *
+      *                 2   2   0  00   0  00   0  00                  *
+      *                   22    0 0 0   0 0 0   0 0 0                  *
+      *                  2      00  0   00  0   00  0                  *
+      *                 22222    000     000     000                   *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           PERFORM 2100-SEQUENCIA-MENSAGEM
+              THRU 2100-SEQUENCIA-MENSAGEM-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2200-HISTORICO-MENSAGEM
+                 THRU 2200-HISTORICO-MENSAGEM-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2300-APAGA-MENSAGEM
+                 THRU 2300-APAGA-MENSAGEM-EXIT
+           END-IF.
+
+           PERFORM 1200-LEITURA-CURSOR
+              THRU 1200-LEITURA-CURSOR-EXIT.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-SEQUENCIA-MENSAGEM.
+      ******************************************************************
+           INITIALIZE                                RHMENSAG.
+           MOVE PSMENSAG-MSNCLI                  TO PSHMENSAG-HMNCLI.
+           MOVE PSMENSAG-MSDINT                  TO PSHMENSAG-HMDINT.
+           MOVE PSMENSAG-MSNFIC                  TO PSHMENSAG-HMNFIC.
+           MOVE PSMENSAG-MSTEMP                  TO PSHMENSAG-HMTEMP.
+           MOVE PSMENSAG-MSNREG                  TO PSHMENSAG-HMNREG.
+
+           EXEC SQL
+                SELECT MAX(HMNALT)
+                  INTO :PSHMENSAG-HMNALT
+                  FROM PSHMENSAG
+                 WHERE HMNCLI = :PSHMENSAG-HMNCLI
+                   AND HMDINT = :PSHMENSAG-HMDINT
+                   AND HMNFIC = :PSHMENSAG-HMNFIC
+                   AND HMTEMP = :PSHMENSAG-HMTEMP
+                   AND HMNREG = :PSHMENSAG-HMNREG
+           END-EXEC
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN AQCW0011-NOTFND
+           WHEN AQCW0011-FNC-NOT-FND
+                SET AQCW0009-RCODE-OK            TO TRUE
+                MOVE ZEROES                      TO PSHMENSAG-HMNALT
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-SELECT-PSHMENSAG   TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2100-SEQUENCIA-MENSAGEM-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-HISTORICO-MENSAGEM.
+      ******************************************************************
+           ADD  1                                TO PSHMENSAG-HMNALT .
+           MOVE PSMENSAG-MSOGER                  TO PSHMENSAG-HMOGER .
+           MOVE PSMENSAG-MSAGEN                  TO PSHMENSAG-HMAGEN .
+           MOVE PSMENSAG-MSREF                   TO PSHMENSAG-HMREF  .
+           MOVE PSMENSAG-MSTREG                  TO PSHMENSAG-HMTREG .
+           MOVE PSMENSAG-MSTOPE                  TO PSHMENSAG-HMTOPE .
+           MOVE PSMENSAG-MSSITC                  TO PSHMENSAG-HMSITC .
+           MOVE PSMENSAG-MSSITR                  TO PSHMENSAG-HMSITR .
+           MOVE PSMENSAG-MSCBAN                  TO PSHMENSAG-HMCBAN .
+           MOVE PSMENSAG-MSCBAL                  TO PSHMENSAG-HMCBAL .
+           MOVE PSMENSAG-MSCNTA                  TO PSHMENSAG-HMCNTA .
+           MOVE PSMENSAG-MSCDIG                  TO PSHMENSAG-HMCDIG .
+           MOVE PSMENSAG-MSMONT                  TO PSHMENSAG-HMMONT .
+           MOVE PSMENSAG-MSNOME                  TO PSHMENSAG-HMNOME .
+           MOVE PSMENSAG-MSREFTR                 TO PSHMENSAG-HMREFTR.
+           MOVE PSMENSAG-MSDVAL                  TO PSHMENSAG-HMDVAL .
+           MOVE PSMENSAG-MSCEST                  TO PSHMENSAG-HMCEST .
+           MOVE PSMENSAG-CUSERID                 TO PSHMENSAG-CUSERID.
+
+           EXEC SQL
+                INSERT
+                  INTO PSHMENSAG
+                     ( HMNCLI
+                     , HMDINT
+                     , HMNFIC
+                     , HMTEMP
+                     , HMNREG
+                     , HMNALT
+                     , HMOGER
+                     , HMAGEN
+                     , HMREF
+                     , HMTREG
+                     , HMTOPE
+                     , HMSITC
+                     , HMSITR
+                     , HMCBAN
+                     , HMCBAL
+                     , HMCNTA
+                     , HMCDIG
+                     , HMMONT
+                     , HMNOME
+                     , HMREFTR
+                     , HMDVAL
+                     , HMCEST
+                     , CUSERID
+                     , HTIMEEST
+                     )
+                VALUES
+                     ( :PSHMENSAG-HMNCLI
+                     , :PSHMENSAG-HMDINT
+                     , :PSHMENSAG-HMNFIC
+                     , :PSHMENSAG-HMTEMP
+                     , :PSHMENSAG-HMNREG
+                     , :PSHMENSAG-HMNALT
+                     , :PSHMENSAG-HMOGER
+                     , :PSHMENSAG-HMAGEN
+                     , :PSHMENSAG-HMREF
+                     , :PSHMENSAG-HMTREG
+                     , :PSHMENSAG-HMTOPE
+                     , :PSHMENSAG-HMSITC
+                     , :PSHMENSAG-HMSITR
+                     , :PSHMENSAG-HMCBAN
+                     , :PSHMENSAG-HMCBAL
+                     , :PSHMENSAG-HMCNTA
+                     , :PSHMENSAG-HMCDIG
+                     , :PSHMENSAG-HMMONT
+                     , :PSHMENSAG-HMNOME
+                     , :PSHMENSAG-HMREFTR
+                     , :PSHMENSAG-HMDVAL
+                     , :PSHMENSAG-HMCEST
+                     , :PSHMENSAG-CUSERID
+                     , CURRENT TIMESTAMP
+                     )
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN AQCW0011-NOTFND
+                MOVE ZEROES                      TO PSHMENSAG-HMNALT
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-INSERT-PSHMENSAG   TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2200-HISTORICO-MENSAGEM-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-APAGA-MENSAGEM.
+      ******************************************************************
+           EXEC SQL
+                DELETE
+                  FROM PSMENSAG
+                 WHERE CURRENT OF CRS_PSMENSAG
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN AQCW0011-NOTFND
+                MOVE ZEROES                      TO PSHMENSAG-HMNALT
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-DELETE-PSMENSAG    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2300-APAGA-MENSAGEM-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                 3333     000     000     000                   *
+      *                     3   0  00   0  00   0  00                  *
+      *                   33    0 0 0   0 0 0   0 0 0                  *
+      *                     3   00  0   00  0   00  0                  *
+      *                 3333     000     000     000                   *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           EXEC SQL
+                CLOSE CRS_PSMENSAG
+           END-EXEC.
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+      *    PERFORM PSCP0050-REG-FIM
+      *       THRU PSCP0050-REG-FIM-EXIT.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY SXCP0902.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+      * OBTEM DATA DO DIA
+      *    COPY SXCR0025.
+           COPY SXCR0430.
+           COPY SXCR0760.
+      *    COPY PSCP0050.
+           COPY AQCP0109.
+           COPY SXCR0445.
+           COPY VIAP0050.
+      ******************************************************************
+           EXEC SQL INCLUDE PSCP0001 END-EXEC.
+      ******************************************************************

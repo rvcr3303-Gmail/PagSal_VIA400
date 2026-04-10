@@ -1,0 +1,879 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB5000.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Detectar Situações de Desbalanceamento                         *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB5000'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY AQCW0109.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 CON-PSFDETALHE               PIC X(10) VALUE 'PSFDETALHE'.
+           05 CON-PSFHEADER                PIC X(10) VALUE 'PSFHEADER'.
+           05 CON-ARVT2200                 PIC X(10) VALUE 'ARVT2200'.
+           05 CON-TABELA                   PIC X(10) VALUE 'PSVT2001'.
+           05 CON-GBMVDO                   PIC X(10) VALUE 'GBMVDO'.
+           05 CON-GBMVCO                   PIC X(10) VALUE 'GBMVCO'.
+           05 CON-GBMVCC                   PIC X(10) VALUE 'GBMVCC'.
+           05 CON-CPARAM                   PIC X(10) VALUE 'DESBALANCE'.
+           05 CON-CAPLIC                   PIC X(02) VALUE 'PS'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-DTDATE                    PIC  X(10) VALUE SPACES.
+           05 WS-DTNCLI                    PIC S9(09) COMP-3 VALUE  0.
+           05 WS-DTDINT                    PIC S9(08) COMP-3 VALUE  0.
+           05 WS-DTNFIC                    PIC S9(06) COMP-3 VALUE  0.
+           05 WS-DTNCLI-ANT                PIC S9(09) COMP-3 VALUE  0.
+           05 WS-DTDINT-ANT                PIC S9(08) COMP-3 VALUE  0.
+           05 WS-DTNFIC-ANT                PIC S9(06) COMP-3 VALUE  0.
+           05 WS-DTNOCB                    PIC S9(09) COMP-3 VALUE  0.
+           05 WS-PARAM                     PIC  X(10) VALUE SPACES.
+           05 WS-NOPR                      PIC S9(09) COMP-3 VALUE  0.
+           05 WS-PST20-NOPR                PIC S9(09) COMP-3 VALUE  0.
+           05 WS-GBMV-NOPR                 PIC S9(09) COMP-3 VALUE  0.
+           05 WS-ACUM                      PIC S9(13)V9(02) COMP-3
+                                                             VALUE  0.
+           05 WS-ACUM-NOPR                 PIC S9(13)V9(02) COMP-3
+                                                             VALUE  0.
+           05 WS-SOMA                      PIC S9(13)V9(02) COMP-3
+                                                             VALUE  0.
+      *
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 SW-PSFDETALHE                PIC X(01).
+              88 SW-PSFDETALHE-OK                    VALUE '1'.
+              88 SW-PSFDETALHE-NOK                   VALUE '0'.
+      *
+           05 SW-PSFHEADER                 PIC  X(01).
+              88 SW-PSFHEADER-OK                     VALUE 'S'.
+              88 SW-PSFHEADER-KO                     VALUE 'N'.
+      *
+      ******************************************************************
+      * MÓDULOS
+      ******************************************************************
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE ARCD2200 END-EXEC.
+           EXEC SQL INCLUDE PSCD2001 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PSFDETALHE CURSOR FOR
+                SELECT SUBSTR( HTIMEEST, 1, 10 ) DTDATE
+                     , DTNCLI
+                     , DTDINT
+                     , DTNFIC
+                     , DTNOCB
+                  FROM PSFDETALHE
+                 WHERE SUBSTR( HTIMEEST, 1, 10 ) >= :WS-PARAM
+                   AND DTNOCB  >  0
+                 GROUP BY SUBSTR( HTIMEEST, 1, 10 )
+                        , DTNCLI
+                        , DTDINT
+                        , DTNFIC
+                        , DTNOCB
+                 ORDER BY SUBSTR( HTIMEEST, 1, 10 )
+                        , DTNCLI
+                        , DTDINT
+                        , DTNFIC
+                        , DTNOCB
+           END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                OR NOT SW-PSFDETALHE-OK.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+      *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '1000-INICIO-PROGRAMA '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES.
+
+           MOVE ZEROES                     TO AQCW0009-RCODE.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM 1100-OBTEM-PARAM
+                 THRU 1100-OBTEM-PARAM-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM 1200-ABRIR-CURSOR
+                 THRU 1200-ABRIR-CURSOR-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM 1300-LER-CURSOR
+                 THRU 1300-LER-CURSOR-EXIT
+           END-IF.
+      *
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       1100-OBTEM-PARAM.
+      ******************************************************************
+
+           MOVE '1100-OBTEM-PARAM     '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE ARCL2205-DATA  REPLACING  NUMERIC BY ZEROES
+                                           ALPHANUMERIC BY SPACES.
+      *
+           MOVE CON-CPARAM                 TO ARCL2205-CPARAM.
+           MOVE CON-CAPLIC                 TO ARCL2205-CAPLIC.
+      *
+           PERFORM CALL-ARM2206
+              THRU CALL-ARM2206-EXIT.
+      *
+           IF ETCL0002-SEM-ERROS
+              MOVE ARCL2205-GVALOR1        TO WS-PARAM
+           END-IF.
+      *
+       1100-OBTEM-PARAM-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       1200-ABRIR-CURSOR.
+      ******************************************************************
+      *
+           MOVE '1200-ABRIR-CURSOR    '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EXEC SQL
+              OPEN CRS_PSFDETALHE
+           END-EXEC.
+      *
+           MOVE CON-PSFDETALHE             TO AQCW0011-TABLE-NAME
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-TABLE-NAME     TO AQCW0100-NM-ENTIDADE
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       1200-ABRIR-CURSOR-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       1300-LER-CURSOR.
+      ******************************************************************
+      *
+           MOVE '1300-LER-CURSOR      '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EXEC SQL
+              FETCH  CRS_PSFDETALHE
+               INTO :WS-DTDATE
+                  , :WS-DTNCLI
+                  , :WS-DTDINT
+                  , :WS-DTNFIC
+                  , :WS-DTNOCB
+           END-EXEC.
+      *
+           MOVE CON-PSFDETALHE             TO AQCW0011-TABLE-NAME
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+                 SET  SW-PSFDETALHE-OK     TO TRUE
+              WHEN AQCW0011-NOTFND
+                 SET  SW-PSFDETALHE-NOK    TO TRUE
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE '1300-LER-CURSOR      ' TO VIAL0015-CALLER-ID
+              MOVE 'WS-DTDATE            ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-DTNCLI            ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-DTDINT            ' TO VIAL0015-CAMPO-NM(3)
+              MOVE 'WS-DTNFIC            ' TO VIAL0015-CAMPO-NM(4)
+              MOVE 'WS-DTNOCB            ' TO VIAL0015-CAMPO-NM(5)
+              MOVE  WS-DTDATE              TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-DTNCLI              TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-DTDINT              TO VIAL0015-CAMPO-VLR(3)
+              MOVE  WS-DTNFIC              TO VIAL0015-CAMPO-VLR(4)
+              MOVE  WS-DTNOCB              TO VIAL0015-CAMPO-VLR(5)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       1300-LER-CURSOR-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '2000-PROC-PROGRAMA   '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE ZEROES                     TO WS-NOPR.
+           MOVE WS-DTNCLI                  TO WS-DTNCLI-ANT.
+           MOVE WS-DTDINT                  TO WS-DTDINT-ANT.
+           MOVE WS-DTNFIC                  TO WS-DTNFIC-ANT.
+           SET  SW-PSFHEADER-KO            TO TRUE.
+      *
+           PERFORM 2100-TRATA-CURSOR
+              THRU 2100-TRATA-CURSOR-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                OR WS-DTNCLI NOT EQUAL WS-DTNCLI-ANT
+                OR WS-DTDINT NOT EQUAL WS-DTDINT-ANT
+                OR WS-DTNFIC NOT EQUAL WS-DTNFIC-ANT
+                OR SW-PSFDETALHE-NOK.
+      *
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2100-TRATA-CURSOR.
+      ******************************************************************
+      *
+           MOVE '2100-TRATA-CURSOR    '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'WS-DTNCLI            ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-DTDINT            ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-DTNFIC            ' TO VIAL0015-CAMPO-NM(3)
+              MOVE 'WS-DTNOCB            ' TO VIAL0015-CAMPO-NM(4)
+              MOVE  WS-DTNCLI              TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-DTDINT              TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-DTNFIC              TO VIAL0015-CAMPO-VLR(3)
+              MOVE  WS-DTNOCB              TO VIAL0015-CAMPO-VLR(4)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE ZEROES                     TO WS-ACUM-NOPR.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND SW-PSFHEADER-KO
+              PERFORM 2200-OBTER-NOCB
+                 THRU 2200-OBTER-NOCB-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR NOT EQUAL ZEROES
+           AND SW-PSFHEADER-KO
+              MOVE WS-NOPR                 TO WS-GBMV-NOPR
+              PERFORM 2300-BUSCAR-MVDO
+                 THRU 2300-BUSCAR-MVDO-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR NOT EQUAL ZEROES
+           AND SW-PSFHEADER-KO
+              MOVE WS-NOPR                 TO WS-GBMV-NOPR
+              PERFORM 2400-BUSCAR-MVCO
+                 THRU 2400-BUSCAR-MVCO-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR NOT EQUAL ZEROES
+           AND SW-PSFHEADER-KO
+              MOVE WS-NOPR                 TO WS-GBMV-NOPR
+              PERFORM 2500-BUSCAR-MVCC
+                 THRU 2500-BUSCAR-MVCC-EXIT
+           END-IF.
+      *
+           SET  SW-PSFHEADER-OK            TO TRUE.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-ACUM-NOPR NOT EQUAL ZEROES
+              MOVE WS-NOPR                 TO WS-PST20-NOPR
+              MOVE WS-ACUM-NOPR            TO WS-ACUM
+              PERFORM 2600-REGISTAR-ACUMULADOR
+                 THRU 2600-REGISTAR-ACUMULADOR-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR NOT EQUAL WS-DTNOCB
+              MOVE WS-DTNOCB               TO WS-GBMV-NOPR
+              PERFORM 2300-BUSCAR-MVDO
+                 THRU 2300-BUSCAR-MVDO-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR NOT EQUAL WS-DTNOCB
+              MOVE WS-DTNOCB               TO WS-GBMV-NOPR
+              PERFORM 2400-BUSCAR-MVCO
+                 THRU 2400-BUSCAR-MVCO-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR NOT EQUAL WS-DTNOCB
+              MOVE WS-DTNOCB               TO WS-GBMV-NOPR
+              PERFORM 2500-BUSCAR-MVCC
+                 THRU 2500-BUSCAR-MVCC-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+           AND WS-NOPR      NOT EQUAL WS-DTNOCB
+           AND WS-ACUM-NOPR NOT EQUAL ZEROES
+              MOVE WS-DTNOCB               TO WS-PST20-NOPR
+              MOVE WS-ACUM-NOPR            TO WS-ACUM
+              PERFORM 2600-REGISTAR-ACUMULADOR
+                 THRU 2600-REGISTAR-ACUMULADOR-EXIT
+           END-IF.
+      *
+           PERFORM 1300-LER-CURSOR
+              THRU 1300-LER-CURSOR-EXIT.
+      *
+       2100-TRATA-CURSOR-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2200-OBTER-NOCB.
+      ******************************************************************
+      *
+           MOVE '2200-OBTER-NOCB      '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'WS-DTNCLI            ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-DTDINT            ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-DTNFIC            ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  WS-DTNCLI              TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-DTDINT              TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-DTNFIC              TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EXEC SQL
+              SELECT HRNOCB
+                INTO :WS-NOPR
+                FROM PSFHEADER
+               WHERE HRNCLI  = :WS-DTNCLI
+                 AND HRDINT  = :WS-DTDINT
+                 AND HRNFIC  = :WS-DTNFIC
+           END-EXEC.
+      *
+           MOVE CON-PSFHEADER              TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+                 CONTINUE
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE '2200-OBTER-NOCB      ' TO VIAL0015-CALLER-ID
+              MOVE 'WS-DTNCLI            ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-DTDINT            ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-DTNFIC            ' TO VIAL0015-CAMPO-NM(3)
+              MOVE 'WS-NOPR              ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  WS-DTNCLI              TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-DTDINT              TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-NOPR                TO VIAL0015-CAMPO-VLR(2)
+
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       2200-OBTER-NOCB-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2300-BUSCAR-MVDO.
+      ******************************************************************
+      *
+           MOVE '2300-BUSCAR-MVDO     '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'WS-GBMV-NOPR         ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-ACUM-NOPR         ' TO VIAL0015-CAMPO-NM(2)
+              MOVE  WS-GBMV-NOPR           TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-ACUM-NOPR           TO VIAL0015-CAMPO-VLR(2)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE ZEROES                     TO WS-SOMA.
+      *
+           EXEC SQL
+              SELECT IFNULL(SUM(MVVLR), 0)
+                INTO :WS-SOMA
+                FROM GBMVDO
+               WHERE MVNOPR = :WS-GBMV-NOPR
+           END-EXEC.
+      *
+           MOVE CON-GBMVDO                 TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+                 ADD  WS-SOMA              TO WS-ACUM-NOPR
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE '2300-BUSCAR-MVDO     ' TO VIAL0015-CALLER-ID
+              MOVE 'WS-GBMV-NOPR         ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-SOMA              ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-ACUM-NOPR         ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  WS-GBMV-NOPR           TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-SOMA                TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-ACUM-NOPR           TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       2300-BUSCAR-MVDO-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2400-BUSCAR-MVCO.
+      ******************************************************************
+      *
+           MOVE '2400-BUSCAR-MVCO     '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'WS-GBMV-NOPR         ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-ACUM-NOPR         ' TO VIAL0015-CAMPO-NM(2)
+              MOVE  WS-GBMV-NOPR           TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-ACUM-NOPR           TO VIAL0015-CAMPO-VLR(2)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE ZEROES                     TO WS-SOMA.
+      *
+           EXEC SQL
+              SELECT IFNULL(SUM(MRVLR), 0)
+                INTO :WS-SOMA
+                FROM GBMVCO
+               WHERE MRNOPR = :WS-GBMV-NOPR
+           END-EXEC.
+      *
+           MOVE CON-GBMVCO                 TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+                 ADD  WS-SOMA              TO WS-ACUM-NOPR
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE '2400-BUSCAR-MVCO     ' TO VIAL0015-CALLER-ID
+              MOVE 'WS-GBMV-NOPR         ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-SOMA              ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-ACUM-NOPR         ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  WS-GBMV-NOPR           TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-SOMA                TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-ACUM-NOPR           TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       2400-BUSCAR-MVCO-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2500-BUSCAR-MVCC.
+      ******************************************************************
+      *
+           MOVE '2500-BUSCAR-MVCC      '   TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'WS-GBMV-NOPR         ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-ACUM-NOPR         ' TO VIAL0015-CAMPO-NM(2)
+              MOVE  WS-GBMV-NOPR           TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-ACUM-NOPR           TO VIAL0015-CAMPO-VLR(2)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE ZEROES                     TO WS-SOMA.
+      *
+           EXEC SQL
+              SELECT IFNULL(SUM(MUVLR), 0)
+                INTO :WS-SOMA
+                FROM GBMVCC
+               WHERE MUNOPR = :WS-NOPR
+           END-EXEC.
+      *
+           MOVE CON-GBMVCC                 TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+                 ADD  WS-SOMA              TO WS-ACUM-NOPR
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE '2500-BUSCAR-MVCC     ' TO VIAL0015-CALLER-ID
+              MOVE 'WS-GBMV-NOPR         ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-SOMA              ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-ACUM-NOPR         ' TO VIAL0015-CAMPO-NM(3)
+              MOVE  WS-GBMV-NOPR           TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-SOMA                TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-ACUM-NOPR           TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       2500-BUSCAR-MVCC-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2600-REGISTAR-ACUMULADOR.
+      ******************************************************************
+
+           MOVE '2600-REGISTAR-ACUMULADOR' TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE 'WS-DTNCLI            ' TO VIAL0015-CAMPO-NM(1)
+              MOVE 'WS-DTDINT            ' TO VIAL0015-CAMPO-NM(2)
+              MOVE 'WS-DTNFIC            ' TO VIAL0015-CAMPO-NM(3)
+              MOVE 'WS-PST20-NOPR        ' TO VIAL0015-CAMPO-NM(4)
+              MOVE 'WS-ACUM              ' TO VIAL0015-CAMPO-NM(5)
+              MOVE 'WS-PARAM             ' TO VIAL0015-CAMPO-NM(6)
+              MOVE  WS-DTNCLI              TO VIAL0015-CAMPO-VLR(1)
+              MOVE  WS-DTDINT              TO VIAL0015-CAMPO-VLR(2)
+              MOVE  WS-DTNFIC              TO VIAL0015-CAMPO-VLR(3)
+              MOVE  WS-PST20-NOPR          TO VIAL0015-CAMPO-VLR(4)
+              MOVE  WS-ACUM                TO VIAL0015-CAMPO-VLR(5)
+              MOVE  WS-PARAM               TO VIAL0015-CAMPO-VLR(6)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE DCLPSCD2001          REPLACING NUMERIC BY ZEROES
+                                                ALPHANUMERIC BY SPACES.
+      *
+           MOVE WS-DTNCLI                  TO PSCD2001-NCLI.
+           MOVE WS-DTDINT                  TO PSCD2001-DINT.
+           MOVE WS-DTNFIC                  TO PSCD2001-NFIC.
+           MOVE WS-PST20-NOPR              TO PSCD2001-NOCB.
+           MOVE WS-ACUM                    TO PSCD2001-MVAL.
+           MOVE WS-PARAM                   TO AQCW0005-DTX10.
+           PERFORM AQCP0005-CONV-DT10INDT8
+              THRU AQCP0005-CONV-DT10INDT8-EXIT.
+           MOVE AQCW0005-DT98              TO PSCD2001-DPRO.
+           MOVE 'N'                        TO PSCD2001-IBAL.
+           MOVE WS-PROGNAME                TO PSCD2001-CUSERIDC
+                                              PSCD2001-CUSERID.
+      *
+           EXEC SQL
+              INSERT
+                INTO PSVT2001 (
+                     NCLI
+                   , DINT
+                   , NFIC
+                   , NOCB
+                   , MVAL
+                   , DPRO
+                   , IBAL
+                   , NOPR
+                   , MVLR
+                   , CUSERIDC
+                   , HTIMESTC
+                   , CUSERID
+                   , HTIMEST
+                )
+              VALUES (
+                     :PSCD2001-NCLI
+                   , :PSCD2001-DINT
+                   , :PSCD2001-NFIC
+                   , :PSCD2001-NOCB
+                   , :PSCD2001-MVAL
+                   , :PSCD2001-DPRO
+                   , :PSCD2001-IBAL
+                   , :PSCD2001-NOPR
+                   , :PSCD2001-MVLR
+                   , :PSCD2001-CUSERIDC
+                   , CURRENT TIMESTAMP
+                   , :PSCD2001-CUSERID
+                   , CURRENT TIMESTAMP
+                )
+           END-EXEC.
+      *
+           MOVE CON-TABELA                 TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+              WHEN AQCW0011-DUPREC
+                 CONTINUE
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+       2600-REGISTAR-ACUMULADOR-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '3000-FIM-PROGRAMA    '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EXEC SQL
+              CLOSE CRS_PSFDETALHE
+           END-EXEC.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM 3100-ATUALIZA-PARAM
+                 THRU 3100-ATUALIZA-PARAM-EXIT
+           END-IF.
+      *
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+      *
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+      *
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+      *
+      ******************************************************************
+       3100-ATUALIZA-PARAM.
+      ******************************************************************
+
+           MOVE '3100-ATUALIZA-PARAM  '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE DCLARCD2200.
+      *
+           MOVE CON-CPARAM                 TO ARCD2200-CPARAM.
+           MOVE CON-CAPLIC                 TO ARCD2200-CAPLIC.
+           MOVE AQCW0100-AT-DTOP           TO AQCW0005-DT98.
+           PERFORM AQCP0005-CONV-DT8INDT10
+              THRU AQCP0005-CONV-DT8INDT10-EXIT.
+           MOVE AQCW0005-DTX10             TO ARCD2200-GVALOR1.
+           MOVE WS-PROGNAME                TO ARCD2200-CUSERID.
+      *
+           EXEC SQL
+              UPDATE ARVT2200_PARAM
+                 SET GVALOR1 = :ARCD2200-GVALOR1
+                   , CUSERID = :ARCD2200-CUSERID
+                   , HTIMEST = CURRENT_TIMESTAMP
+               WHERE CPARAM  = :ARCD2200-CPARAM
+                 AND CAPLIC  = :ARCD2200-CAPLIC
+           END-EXEC.
+      *
+           MOVE CON-ARVT2200               TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+                 CONTINUE
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+       3100-ATUALIZA-PARAM-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY AQCP0109.
+      ******************************************************************

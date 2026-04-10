@@ -1,0 +1,931 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB9015.
+      ******************************************************************
+      *                                                                *
+      *                   Expurgo da tabela PSFFICHEIR                 *
+      *                                                                *
+      ******************************************************************
+      *                                                                *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR    *   FIM    *  C O M E N T A R I O S        *
+      ******************************************************************
+      * 20190214 * TANDERSS * 20190215 * Novo Programa                 *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+      *-----------------------------------------------------------------
+       INPUT-OUTPUT SECTION.
+      *-----------------------------------------------------------------
+       FILE-CONTROL.
+           SELECT FHIST      ASSIGN      TO DISK-PSF9015
+                             FILE STATUS IS VIAW0011-FSTATUS.
+
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      *-----------------------------------------------------------------
+       FD  FHIST.
+       01  FH-REG                          PIC  X(678).
+
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME                  PIC  X(10) VALUE 'PSB9015'.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 CON-TYPEXPRG                 PIC X(01) VALUE 'T'.
+           05 CON-FICEXPRG                 PIC X(10) VALUE 'PSFFICHEIR'.
+           05 CON-KEYEXPRG                 PIC X(10) VALUE 'PSEXPRG'.
+           05 CON-ANULD                    PIC X(02) VALUE 'AN'.
+           05 CON-FECHD                    PIC X(02) VALUE 'FE'.
+           05 CON-PROCD                    PIC X(02) VALUE 'PR'.
+           05 CON-CANCD                    PIC X(02) VALUE 'CA'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-NYEARS                    PIC S9(10) COMP-3 VALUE 0.
+
+       01  W-DATES.
+           05 W-DPROC                      PIC S9(08) COMP-3 VALUE 0.
+           05 W-DPROC10X                   PIC  X(10) VALUE SPACES.
+           05 W-DPROC10       REDEFINES W-DPROC10X.
+              10 W-DPROC10-Y               PIC  9(04).
+              10 W-DPROC10-SEP1            PIC  X(01).
+              10 W-DPROC10-M               PIC  9(02).
+              10 W-DPROC10-SEP2            PIC  X(01).
+              10 W-DPROC10-D               PIC  9(02).
+
+           05 W-DLIMT                      PIC S9(08) COMP-3 VALUE 0.
+           05 W-DLIMT10X                   PIC  X(10) VALUE SPACES.
+           05 W-DLIMT10       REDEFINES W-DLIMT10X.
+              10 W-DLIMT10-Y               PIC  9(04).
+              10 W-DLIMT10-SEP1            PIC  X(01).
+              10 W-DLIMT10-M               PIC  9(02).
+              10 W-DLIMT10-SEP2            PIC  X(01).
+              10 W-DLIMT10-D               PIC  9(02).
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 SW-SQLCODE                   PIC S9(03) VALUE ZEROES.
+               88 SW-OK                               VALUE +0.
+               88 SW-NOTFND                           VALUE +100.
+
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+           COPY AQCK0001.
+
+           COPY AQCW0011.
+           COPY AQCW0109.
+
+           COPY VIAL0001.
+           COPY VIAL0015.
+           COPY VIAL0055.
+
+           COPY VIAW0011.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA     END-EXEC.
+           EXEC SQL INCLUDE PSCDHEAD7 END-EXEC.
+           EXEC SQL INCLUDE PSCDFICH6 END-EXEC.
+
+      ******************************************************************
+      * CURSORES DB2
+      ******************************************************************
+      * PSFHEADER
+           EXEC SQL
+              DECLARE CRSPSHDR7 CURSOR FOR
+                 SELECT HRNCLI
+                      , HRDINT
+                      , HRNFIC
+                   FROM PSHEADER7
+                  WHERE HRDPRO < :PSHEADER-HRDPRO
+                    AND HRSITU IN
+                      ( :CON-ANULD
+                      , :CON-FECHD
+                      , :CON-PROCD
+                      , :CON-CANCD
+                      )
+           END-EXEC.
+
+      *
+           EXEC SQL
+              DECLARE CRSPSFICH CURSOR FOR
+                 SELECT FCNCLI
+                      , FCDINT
+                      , FCNFIC
+                      , FCNREG
+                      , FCNOMEF
+                      , FCFORM
+                      , FCREG
+                      , FCSITU
+                      , FCOGER
+                      , FCAGEN
+                      , FCDCAR
+                      , FCDPRO
+                      , FCUSRCNF
+                      , FCINDBYP
+                      , FCCANAL
+                      , FCNCLIB
+                      , FCNATRB
+                      , FCNSEQB
+                      , FCDINTB
+                      , FCREFORDB
+                      , FCMONTB
+                      , FCTREGB
+                      , FCNCLIC
+                      , FCNATRC
+                      , FCNSEQC
+                      , FCDINTC
+                      , FCREFORDC
+                      , FCMONTC
+                      , FCTREGC
+                      , CUSERID
+                      , HTIMEEST
+                      , FCETRBI
+                      , FCETRBV
+                      , FCTREMUN
+                      , FCTSERV
+                      , FCRALT
+                      , FCHTIMEV
+                      , FCNOCB
+                      , FCNOMEB
+                      , FCDDEB
+                      , FCDCRED
+                      , FCCONTA
+                      , FCCONTAB
+                      , FCCONTAC
+                      , CSWCTA
+                   FROM PSFICHEIR6
+                  WHERE FCNCLI = :PSFICHEIR-FCNCLI
+                    AND FCDINT = :PSFICHEIR-FCDINT
+                    AND FCNFIC = :PSFICHEIR-FCNFIC
+                    FOR UPDATE
+           END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+       COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                    OR SW-NOTFND.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           MOVE '1000-INICIO-PROGRAMA'     TO VIAL0015-CALLER-ID.
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           INITIALIZE  REG-PSHEADER  REPLACING NUMERIC BY ZEROES
+                                          ALPHANUMERIC BY SPACES.
+
+           INITIALIZE  REG-PSFICHEIR  REPLACING NUMERIC BY ZEROES
+                                          ALPHANUMERIC BY SPACES.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 1100-OBTEM-DATA-LIMT
+                 THRU 1100-OBTEM-DATA-LIMT-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 1200-OPEN-CTRL
+                 THRU 1200-OPEN-CTRL-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 1300-FETCH-CTRL
+                 THRU 1300-FETCH-CTRL-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 1400-OPEN-OUTPUT
+                 THRU 1400-OPEN-OUTPUT-EXIT
+           END-IF.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-OBTEM-DATA-LIMT.
+      ******************************************************************
+           MOVE '1100-OBTEM-DATA-LIMT'     TO VIAL0015-CALLER-ID.
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE CON-KEYEXPRG              TO VIAL0055-TABLE-CRITERIA-ID.
+           PERFORM VIAP0055-CRIT-EXPURGO
+              THRU VIAP0055-CRIT-EXPURGO-EXIT.
+           IF ( AQCW0009-SEM-ERROS )
+              MOVE VIAL0055-REMOVE-DAYS    TO WS-NYEARS
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              MOVE   AQCW0100-AT-DTOP      TO W-DPROC
+              MOVE   '0001-01-01'          TO W-DPROC10X
+              DIVIDE W-DPROC  BY 10000 GIVING W-DPROC10-Y
+              DIVIDE W-DPROC  BY   100 GIVING W-DPROC10-M
+              DIVIDE W-DPROC  BY     1 GIVING W-DPROC10-D
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 1110-CALC-DATA-LIMT
+                 THRU 1110-CALC-DATA-LIMT-EXIT
+           END-IF.
+
+       1100-OBTEM-DATA-LIMT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1110-CALC-DATA-LIMT.
+      ******************************************************************
+           MOVE '1110-CALC-DATA-LIMT'      TO VIAL0015-CALLER-ID.
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+              SET :W-DLIMT10X = DATE(:W-DPROC10X) - :WS-NYEARS YEARS
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF ( AQCW0011-OK )
+              MOVE 1                       TO W-DLIMT10-D
+              COMPUTE W-DLIMT = W-DLIMT10-Y * 10000
+                              + W-DLIMT10-M * 100
+                              + W-DLIMT10-D * 1
+              MOVE W-DLIMT                 TO PSHEADER-HRDPRO
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro ao calcular a data limite'
+                                           TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       1110-CALC-DATA-LIMT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1200-OPEN-CTRL.
+      ******************************************************************
+           MOVE '1200-OPEN-CTRL'           TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5110-OPEN-PSHD
+              THRU 5110-OPEN-PSHD-EXIT.
+
+       1200-OPEN-CTRL-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1300-FETCH-CTRL.
+      ******************************************************************
+           MOVE '1300-FETCH-CTRL'         TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE  REG-PSHEADER  REPLACING NUMERIC BY ZEROES
+                                          ALPHANUMERIC BY SPACES.
+
+           PERFORM 5120-FETCH-PSHD
+              THRU 5120-FETCH-PSHD-EXIT.
+
+           IF ( SW-OK )
+              MOVE PSHEADER-HRNCLI         TO PSFICHEIR-FCNCLI
+              MOVE PSHEADER-HRDINT         TO PSFICHEIR-FCDINT
+              MOVE PSHEADER-HRNFIC         TO PSFICHEIR-FCNFIC
+           END-IF.
+
+       1300-FETCH-CTRL-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1400-OPEN-OUTPUT.
+      ******************************************************************
+           MOVE '1400-OPEN-OUTPUT'         TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5910-OPEN-HIST
+              THRU 5910-OPEN-HIST-EXIT.
+
+       1400-OPEN-OUTPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           MOVE '2000-PROC-PROGRAMA'       TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 2100-OPEN-INPUT
+              THRU 2100-OPEN-INPUT-EXIT.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 2210-FETCH-INPUT
+                 THRU 2210-FETCH-INPUT-EXIT
+           END-IF.
+
+           PERFORM 2200-EXPRG
+              THRU 2200-EXPRG-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                   OR AQCW0011-NOTFND.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 2300-CLOSE-INPUT
+                 THRU 2300-CLOSE-INPUT-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 2400-FETCH-CTRL
+                 THRU 2400-FETCH-CTRL-EXIT
+           END-IF.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-OPEN-INPUT.
+      ******************************************************************
+           MOVE '2100-OPEN-INPUT'          TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5210-OPEN-PSFFICHEIR
+              THRU 5210-OPEN-PSFFICHEIR-EXIT.
+
+       2100-OPEN-INPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-EXPRG.
+      ******************************************************************
+           MOVE '2200-EXPRG'               TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 2220-WRITE-OUTPUT
+                 THRU 2220-WRITE-OUTPUT-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 2230-DELETE-INPUT
+                 THRU 2230-DELETE-INPUT-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 2210-FETCH-INPUT
+                 THRU 2210-FETCH-INPUT-EXIT
+           END-IF.
+
+       2200-EXPRG-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2210-FETCH-INPUT.
+      ******************************************************************
+           MOVE '2210-FETCH-INPUT'         TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE  FH-REG        REPLACING NUMERIC BY ZEROES
+                                          ALPHANUMERIC BY SPACES.
+
+           PERFORM 5220-FETCH-PSFFICHEIR
+              THRU 5220-FETCH-PSFFICHEIR-EXIT.
+
+           IF ( AQCW0011-OK )
+              MOVE REG-PSFICHEIR           TO FH-REG
+           END-IF.
+
+       2210-FETCH-INPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2220-WRITE-OUTPUT.
+      ******************************************************************
+           MOVE '2220-WRITE-OUTPUT'        TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5920-WRITE-HIST
+              THRU 5920-WRITE-HIST-EXIT.
+
+       2220-WRITE-OUTPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2230-DELETE-INPUT.
+      ******************************************************************
+           MOVE '2230-DELETE-INPUT'        TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5240-DELETE-PSFFICHEIR
+              THRU 5240-DELETE-PSFFICHEIR-EXIT.
+
+       2230-DELETE-INPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-CLOSE-INPUT
+      ******************************************************************
+           MOVE '2300-CLOSE-INPUT'        TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5230-CLOSE-PSFFICHEIR
+              THRU 5230-CLOSE-PSFFICHEIR-EXIT.
+
+       2300-CLOSE-INPUT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2400-FETCH-CTRL.
+      ******************************************************************
+           MOVE '2400-FETCH-CTRL'         TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 5120-FETCH-PSHD
+              THRU 5120-FETCH-PSHD-EXIT.
+
+           IF ( SW-OK )
+              MOVE PSHEADER-HRNCLI         TO PSFICHEIR-FCNCLI
+              MOVE PSHEADER-HRDINT         TO PSFICHEIR-FCDINT
+              MOVE PSHEADER-HRNFIC         TO PSFICHEIR-FCNFIC
+           END-IF.
+
+       2400-FETCH-CTRL-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           MOVE '3000-FIM-PROGRAMA'        TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM 3100-CLOSE-ALL
+                 THRU 3100-CLOSE-ALL-EXIT
+           END-IF.
+
+           IF ( AQCW0009-SEM-ERROS )
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3100-CLOSE-ALL.
+      ******************************************************************
+           MOVE '3100-CLOSE-ALL'           TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * CLOSE OUTPUT
+           PERFORM 5930-CLOSE-HIST
+              THRU 5930-CLOSE-HIST-EXIT.
+
+      * CLOSE CTRL
+           PERFORM 5130-CLOSE-PSHD
+              THRU 5130-CLOSE-PSHD-EXIT.
+
+       3100-CLOSE-ALL-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5110-OPEN-PSHD.
+      ******************************************************************
+           MOVE '5110-OPEN-PSHD'           TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+             OPEN CRSPSHDR7
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF ( NOT AQCW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro abertura PSFHEADER'
+                                           TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5110-OPEN-PSHD-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5120-FETCH-PSHD.
+      ******************************************************************
+           MOVE '5120-FETCH-PSHD'          TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+              FETCH CRSPSHDR7
+               INTO :PSHEADER-HRNCLI
+                  , :PSHEADER-HRDINT
+                  , :PSHEADER-HRNFIC
+           END-EXEC.
+
+           MOVE SQLCODE                    TO SW-SQLCODE.
+
+           EVALUATE TRUE
+           WHEN ( SW-NOTFND )
+              CONTINUE
+           WHEN ( NOT SW-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro fetch PSFHEADER'
+                                           TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       5120-FETCH-PSHD-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5130-CLOSE-PSHD.
+      ******************************************************************
+           MOVE '5130-CLOSE-PSHD'          TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+             CLOSE CRSPSHDR7
+           END-EXEC.
+
+       5130-CLOSE-PSHD-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5210-OPEN-PSFFICHEIR.
+      ******************************************************************
+           MOVE '5210-OPEN-PSFFICHEIR'          TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+             OPEN CRSPSFICH
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF ( NOT AQCW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro abertura PSFFICHEIR'   TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5210-OPEN-PSFFICHEIR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5220-FETCH-PSFFICHEIR.
+      ******************************************************************
+           MOVE '5220-FETCH-PSFFICHEIR'         TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+              FETCH CRSPSFICH
+               INTO :PSFICHEIR-FCNCLI
+                  , :PSFICHEIR-FCDINT
+                  , :PSFICHEIR-FCNFIC
+                  , :PSFICHEIR-FCNREG
+                  , :PSFICHEIR-FCNOMEF
+                  , :PSFICHEIR-FCFORM
+                  , :PSFICHEIR-FCREG
+                  , :PSFICHEIR-FCSITU
+                  , :PSFICHEIR-FCOGER
+                  , :PSFICHEIR-FCAGEN
+                  , :PSFICHEIR-FCDCAR
+                  , :PSFICHEIR-FCDPRO
+                  , :PSFICHEIR-FCUSRCNF
+                  , :PSFICHEIR-FCINDBYP
+                  , :PSFICHEIR-FCCANAL
+                  , :PSFICHEIR-FCNCLIB
+                  , :PSFICHEIR-FCNATRB
+                  , :PSFICHEIR-FCNSEQB
+                  , :PSFICHEIR-FCDINTB
+                  , :PSFICHEIR-FCREFORDB
+                  , :PSFICHEIR-FCMONTB
+                  , :PSFICHEIR-FCTREGB
+                  , :PSFICHEIR-FCNCLIC
+                  , :PSFICHEIR-FCNATRC
+                  , :PSFICHEIR-FCNSEQC
+                  , :PSFICHEIR-FCDINTC
+                  , :PSFICHEIR-FCREFORDC
+                  , :PSFICHEIR-FCMONTC
+                  , :PSFICHEIR-FCTREGC
+                  , :PSFICHEIR-CUSERID
+                  , :PSFICHEIR-HTIMEEST
+                  , :PSFICHEIR-FCETRBI
+                  , :PSFICHEIR-FCETRBV
+                  , :PSFICHEIR-FCTREMUN
+                  , :PSFICHEIR-FCTSERV
+                  , :PSFICHEIR-FCRALT
+                  , :PSFICHEIR-FCHTIMEV
+                  , :PSFICHEIR-FCNOCB
+                  , :PSFICHEIR-FCNOMEB
+                  , :PSFICHEIR-FCDDEB
+                  , :PSFICHEIR-FCDCRED
+                  , :PSFICHEIR-FCCONTA
+                  , :PSFICHEIR-FCCONTAB
+                  , :PSFICHEIR-FCCONTAC
+                  , :PSFICHEIR-CSWCTA
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN ( AQCW0011-NOTFND )
+              CONTINUE
+           WHEN ( NOT AQCW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro fetch PSFFICHEIR' TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       5220-FETCH-PSFFICHEIR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5230-CLOSE-PSFFICHEIR.
+      ******************************************************************
+           MOVE '5230-CLOSE-PSFFICHEIR'         TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+             CLOSE CRSPSFICH
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF ( NOT AQCW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro close PSFFICHEIR'      TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5230-CLOSE-PSFFICHEIR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5240-DELETE-PSFFICHEIR.
+      ******************************************************************
+           MOVE '5240-DELETE-PSFFICHEIR'        TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+              DELETE
+                FROM PSFICHEIR6
+               WHERE CURRENT OF CRSPSFICH
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF ( NOT AQCW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro delete PSFFICHEIR'     TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5240-DELETE-PSFFICHEIR-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5910-OPEN-HIST.
+      ******************************************************************
+           MOVE '5910-OPEN-HIST'           TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           OPEN OUTPUT FHIST.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF ( NOT VIAW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro abertura FHIST'   TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5910-OPEN-HIST-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5920-WRITE-HIST.
+      ******************************************************************
+           MOVE '5920-WRITE-HIST'          TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           WRITE FH-REG.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF ( NOT VIAW0011-OK )
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE AQCW0011-SQLCODE        TO AQCW0100-SQLCODE
+              MOVE 'Erro escrita PSF9015'  TO AQCW0100-DESC1
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5920-WRITE-HIST-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5930-CLOSE-HIST.
+      ******************************************************************
+           MOVE '5910-CLOSE-HIST'          TO VIAL0015-CALLER-ID.
+           IF ( VIAL0015-DEBUG-SIM )
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           CLOSE FHIST.
+
+       5930-CLOSE-HIST-EXIT.
+           EXIT.
+
+      ******************************************************************
+           COPY VIAP0011.
+           COPY VIAP0015.
+           COPY AQCP0011.
+           COPY AQCP0109.
+           COPY VIAP0055.

@@ -1,0 +1,311 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4600.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Valida Tipo de Serviço de ficheiros eBanking
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME               PIC  X(10) VALUE 'PSB4600'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY SXCL0002.
+           COPY SXCL0445.
+           COPY SXCW0902.
+           COPY AQCW0109.
+           COPY SXCL0025.
+           COPY SXCW0025.
+           COPY SXCL0430.
+           COPY SXCL0760.
+           COPY ARCL2705.
+           COPY VIAW0050.
+           COPY BRCL1020.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+      * Tags do tipo de serviço
+           05 WS-TAG-INI               PIC X(10) VALUE '<tservico>'.
+           05 WS-TAG-FIM               PIC X(11) VALUE '</tservico>'.
+      * CONSTANTES PARA EXECUÇÃO DE APIS
+           05 CON-SIM                  PIC X(01) VALUE 'S'.
+           05 CON-NAO                  PIC X(01) VALUE 'N'.
+           05 CON-RECEBIDO             PIC X(01) VALUE 'R'.
+           05 CON-REC-AGUARDA-RECEP    PIC X(01) VALUE 'A'.
+           05 CON-REC-AGUARDA-CONF-CLI PIC X(01) VALUE 'R'.
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-TOTAL-TRATADOS        PIC 9(06).
+           05 WS-INDEX                 PIC 9(02).
+              88 WS-INDEX-MAX                    VALUE 10.
+           05 WS-FIELD.
+              10 WS-FIELD1             PIC X(40).
+              10 WS-FIELD2             PIC 9(02).
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+      *01  WS-SWITCHES.
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+           EXEC SQL INCLUDE PSCDPARAM END-EXEC.
+
+      ******************************************************************
+      * MÓDULOS EXTERNOS
+      ******************************************************************
+       COPY SXCL0671.
+       COPY SXCL0675.
+       COPY SXCL0680.
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+      *                  11      000     000     000                   *
+      *                 1 1     0  00   0  00   0  00                  *
+      *                   1     0 0 0   0 0 0   0 0 0                  *
+      *                   1     00  0   00  0   00  0                  *
+      *                 11111    000     000     000                   *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS.
+
+           MOVE WS-PROGNAME                      TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE                   TO SXCW0902-MFILE.
+           MOVE ZEROES                           TO WS-TOTAL-TRATADOS.
+           SET AQCW0009-RCODE-OK                 TO TRUE.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                  222     000     000     000                   *
+      *                 2   2   0  00   0  00   0  00                  *
+      *                   22    0 0 0   0 0 0   0 0 0                  *
+      *                  2      00  0   00  0   00  0                  *
+      *                 22222    000     000     000                   *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           INITIALIZE SXCL0671-COMMAREA REPLACING NUMERIC BY ZEROES
+                                        ALPHANUMERIC BY SPACES.
+
+           MOVE AQCW0100-AT-VERSAO-SYS        TO SXCL0671-VERSAO
+           SET  SXCL0671-CONS-FICHEIRO        TO TRUE
+           SET  SXCL0671-RCODE-OK             TO TRUE
+           SET  SXCL0671-ESTR-NEXE            TO TRUE
+           SET  SXCL0671-APTR-APL             TO TRUE
+           MOVE WS-PROGNAME                    TO SXCL0671-PGMC
+           MOVE WS-PROGNAME                    TO SXCL0671-JOBNC
+           MOVE WS-PROGNAME                    TO SXCL0671-USERC
+           MOVE WS-PROGNAME                    TO SXCL0671-PGMQC
+
+           MOVE CON-REC-AGUARDA-RECEP         TO SXCL0671-SELST
+           MOVE CON-RECEBIDO                  TO SXCL0671-EVRCS
+           MOVE CON-NAO                       TO SXCL0671-INCP
+           MOVE CON-SIM                       TO SXCL0671-PPAG
+           MOVE 10                            TO SXCL0671-NREG
+           MOVE ZEROES                        TO SXCL0671-STTR
+
+           PERFORM 2100-LISTA-FICHEIROS
+              THRU 2100-LISTA-FICHEIROS-EXIT
+             UNTIL SXCL0671-STTR-FIM.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-LISTA-FICHEIROS.
+      ******************************************************************
+
+           MOVE ZEROES                   TO WS-INDEX.
+
+           PERFORM CALL-SXRM0671
+              THRU CALL-SXRM0671-EXIT.
+
+           MOVE SXCL0671-RCODE           TO AQCW0009-RCODE
+
+           IF AQCW0009-SEM-ERROS
+             PERFORM 2200-TRATA-FICHEIROS
+                THRU 2200-TRATA-FICHEIROS-EXIT
+               UNTIL WS-INDEX-MAX
+           ELSE
+             MOVE PSCK0003-CALL-SXRM0670        TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2100-LISTA-FICHEIROS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-TRATA-FICHEIROS.
+      ******************************************************************
+
+           ADD 1                              TO WS-INDEX.
+
+           MOVE SXCL0671-WNORD(WS-INDEX)      TO SXCL0671-NORDP
+           MOVE SXCL0671-WDATA(WS-INDEX)      TO SXCL0671-DTPRP
+           MOVE SXCL0671-WSITF(WS-INDEX)      TO SXCL0671-SITFP
+
+           UNSTRING SXCL0671-WINST(WS-INDEX)
+                   DELIMITED BY WS-TAG-INI OR WS-TAG-FIM
+               INTO WS-FIELD1 WS-FIELD2
+
+           IF WS-FIELD2 IS NUMERIC
+      * SE NÃO FOR UM FICHEIRO DE PAGAMENTO DE SALÁRIOS E ESTIVER COM
+      * SITUAÇÃO 'AGUARDA RECEPÇÃO PELO BANCO', INTRODUZ NO SISTEMA
+              IF NOT (WS-FIELD2 EQUAL PSCK0002-TSERV-PAGSAL
+                  OR WS-FIELD2 EQUAL PSCK0002-TSERV-PAGSAL8
+                  OR WS-FIELD2 EQUAL PSCK0002-TSERV-BONUS
+                  OR WS-FIELD2 EQUAL PSCK0002-TSERV-FORNEC)
+              AND SXCL0671-SITFP EQUAL CON-REC-AGUARDA-RECEP
+                 PERFORM 2300-CONFIG-MAIL
+                    THRU 2300-CONFIG-MAIL-EXIT
+              END-IF
+           END-IF.
+
+       2200-TRATA-FICHEIROS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-CONFIG-MAIL.
+      ******************************************************************
+      *
+           INITIALIZE ARCL2705-DATA     REPLACING NUMERIC BY ZEROES
+                                          ALPHANUMERIC BY SPACES.
+
+           MOVE 'EBANKINV'                TO ARCL2705-CCOD
+           MOVE SXCL0671-NORDP            TO ARCL2705-VALOR(1)
+           MOVE 7                         TO ARCL2705-TAMANHO(1).
+           MOVE SXCL0671-DTPRP            TO ARCL2705-VALOR(2)
+           MOVE 8                         TO ARCL2705-TAMANHO(2).
+           MOVE WS-FIELD2                 TO ARCL2705-VALOR(3)
+           MOVE 2                         TO ARCL2705-TAMANHO(3).
+
+           PERFORM CALL-ARM2705
+              THRU CALL-ARM2705-EXIT.
+      *
+       2300-CONFIG-MAIL-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                 3333     000     000     000                   *
+      *                     3   0  00   0  00   0  00                  *
+      *                   33    0 0 0   0 0 0   0 0 0                  *
+      *                     3   00  0   00  0   00  0                  *
+      *                 3333     000     000     000                   *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY SXCP0902.
+           COPY SXCR0445.
+           COPY SXCR0671.
+           COPY SXCR0675.
+           COPY SXCR0680.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+      * OBTEM DATA DO DIA
+           COPY SXCR0025.
+           COPY SXCR0430.
+           COPY SXCR0760.
+           COPY AQCP0109.
+           COPY VIAP0050.
+           COPY ARCP2705.
+      ******************************************************************
+           EXEC SQL INCLUDE PSCP0001 END-EXEC.
+      ******************************************************************

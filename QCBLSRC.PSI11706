@@ -1,0 +1,278 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI11706.
+      ******************************************************************
+      *     PROGRAMA PSI11706.                                         *
+      *                                                                *
+      *     Reactivação Contrato
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI11706         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDCONTR3 END-EXEC.
+           EXEC SQL INCLUDE PSCDHC00 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV1170.
+       COPY PSCV1171.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAL0010.
+       COPY VIAW0005.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY ETCL0002.
+      *
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSHCONTRA PIC X(08) VALUE 'PSHCONTRA'.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI11706         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+      *
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV1170-MSG.
+           MOVE PSCV1170-ASE               TO PSCV1171-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+
+           MOVE PSCV1170-ADE               TO PSCV1171-ADE.
+
+           PERFORM 2100-VALIDACOES
+              THRU 2199-VALIDACOES-EXIT
+
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2200-MODIFICA-DADOS
+                 THRU 2299-MODIFICA-DADOS-EXIT
+           END-IF
+           .
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2100-VALIDACOES
+      *--------------------------------------------------------------
+       2100-VALIDACOES.
+
+
+
+           CONTINUE
+           .
+
+       2199-VALIDACOES-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2200-MODIFICA-DADOS
+      *--------------------------------------------------------------
+       2200-MODIFICA-DADOS.
+      *
+           MOVE PSCV1170-CHCCLI            TO PSCONTRAT-COCCLI
+           MOVE PSCV1170-CHDESC            TO PSCONTRAT-CODESC
+           MOVE PSCV1170-CHNCLIA           TO PSCONTRAT-CONCLIA
+           MOVE PSCV1170-CHCONTAA          TO PSCONTRAT-COCONTAA
+           MOVE PSCV1170-CHNCLIB           TO PSCONTRAT-CONCLIB
+           MOVE PSCV1170-CHCONTAB          TO PSCONTRAT-COCONTAB
+           MOVE PSCV1170-CHNCLIC           TO PSCONTRAT-CONCLIC
+           MOVE PSCV1170-CHCONTAC          TO PSCONTRAT-COCONTAC
+           MOVE PSCV1170-CHCLICCC          TO PSCONTRAT-COCLICCC
+           MOVE PSCV1170-CHCONTACCC        TO PSCONTRAT-COCONTACCC
+           MOVE VIAL0001-DATA-EXTRN        TO PSCONTRAT-CODABR
+           MOVE PSCK0002-SITPR-ACTIVO      TO PSCONTRAT-COSITU
+           MOVE PSCV1170-CHPREC            TO PSCONTRAT-COPREC
+           MOVE PSCV1170-CHTMOV            TO PSCONTRAT-COTMOV
+           MOVE PSCV1170-CHNTRY            TO PSCONTRAT-CONTRY
+           MOVE PSCV1170-CHILCO            TO PSCONTRAT-COILCO
+           MOVE PSCV1170-CHNOTOS           TO PSCONTRAT-CONOTOS
+           MOVE PSCV1170-CHNOTBS           TO PSCONTRAT-CONOTBS
+           MOVE PSCV1170-CHOGER            TO PSCONTRAT-COOGER
+           MOVE PSCV1170-CHEMAIL           TO PSCONTRAT-COEMAIL
+           MOVE PSCV1170-CHNOTOE           TO PSCONTRAT-CONOTOE
+           MOVE PSCV1170-CHNOTBE           TO PSCONTRAT-CONOTBE
+           MOVE PSCV1170-CHAGEN            TO PSCONTRAT-COAGEN
+           MOVE PSCV1170-CHASSA            TO PSCONTRAT-COASSA
+           MOVE PSCV1170-CHASSB            TO PSCONTRAT-COASSB
+           MOVE PSCV1170-CHASSC            TO PSCONTRAT-COASSC
+           MOVE PSCV1170-CHCACE            TO PSCONTRAT-COCACE
+           MOVE PSCV1170-CHCCONF           TO PSCONTRAT-COCCONF
+           MOVE SPACES                     TO PSCONTRAT-COPASS
+           MOVE PSCV1170-CHTELF            TO PSCONTRAT-COTELF
+           MOVE VIAL0001-CUTILIZA-I        TO PSCONTRAT-CUSERID
+
+           EXEC SQL
+              INSERT INTO PSCONTRAT3
+                     ( COCCLI
+                    ,  CODESC
+                    ,  CONCLIA
+                    ,  CONATRA
+                    ,  CONSEQA
+                    ,  CONCLIB
+                    ,  CONATRB
+                    ,  CONSEQB
+                    ,  CONCLIC
+                    ,  CONATRC
+                    ,  CONSEQC
+                    ,  COCLICCC
+                    ,  CONATCCC
+                    ,  COSEQCCC
+                    ,  CODABR
+                    ,  COSITU
+                    ,  COPREC
+                    ,  COTMOV
+                    ,  CONTRY
+                    ,  COILCO
+                    ,  CONOTOS
+                    ,  CONOTBS
+                    ,  COOGER
+                    ,  COEMAIL
+                    ,  CONOTOE
+                    ,  CONOTBE
+                    ,  COAGEN
+                    ,  COASSA
+                    ,  COASSB
+                    ,  COASSC
+                    ,  COCACE
+                    ,  COCCONF
+                    ,  COPASS
+                    ,  COTELF
+                    ,  CUSERID
+                    ,  HTIMEEST
+                    ,  COCONTAA
+                    ,  COCONTAB
+                    ,  COCONTAC
+                    ,  COCONTACCC   )
+             VALUES ( :PSCONTRAT-COCCLI
+                    , :PSCONTRAT-CODESC
+                    , :PSCONTRAT-CONCLIA
+                    , :PSCONTRAT-CONATRA
+                    , :PSCONTRAT-CONSEQA
+                    , :PSCONTRAT-CONCLIB
+                    , :PSCONTRAT-CONATRB
+                    , :PSCONTRAT-CONSEQB
+                    , :PSCONTRAT-CONCLIC
+                    , :PSCONTRAT-CONATRC
+                    , :PSCONTRAT-CONSEQC
+                    , :PSCONTRAT-COCLICCC
+                    , :PSCONTRAT-CONATCCC
+                    , :PSCONTRAT-COSEQCCC
+                    , :PSCONTRAT-CODABR
+                    , :PSCONTRAT-COSITU
+                    , :PSCONTRAT-COPREC
+                    , :PSCONTRAT-COTMOV
+                    , :PSCONTRAT-CONTRY
+                    , :PSCONTRAT-COILCO
+                    , :PSCONTRAT-CONOTOS
+                    , :PSCONTRAT-CONOTBS
+                    , :PSCONTRAT-COOGER
+                    , :PSCONTRAT-COEMAIL
+                    , :PSCONTRAT-CONOTOE
+                    , :PSCONTRAT-CONOTBE
+                    , :PSCONTRAT-COAGEN
+                    , :PSCONTRAT-COASSA
+                    , :PSCONTRAT-COASSB
+                    , :PSCONTRAT-COASSC
+                    , :PSCONTRAT-COCACE
+                    , :PSCONTRAT-COCCONF
+                    , :PSCONTRAT-COPASS
+                    , :PSCONTRAT-COTELF
+                    , :PSCONTRAT-CUSERID
+                    , CURRENT_TIMESTAMP
+                    , :PSCONTRAT-COCONTAA
+                    , :PSCONTRAT-COCONTAB
+                    , :PSCONTRAT-COCONTAC
+                    , :PSCONTRAT-COCONTACCC  )
+           END-EXEC.
+
+           MOVE CON-PSHCONTRA               TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF NOT DB2-OK
+                 MOVE VIAK0002-ABEND-DB2
+                   TO VIAL0002-IND-ERROS
+                 MOVE VIAK0001-ERRO-DB2
+                   TO VIAL0002-COD-ERRO-GRAVE
+              END-IF
+           ELSE
+              MOVE VIAK0002-ABEND-DB2
+                TO VIAL0002-IND-ERROS
+              MOVE VIAK0001-ERRO-DB2
+                TO VIAL0002-COD-ERRO-GRAVE
+           END-IF
+
+
+           IF VIAL0002-SEM-ERROS
+                        CONTINUE
+           END-IF
+           .
+
+       2299-MODIFICA-DADOS-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+
+           MOVE PSCV1171-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV1171-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV1171-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES
+             TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+      *==============================================================
+           COPY VIAP0010.

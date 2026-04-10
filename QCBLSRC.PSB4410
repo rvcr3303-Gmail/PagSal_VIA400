@@ -1,0 +1,346 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4410.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Obtenção Library Backup Expurgo
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      * DATA     * AUTOR   * COMENTARIO                                *
+      ******************************************************************
+      * 20230313 * PLIMA   * Programa inicial                          *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER                          PIC  X(40) VALUE
+           'INICIO WORKING-STORAGE        PSB4410   '.
+
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PRG-CTL.
+           05 WS-PROGNAME                  PIC  X(10) VALUE 'PSB4410'.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WK-CONSTANTES.
+           05 WK-ART05                     PIC X(10) VALUE 'ARVT0500'.
+      * Codepage dos parametros de expurgo
+           05 WK-PS618                     PIC X(05) VALUE 'PS618'.
+      * Linguagem dos parametros de expurgo
+           05 WK-PT-PT                     PIC X(05) VALUE 'PT-PT'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+      * Arquitectura
+           05 WS-DTOP-98                   PIC  9(08).
+           05 WS-DTOP-X10                  PIC  X(10).
+      * Library a expurgar
+       01  WS-LIBEXP                       PIC  X(10).
+      * Library de backup
+       01  WS-LIBBCK                       PIC  X(10).
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  SW-SWITCHES.
+           05 SW-ART05-SQLCODE             PIC S9(04).
+              88 SW-ART05-OK                          VALUE  0.
+              88 SW-ART05-NOTFND                      VALUE +100.
+
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+           COPY AQCW0109.
+           COPY VIAL0015.
+           COPY VIAW0030.
+           COPY AQCW0011.
+
+           COPY AQCK0001.
+           COPY BRCL1020.
+           COPY VIAW0050.
+
+           COPY SXCW0902.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+      * SQL Communications Area
+           EXEC SQL INCLUDE SQLCA      END-EXEC.
+      * ARVT0500_CODESTABLE
+      *            (REG: DCLARCD0500)
+           EXEC SQL INCLUDE ARCD0500   END-EXEC.
+
+      ******************************************************************
+       01  FILLER                          PIC  X(40) VALUE
+           'FIM WORKING-STORAGE           PSB4410   '.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+       COPY AQCW0009.
+       01  LK-LIBEXP                       PIC  X(10).
+       01  LK-LIBBCK                       PIC  X(10).
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA
+                                LK-LIBEXP
+                                LK-LIBBCK.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAIN.
+      ******************************************************************
+           PERFORM 1000-INIT
+              THRU 1000-INIT-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2000-PROC
+                 THRU 2000-PROC-EXIT
+           END-IF.
+
+           PERFORM 3000-FINAL
+              THRU 3000-FINAL-EXIT.
+
+       0000-MAIN-EXIT.
+           GOBACK.
+
+      ******************************************************************
+       1000-INIT.
+      ******************************************************************
+           MOVE '1000-INIT'                TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * Inicializacoes e Validacoes
+           PERFORM 1100-INIT-VALS
+              THRU 1100-INIT-VALS-EXIT.
+
+       1000-INIT-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-INIT-VALS.
+      ******************************************************************
+           MOVE '1100-INIT-VALS'           TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * Inicializacao memoria
+           INITIALIZE WS-VARIAVEIS.
+
+      * Inicializacao arquitectura
+           PERFORM 1110-INIT-ARQ
+              THRU 1110-INIT-ARQ-EXIT.
+
+      * Validacao linkage
+           IF AQCW0009-SEM-ERROS
+              PERFORM 1120-VALID-LNK
+                 THRU 1120-VALID-LNK-EXIT
+           END-IF.
+
+       1100-INIT-VALS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1110-INIT-ARQ.
+      ******************************************************************
+           MOVE '1110-INIT-ARQ'            TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF AQCW0009-RCODE NOT NUMERIC
+              MOVE ZEROES                  TO AQCW0009-RCODE
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              MOVE AQCW0100-AT-DTOP        TO WS-DTOP-98
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-DTOP-98              TO AQCW0005-DT98
+              PERFORM AQCP0005-CONV-DT8INDT10
+                 THRU AQCP0005-CONV-DT8INDT10-EXIT
+              MOVE AQCW0005-DTX10          TO WS-DTOP-X10
+           END-IF.
+
+       1110-INIT-ARQ-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1120-VALID-LNK.
+      ******************************************************************
+           MOVE '1120-VALID-LNK'           TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF LK-LIBEXP EQUAL SPACES
+              SET AQCW0009-RCODE-APL       TO TRUE
+              MOVE "Lib expurgo invalida"  TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+              IF AQCW0100-AT-DEBUG-SIM
+                 MOVE 'AQCW0009-RCODE'       TO VIAL0015-CAMPO-NM (1)
+                 MOVE  AQCW0009-RCODE        TO VIAL0015-CAMPO-VLR(1)
+                 MOVE 'Motivo'               TO VIAL0015-CAMPO-NM (2)
+                 MOVE 'Lib expurgo invalida' TO VIAL0015-CAMPO-VLR(2)
+                 PERFORM VIAP0015-TRATA-DEBUG
+                    THRU VIAP0015-TRATA-DEBUG-EXIT
+              END-IF
+           ELSE
+              MOVE LK-LIBEXP               TO WS-LIBEXP
+           END-IF.
+
+       1120-VALID-LNK-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2000-PROC.
+      ******************************************************************
+           MOVE '2000-PROC'                TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 2100-SEL-ART05
+              THRU 2100-SEL-ART05-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              MOVE ARCD0500-GDESC          TO WS-LIBBCK
+           END-IF.
+
+       2000-PROC-EXIT.
+           EXIT.
+
+
+      ******************************************************************
+       2100-SEL-ART05.
+      ******************************************************************
+           MOVE '5140-SEL-PST01'           TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE DCLARCD0500          REPLACING NUMERIC BY ZEROES
+                                                ALPHANUMERIC BY SPACES.
+
+           MOVE WK-PS618                   TO ARCD0500-CTABELA.
+           MOVE WK-PT-PT                   TO ARCD0500-CLINGUA.
+
+           STRING 'BK'
+                  WS-LIBEXP              DELIMITED BY SPACES
+                                         INTO ARCD0500-CCOD.
+
+           EXEC SQL
+              SELECT GDESC
+                INTO :ARCD0500-GDESC
+                FROM ARVT0500_CODESTABLE
+               WHERE CTABELA = :ARCD0500-CTABELA
+                 AND CCOD    = :ARCD0500-CCOD
+                 AND CLINGUA = :ARCD0500-CLINGUA
+           END-EXEC.
+
+           MOVE SQLCODE                    TO SW-ART05-SQLCODE.
+
+           MOVE WK-ART05                   TO AQCW0011-TABLE-NAME.
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE "ERRO SEL ART05"        TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+              IF AQCW0100-AT-DEBUG-SIM
+                 MOVE 'ERRO SEL ART05'     TO VIAL0015-CAMPO-NM (1)
+                 MOVE SQLCODE              TO VIAL0015-CAMPO-VLR(1)
+                 PERFORM VIAP0015-TRATA-DEBUG
+                    THRU VIAP0015-TRATA-DEBUG-EXIT
+              END-IF
+           END-IF.
+
+       2100-SEL-ART05-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3000-FINAL.
+      ******************************************************************
+           MOVE '3000-FINAL'               TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE                      LK-LIBBCK.
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-LIBBCK               TO LK-LIBBCK
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+       3000-FINAL-EXIT.
+            EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0109.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY VIAP0050.
+           COPY SXCP0902.
+
+      ******************************************************************
+      *                       Via Consulting                           *
+      ******************************************************************

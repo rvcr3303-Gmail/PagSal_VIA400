@@ -1,0 +1,222 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB5100.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Limpar tabela PST21 de possíveis duplicados                    *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB5100'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY AQCW0109.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 CON-PSVT2101                 PIC X(10) VALUE 'PSVT2101'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 FILLER                       PIC  X(01) VALUE SPACES.
+      *
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 FILLER                       PIC X(01).
+      *
+      ******************************************************************
+      * MÓDULOS
+      ******************************************************************
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE PSCD2101 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+      *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '1000-INICIO-PROGRAMA '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '2000-PROC-PROGRAMA   '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           EXEC SQL
+              DELETE
+                FROM PSVT2101
+               WHERE CUTILIZA  =  CUTILIZA
+           END-EXEC.
+      *
+           MOVE CON-PSVT2101               TO AQCW0011-TABLE-NAME.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+      *
+           EVALUATE TRUE
+              WHEN AQCW0011-OK
+              WHEN AQCW0011-NOTFND
+                 CONTINUE
+              WHEN OTHER
+                 SET  AQCW0009-RCODE-APL   TO TRUE
+                 MOVE WS-PROGNAME          TO AQCW0100-PGMNAME
+                 MOVE VIAL0015-CALLER-ID   TO AQCW0100-PARAGRAPH
+                 MOVE AQCW0011-TABLE-NAME  TO AQCW0100-NM-ENTIDADE
+                 MOVE AQCW0011-SQLCODE     TO AQCW0100-SQLCODE
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '3000-FIM-PROGRAMA    '    TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+      *
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+      *
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+      *
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+      *
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY AQCP0109.
+      ******************************************************************

@@ -1,0 +1,365 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4155.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Validação da integridade da situação do ficheiro               *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB4155'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+      *    COPY VIAK0001.
+      *    COPY VIAK0002.
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY SXCL0900.
+           COPY SXCL0901.
+           COPY SXCL0760.
+           COPY SXCW0902.
+           COPY PSCL5155.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+      *    COPY PSCW0050.
+           COPY AQCW0109.
+           COPY SXCL0025.
+           COPY SXCW0025.
+           COPY SXCL0430.
+           COPY SXCL0002.
+           COPY SXCL0445.
+           COPY VIAW0050.
+           COPY BRCL1020.
+
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA PSHEADER  (REG HEADER)
+           EXEC SQL INCLUDE PSCDHEADER END-EXEC.
+      * TABELA PSPARAM   (PARAMETROS)
+           EXEC SQL INCLUDE PSCDPARAM  END-EXEC.
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 CON-FIC-NAO-PROC         PIC  X(02) VALUE 'NP'.
+           05 CON-FIC-EM-PROC          PIC  X(02) VALUE 'EP'.
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-TOTAL-FETCH           PIC  9(08).
+           05 WS-TOTAL-PROCESSADO      PIC  9(08).
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 WS-UPD-HEADER            PIC X(01)   VALUE ' '.
+              88 WS-UPD-HEADER-YES                 VALUE 'Y'.
+              88 WS-UPD-HEADER-NO                  VALUE 'N'.
+      ******************************************************************
+      * MÓDULOS
+      ******************************************************************
+      *01  PS5155DS-DATA.
+      *    COPY DDSR-ALL-FORMATS OF PS5155DS PREFIX BY 'PS5155DS-'.
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PSHEADER CURSOR FOR
+                SELECT  HRNCLI
+                     ,  HRDINT
+                     ,  HRNFIC
+                     ,  HRSITU
+                     ,  HRSITR
+                  FROM  PSHEADER
+                 WHERE  HRSITU IN (:CON-FIC-NAO-PROC ,
+                                   :CON-FIC-EM-PROC)
+                   FOR UPDATE OF HRSITU
+                               , HRSITR
+           END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES.
+
+           MOVE WS-PROGNAME                      TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE                   TO SXCW0902-MFILE.
+           SET  AQCW0009-SEM-ERROS               TO TRUE
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           PERFORM 2100-ABRE-CURSOR-HEADER
+              THRU 2100-ABRE-CURSOR-HEADER-EXIT.
+
+           PERFORM 2200-TRATA-DETALHE
+              THRU 2200-TRATA-DETALHE-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                OR NOT AQCW0011-OK.
+
+           EXEC SQL  CLOSE CRS_PSHEADER   END-EXEC.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-ABRE-CURSOR-HEADER.
+      ******************************************************************
+           INITIALIZE RHEADER.
+
+           EXEC SQL
+              OPEN CRS_PSHEADER
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF AQCW0011-OK
+              PERFORM 2150-LE-CURSOR-HEADER
+                 THRU 2150-LE-CURSOR-HEADER-EXIT
+           ELSE
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-OPEN-PSHEADER        TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2100-ABRE-CURSOR-HEADER-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2150-LE-CURSOR-HEADER.
+      ******************************************************************
+           EXEC SQL
+                FETCH  CRS_PSHEADER
+                 INTO  :PSHEADER-HRNCLI
+                    ,  :PSHEADER-HRDINT
+                    ,  :PSHEADER-HRNFIC
+                    ,  :PSHEADER-HRSITU
+                    ,  :PSHEADER-HRSITR
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-FETCH-PSHEADER     TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2150-LE-CURSOR-HEADER-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-TRATA-DETALHE.
+      ******************************************************************
+
+           INITIALIZE PSCL5155-DATA.
+           MOVE WS-PROGNAME                 TO PSCL5155-PGMC.
+           MOVE PSCK0002-TTR-VAZIO          TO PSCL5155-TTR.
+           MOVE WS-PROGNAME                 TO PSCL5155-JOBNC.
+           MOVE WS-PROGNAME                 TO PSCL5155-USERC.
+           MOVE WS-PROGNAME                 TO PSCL5155-PGMQC.
+           MOVE PSCK0002-ESTR-NEXE          TO PSCL5155-ESTR.
+           MOVE PSCK0002-APTR-APL           TO PSCL5155-APTR.
+           MOVE PSHEADER-HRNCLI             TO PSCL5155-NCLI.
+           MOVE PSHEADER-HRDINT             TO PSCL5155-DINT.
+           MOVE PSHEADER-HRNFIC             TO PSCL5155-NFIC.
+           MOVE ZEROES                      TO PSCL5155-RCODE.
+           MOVE AQCW0100-AT-CBAN            TO PSCL5155-AT-CBAN
+           MOVE AQCW0100-AT-BALM            TO PSCL5155-AT-BALM
+           MOVE AQCW0100-AT-DTOP            TO PSCL5155-AT-DTOP
+           MOVE AQCW0100-AT-CMOE            TO PSCL5155-AT-CMOE
+           MOVE AQCW0100-AT-DEBUG           TO PSCL5155-AT-DEBUG
+
+           CALL PSCK0002-PSM5155 USING ETCL0002-COMMAREA
+                                       PSCL5155-DATA.
+
+           IF PSCL5155-RCODE EQUAL PSCK0002-RCODE-OK
+              IF PSCL5155-SITU EQUAL PSCK0002-FIC-PROCESSADO
+              AND PSCL5155-SITR EQUAL PSCK0002-SITR-SEM-ERROS
+                 PERFORM 2300-UPDATE-HEADER
+                    THRU 2300-UPDATE-HEADER-EXIT
+              END-IF
+           ELSE
+              MOVE PSCL5155-RCODE         TO AQCW0009-RCODE
+              MOVE PSCK0003-CALL-PSM5155  TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF
+
+           PERFORM 2150-LE-CURSOR-HEADER
+              THRU 2150-LE-CURSOR-HEADER-EXIT.
+
+       2200-TRATA-DETALHE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-UPDATE-HEADER.
+      ******************************************************************
+           MOVE PSCL5155-SITU                    TO PSHEADER-HRSITU
+           MOVE PSCL5155-SITR                    TO PSHEADER-HRSITR
+           EXEC SQL
+              UPDATE PSHEADER
+                 SET HRSITU = :PSHEADER-HRSITU
+                   , HRSITR = :PSHEADER-HRSITR
+               WHERE CURRENT OF CRS_PSHEADER
+           END-EXEC
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-UPDATE-PSHEADER      TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2300-UPDATE-HEADER-EXIT.
+            EXIT.
+
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY SXCP0902.
+           COPY VIAP0015.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+      * OBTEM DATA DO DIA
+           COPY SXCR0025.
+           COPY SXCR0430.
+      *    COPY PSCP0050.
+           COPY AQCP0109.
+           COPY SXCR0445.
+           COPY SXCR0760.
+           COPY VIAP0050.
+           EXEC SQL INCLUDE PSCP0001 END-EXEC.
+      ******************************************************************

@@ -1,0 +1,911 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    PSI11102.
+      ******************************************************************
+      *     PROGRAMA PSI11102.
+      *
+      *     Contrato
+      ******************************************************************
+      *     LOG ALTERACOES:                                            *
+      *   USER     / DATA     /   REFERENCIA / OBSERVACOES             *
+      *                                                                *
+      *                                                                *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA DIVISION.
+      *--------------------------------------------------------------
+       WORKING-STORAGE SECTION.
+      *--------------------------------------------------------------
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSI11102         '.
+      *--------------------------------------------------------------
+      *            DECLARACOES DE DB2
+      *--------------------------------------------------------------
+           EXEC SQL INCLUDE PSCDPARAM  END-EXEC.
+      *    EXEC SQL INCLUDE PSCDCONTR2 END-EXEC.
+      *    EXEC SQL INCLUDE PSCDCONTR3 END-EXEC.
+           EXEC SQL INCLUDE PSCDCONTR4 END-EXEC.
+           EXEC SQL INCLUDE PSHCDNT03  END-EXEC.
+           EXEC SQL INCLUDE SQLCA      END-EXEC.
+      *--------------------------------------------------------------
+      *            MENSAGEM DE INPUT E  OUTPUT
+      *--------------------------------------------------------------
+       COPY PSCV1110.
+       COPY PSCV1111.
+      *--------------------------------------------------------------
+      *            AREAS DE TRABALHO
+      *--------------------------------------------------------------
+       COPY VIAW0005.
+       COPY VIAL0010.
+       COPY VIAL0015.
+       COPY VIAK0001.
+       COPY VIAK0002.
+       COPY PSCK0001.
+       COPY PSCK0002.
+       COPY SXCL0045.
+       COPY SXCL0002.
+      * TRANSFORMA DATAS
+       COPY AQCW0005.
+      * TRATA RCODES
+       COPY AQCL0001.
+       COPY AQCW0009.
+      *     OBTEM NOME DO CLIENTE NA BANKA
+       COPY SXCL0380.
+       COPY ETCL0002.
+      *--------------------------------------------------------------
+      *            CONSTANTES
+      *--------------------------------------------------------------
+       01  WS-CONSTANTES.
+           05 CON-PSCONTRA PIC X(08) VALUE 'PSCONTRA'.
+           05 CON-PSPARAM  PIC X(08) VALUE 'PSPARAM '.
+           05 CON-PSHCONTR PIC X(08) VALUE 'PSHCONTR'.
+           05 CON-PRG-NAME PIC X(08) VALUE 'PSI11102'.
+           05 WS-PROGNAME  PIC X(08) VALUE 'PSI11102'.
+       01  WS-VARIAVEIS.
+           05 WC-PNOME     PIC X(01) VALUE 'N'.
+           05 WS-NTRY      PIC 9(06) VALUE ZEROES.
+      *--------------------------------------------------------------
+       01  FILLER                        PIC X(40) VALUE
+           'FIM DA WORKING-STORAGE PSI11102         '.
+      *--------------------------------------------------------------
+       LINKAGE SECTION.
+      *--------------------------------------------------------------
+      *
+       COPY VIAL0004.
+      *
+            EXEC SQL INCLUDE VIAP0009 END-EXEC.
+      *
+      *--------------------------------------------------------------
+      *            0000-MAINLINE
+      *--------------------------------------------------------------
+       0000-MAINLINE.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '0000-MAINLINE.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FINAL-PROGRAMA
+              THRU 3099-FINAL-PROGRAMA-EXIT.
+      *
+       0099-MAINLINE-EXIT.
+           COPY VIAP0004.
+      *--------------------------------------------------------------
+      *            1000-INICIO-PROGRAMA
+      *--------------------------------------------------------------
+       1000-INICIO-PROGRAMA.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '1000-INICIO-PROGRAMA.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE VIAL0001-MENSAGEM-INPUT    TO PSCV1110-MSG.
+           MOVE PSCV1110-ASE               TO PSCV1111-ASE.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            2000-PROC-PROGRAMA
+      *--------------------------------------------------------------
+       2000-PROC-PROGRAMA.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2000-PROC-PROGRAMA.'   TO VIAL0015-CALLER-ID
+              MOVE 'NCLI'                  TO VIAL0015-CAMPO-NM(1)
+              MOVE PSCV1110-COCCLI         TO VIAL0015-CAMPO-VLR(1)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV1110-ADE               TO PSCV1111-ADE.
+
+           PERFORM 2010-VALIDACOES
+              THRU 2019-VALIDACOES-EXIT.
+      *
+           IF VIAL0002-SEM-ERROS
+              PERFORM 2100-OBTEM-DADOS
+                 THRU 2199-OBTEM-DADOS-EXIT
+           END-IF.
+
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2010-VALIDACOES
+      *--------------------------------------------------------------
+       2010-VALIDACOES.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2010-VALIDACOES.'      TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+      * VALIDA CNUMERO DE CLIENTE
+           IF PSCV1110-COCCLI IS NUMERIC
+              PERFORM 2020-VALIDA-NCLI
+                 THRU 2029-VALIDA-NCLI-EXIT
+           ELSE
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO  TO PSCV1111-COCCLI-S
+              MOVE PSCK0001-ERR-COCCLI     TO PSCV1111-COCCLI-MSG
+           END-IF.
+      *
+       2019-VALIDACOES-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2020-VALIDA-NCLI
+      *--------------------------------------------------------------
+       2020-VALIDA-NCLI.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2020-VALIDA-NCLI.'     TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *  SE O CLIENTE NAO EXISTIR NA BANKA, NAO E VALIDO
+           MOVE VIAL0001-VERSAO-SYS        TO SXCL0045-VERSAO.
+      *    SET SXCL0045-V300               TO TRUE.
+           MOVE VIAL0001-MSGQ              TO SXCL0045-DPGMQ.
+           MOVE VIAL0001-CALLERID          TO SXCL0045-DUSERC.
+           MOVE SPACES                     TO SXCL0045-DTACE
+      *---
+           MOVE PSCK0002-VNCR-NVAL         TO SXCL0045-DVNCR .
+           MOVE PSCK0002-WTVCLI-3          TO SXCL0045-WTVCLI.
+           MOVE PSCK0002-WBLOQ-3           TO SXCL0045-WBLOQ .
+      *    MOVE WC-PNOME                   TO SXCL0045-WPNOME.
+      *---
+           MOVE PSCK0002-RCODE-OK          TO SXCL0045-DRCODE.
+           MOVE PSCV1110-COCCLI            TO SXCL0045-CRNCLI.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE 'SXRM0045'              TO VIAL0015-CALLER-ID
+              MOVE 'NCLI'                  TO VIAL0015-CAMPO-NM(1)
+              MOVE SXCL0045-CRNCLI         TO VIAL0015-CAMPO-VLR(1)
+           END-IF.
+      *
+           CALL SXCL0045-ROTINA USING SXCL0002-COMMAREA,
+                                      SXCL0045-DATA.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE 'NCLI '                 TO VIAL0015-CAMPO-NM(2)
+              MOVE SXCL0045-CRNCLI         TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'RCODE'                 TO VIAL0015-CAMPO-NM(3)
+              MOVE SXCL0045-DRCODE         TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE SXCL0045-DRCODE            TO AQCW0009-RCODE.
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+           IF AQCL0001-COM-ERROS
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO  TO PSCV1111-COCCLI-S
+              MOVE PSCK0001-COCCLI-N-EXISTS TO PSCV1111-COCCLI-MSG
+           ELSE
+      * OBTEM AGENCIA
+              MOVE SXCL0045-CLBAL          TO PSCV1110-COAGEN
+                                              PSCV1111-COAGEN
+      * OBTEM GESTOR
+              MOVE SXCL0045-CLGERC         TO PSCV1110-COOGER
+                                              PSCV1111-COOGER
+           END-IF.
+       2029-VALIDA-NCLI-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2100-OBTEM-DADOS
+      *--------------------------------------------------------------
+       2100-OBTEM-DADOS.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2100-OBTEM-DADOS.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM 2120-OBTEM-NOME-CLI
+              THRU 2129-OBTEM-NOME-CLI-EXIT.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '****-OBTEM-DADOS.' TO VIAL0015-CALLER-ID
+              MOVE 'PSCV1110-COSITU  ' TO VIAL0015-CAMPO-NM(1)
+              MOVE PSCV1110-COSITU     TO VIAL0015-CAMPO-VLR(1)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           IF PSCV1110-COSITU EQUAL PSCK0002-SITCT-INACTIVO
+              PERFORM 2300-OBTEM-HISTORICO
+                 THRU 2300-OBTEM-HISTORICO-EXIT
+           ELSE
+              PERFORM 2200-OBTEM-CONTRATO
+                 THRU 2299-OBTEM-CONTRATO-EXIT
+           END-IF.
+
+       2199-OBTEM-DADOS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2120-OBTEM-NOME-CLI
+      *--------------------------------------------------------------
+       2120-OBTEM-NOME-CLI.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2120-OBTEM-NOME-CLI'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE SXCL0380-DATA.
+
+           MOVE VIAL0001-VERSAO-SYS        TO SXCL0380-VERSAO.
+      *    SET  SXCL0380-V300              TO TRUE.
+           MOVE CON-PRG-NAME               TO SXCL0380-PGMC.
+           MOVE PSCK0002-TTR-NOME-CLI      TO SXCL0380-TTR.
+           MOVE VIAL0001-CALLERID          TO SXCL0380-JOBNC.
+           MOVE VIAL0001-CUSER-EXTRN       TO SXCL0380-USERC.
+           MOVE VIAL0001-MSGQ              TO SXCL0380-PGMQC.
+           MOVE PSCK0002-RCODE-OK          TO SXCL0380-RCODE.
+           MOVE PSCK0002-ESTR-NEXE         TO SXCL0380-ESTR.
+           MOVE PSCK0002-APTR-APL          TO SXCL0380-APTR.
+           MOVE PSCK0002-HCLI-VMSG         TO SXCL0380-HCLI.
+           MOVE PSCK0002-VNCR-NVAL         TO SXCL0380-VNCR.
+           MOVE ZEROES                     TO SXCL0380-CLBAL.
+           MOVE PSCV1110-COCCLI            TO SXCL0380-CLNCLI.
+
+           CALL SXCL0380-ROTINA         USING SXCL0002-COMMAREA,
+                                              SXCL0380-DATA.
+
+           MOVE SXCL0380-RCODE             TO AQCW0009-RCODE.
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           IF AQCL0001-COM-ERROS
+              MOVE VIAK0002-ERROS-FUNCAO   TO VIAL0002-IND-ERROS
+              MOVE PSCK0002-STATUS-ACTIVO  TO PSCV1111-COCCLI-S
+              MOVE PSCK0001-COCCLI-N-EXISTS TO PSCV1111-COCCLI-MSG
+           ELSE
+              MOVE SXCL0380-DWT OF SXCL0380-WT OF SXCL0380-DATA(1)
+                                           TO PSCV1111-CONMCLI
+           END-IF.
+
+       2129-OBTEM-NOME-CLI-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2200-OBTEM-CONTRATO
+      *--------------------------------------------------------------
+       2200-OBTEM-CONTRATO.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2200-OBTEM-CONTRATO'   TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV1110-COCCLI            TO PSCONTRAT-COCCLI.
+           MOVE PSCV1110-COTSERV           TO PSCONTRAT-COTSERV.
+           MOVE PSCV1110-COSITU            TO PSCONTRAT-COSITU.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '****-OBTEM-CONTRATO'   TO VIAL0015-CALLER-ID
+              MOVE 'PSCONTRAT-COCCLI    '   TO VIAL0015-CAMPO-NM(1)
+              MOVE PSCONTRAT-COCCLI         TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'PSCONTRAT-COSITU    '   TO VIAL0015-CAMPO-NM(2)
+              MOVE PSCONTRAT-COSITU         TO VIAL0015-CAMPO-VLR(2)
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           EXEC SQL
+              SELECT   COCCLI
+                     , CODESC
+                     , CONCLIA
+                     , CONATRA
+                     , CONSEQA
+                     , CONCLIB
+                     , CONATRB
+                     , CONSEQB
+                     , CONCLIC
+                     , CONATRC
+                     , CONSEQC
+                     , COCLICCC
+                     , CONATCCC
+                     , COSEQCCC
+                     , CODABR
+                     , COSITU
+                     , COPREC
+                     , COTMOV
+                     , CONTRY
+                     , COILCO
+                     , CONOTOS
+                     , CONOTBS
+                     , COOGER
+                     , COEMAIL
+                     , CONOTOE
+                     , CONOTBE
+                     , COAGEN
+                     , COASSA
+                     , COASSB
+                     , COASSC
+                     , COCACE
+                     , COCCONF
+                     , COPASS
+                     , COTELF
+                     , CUSERID
+                     , HTIMEEST
+                     , COIIPURG
+                     , COIIMREG
+                     , COIIEBORDO
+                     , COIIEBORDB
+                     , COTSERV
+                     , COIIFORMT
+                     , COCONTAA
+                     , COCONTAB
+                     , COCONTAC
+                     , COCONTACCC
+                     , IDESCRDEF
+                 INTO
+                       :PSCONTRAT-COCCLI
+                     , :PSCONTRAT-CODESC
+                     , :PSCONTRAT-CONCLIA
+                     , :PSCONTRAT-CONATRA
+                     , :PSCONTRAT-CONSEQA
+                     , :PSCONTRAT-CONCLIB
+                     , :PSCONTRAT-CONATRB
+                     , :PSCONTRAT-CONSEQB
+                     , :PSCONTRAT-CONCLIC
+                     , :PSCONTRAT-CONATRC
+                     , :PSCONTRAT-CONSEQC
+                     , :PSCONTRAT-COCLICCC
+                     , :PSCONTRAT-CONATCCC
+                     , :PSCONTRAT-COSEQCCC
+                     , :PSCONTRAT-CODABR
+                     , :PSCONTRAT-COSITU
+                     , :PSCONTRAT-COPREC
+                     , :PSCONTRAT-COTMOV
+                     , :PSCONTRAT-CONTRY
+                     , :PSCONTRAT-COILCO
+                     , :PSCONTRAT-CONOTOS
+                     , :PSCONTRAT-CONOTBS
+                     , :PSCONTRAT-COOGER
+                     , :PSCONTRAT-COEMAIL
+                     , :PSCONTRAT-CONOTOE
+                     , :PSCONTRAT-CONOTBE
+                     , :PSCONTRAT-COAGEN
+                     , :PSCONTRAT-COASSA
+                     , :PSCONTRAT-COASSB
+                     , :PSCONTRAT-COASSC
+                     , :PSCONTRAT-COCACE
+                     , :PSCONTRAT-COCCONF
+                     , :PSCONTRAT-COPASS
+                     , :PSCONTRAT-COTELF
+                     , :PSCONTRAT-CUSERID
+                     , :PSCONTRAT-HTIMEEST
+                     , :PSCONTRAT-COIIPURG
+                     , :PSCONTRAT-COIIMREG
+                     , :PSCONTRAT-COIIEBORDO
+                     , :PSCONTRAT-COIIEBORDB
+                     , :PSCONTRAT-COTSERV
+                     , :PSCONTRAT-COIIFORMT
+                     , :PSCONTRAT-COCONTAA
+                     , :PSCONTRAT-COCONTAB
+                     , :PSCONTRAT-COCONTAC
+                     , :PSCONTRAT-COCONTACCC
+                     , :PSCONTRAT-IDESCRDEF
+                  FROM PSCONTRAT4
+                 WHERE COCCLI = :PSCONTRAT-COCCLI
+                   AND COTSERV = : PSCONTRAT-COTSERV
+           END-EXEC
+
+
+           MOVE CON-PSCONTRA
+             TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF DB2-OK
+                 IF VIAL0001-CRIACAO
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV1111-COCCLI-S
+                    MOVE PSCK0001-COCCLI-EXISTS
+                      TO PSCV1111-COCCLI-MSG
+                 ELSE
+                    MOVE PSCONTRAT-COCCLI
+                      TO PSCV1111-COCCLI
+                    MOVE PSCONTRAT-CODESC
+                      TO PSCV1111-CODESC
+                    MOVE PSCONTRAT-CONCLIA
+                      TO PSCV1111-CONCLIA
+                    MOVE PSCONTRAT-COCONTAA
+                      TO PSCV1111-COCONTAA
+      *             MOVE PSCONTRAT-CONSEQA
+      *               TO PSCV1111-CONSEQA
+                    MOVE PSCONTRAT-CONCLIB
+                      TO PSCV1111-CONCLIB
+                    MOVE PSCONTRAT-COCONTAB
+                      TO PSCV1111-COCONTAB
+      *             MOVE PSCONTRAT-CONSEQB
+      *               TO PSCV1111-CONSEQB
+                    MOVE PSCONTRAT-CONCLIC
+                      TO PSCV1111-CONCLIC
+                    MOVE PSCONTRAT-COCONTAC
+                      TO PSCV1111-COCONTAC
+      *             MOVE PSCONTRAT-CONSEQC
+      *               TO PSCV1111-CONSEQC
+                    MOVE PSCONTRAT-COCLICCC
+                      TO PSCV1111-COCLICCC
+                    MOVE PSCONTRAT-COCONTACCC
+                      TO PSCV1111-COCONTACCC
+                    MOVE PSCONTRAT-IDESCRDEF
+                      TO PSCV1111-IDESCRDEF
+      *             MOVE PSCONTRAT-COSEQCCC
+      *               TO PSCV1111-COSEQCCC
+      *
+                    MOVE PSCONTRAT-CODABR   TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10    TO PSCV1111-CODABR
+      *
+                    MOVE '9999-12-31'      TO PSCV1111-CODENC
+      *
+                    MOVE PSCONTRAT-COSITU
+                      TO PSCV1111-COSITU
+                    MOVE PSCONTRAT-COPREC
+                      TO PSCV1111-COPREC
+                    MOVE PSCONTRAT-COTMOV
+                      TO PSCV1111-COTMOV
+                    MOVE PSCONTRAT-CONTRY
+                      TO PSCV1111-CONTRY
+                    MOVE PSCONTRAT-COILCO
+                      TO PSCV1111-COILCO
+                    MOVE PSCONTRAT-CONOTOS
+                      TO PSCV1111-CONOTOS
+                    MOVE PSCONTRAT-CONOTBS
+                      TO PSCV1111-CONOTBS
+                    MOVE PSCONTRAT-COOGER
+                      TO PSCV1111-COOGER
+                    MOVE PSCONTRAT-COEMAIL
+                      TO PSCV1111-COEMAIL
+                    MOVE PSCONTRAT-CONOTOE
+                      TO PSCV1111-CONOTOE
+                    MOVE PSCONTRAT-CONOTBE
+                      TO PSCV1111-CONOTBE
+                    MOVE PSCONTRAT-COAGEN
+                      TO PSCV1111-COAGEN
+                    MOVE PSCONTRAT-COASSA
+                      TO PSCV1111-COASSA
+                    MOVE PSCONTRAT-COASSB
+                      TO PSCV1111-COASSB
+                    MOVE PSCONTRAT-COASSC
+                      TO PSCV1111-COASSC
+                    MOVE PSCONTRAT-COCACE
+                      TO PSCV1111-COCACE
+                    MOVE PSCONTRAT-COCCONF
+                      TO PSCV1111-COCCONF
+                    MOVE PSCONTRAT-COIIPURG
+                      TO PSCV1111-COIIPURG
+                    MOVE PSCONTRAT-COIIMREG
+                      TO PSCV1111-COIIMREG
+                    MOVE PSCONTRAT-COIIEBORDO
+                      TO PSCV1111-COIIEBORDO
+                    MOVE PSCONTRAT-COIIEBORDB
+                      TO PSCV1111-COIIEBORDB
+                    MOVE PSCONTRAT-COIIFORMT
+                      TO PSCV1111-COIIFORMT
+                    IF NOT VIAL0001-VISUALIZACAO
+                        IF PSCONTRAT-COSITU = PSCK0002-SITCT-INACTIVO
+                           MOVE VIAK0002-ERROS-FUNCAO
+                             TO VIAL0002-IND-ERROS
+                           MOVE PSCK0002-STATUS-ACTIVO
+                             TO PSCV1111-COCCLI-S
+                           MOVE PSCK0001-ERR-COSITU
+                             TO PSCV1111-COCCLI-MSG
+                        END-IF
+                    END-IF
+                 END-IF
+              ELSE
+                 IF NOT VIAL0001-CRIACAO
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV1111-COCCLI-S
+                    MOVE PSCK0001-COCCLI-N-EXISTS
+                      TO PSCV1111-COCCLI-MSG
+ES               ELSE
+ES    *             MOVE 2 TO PSCV1111-CONTRY
+ES                  PERFORM 5000-OBTEM-TENTATIVAS
+ES                     THRU 5099-OBTEM-TENTATIVAS-EXIT
+ES                  MOVE WS-NTRY
+ES                    TO PSCV1111-CONTRY
+ES               END-IF
+              END-IF
+           END-IF.
+       2299-OBTEM-CONTRATO-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                   2300-OBTEM-HISTORICO
+      *--------------------------------------------------------------
+       2300-OBTEM-HISTORICO.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '2300-OBTEM-HISTORICO'  TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSCV1110-COCCLI            TO PSCONTRAT-COCCLI.
+           MOVE PSCV1110-COTSERV           TO PSCONTRAT-COTSERV.
+           MOVE PSCV1110-COSITU            TO PSCONTRAT-COSITU.
+
+           EXEC SQL
+              SELECT   CHCCLI
+                     , CHDESC
+                     , CHNCLIA
+                     , CHNATRA
+                     , CHNSEQA
+                     , CHNCLIB
+                     , CHNATRB
+                     , CHNSEQB
+                     , CHNCLIC
+                     , CHNATRC
+                     , CHNSEQC
+                     , CHCLICCC
+                     , CHNATCCC
+                     , CHSEQCCC
+                     , CHDABR
+                     , CHDENC
+                     , CHSITU
+                     , CHPREC
+                     , CHTMOV
+                     , CHNTRY
+                     , CHILCO
+                     , CHNOTOS
+                     , CHNOTBS
+                     , CHOGER
+                     , CHEMAIL
+                     , CHNOTOE
+                     , CHNOTBE
+                     , CHAGEN
+                     , CHASSA
+                     , CHASSB
+                     , CHASSC
+                     , CHCACE
+                     , CHCCONF
+                     , CHPASS
+                     , CUSERID
+                     , HTIMEEST
+                     , CHCONTAA
+                     , CHCONTAB
+                     , CHCONTAC
+                     , CHCONTACCC
+                     , IDESCRDEF
+                 INTO
+                       :PSHCDNT03-CHCCLI
+                     , :PSHCDNT03-CHDESC
+                     , :PSHCDNT03-CHNCLIA
+                     , :PSHCDNT03-CHNATRA
+                     , :PSHCDNT03-CHNSEQA
+                     , :PSHCDNT03-CHNCLIB
+                     , :PSHCDNT03-CHNATRB
+                     , :PSHCDNT03-CHNSEQB
+                     , :PSHCDNT03-CHNCLIC
+                     , :PSHCDNT03-CHNATRC
+                     , :PSHCDNT03-CHNSEQC
+                     , :PSHCDNT03-CHCLICCC
+                     , :PSHCDNT03-CHNATCCC
+                     , :PSHCDNT03-CHSEQCCC
+                     , :PSHCDNT03-CHDABR
+                     , :PSHCDNT03-CHDENC
+                     , :PSHCDNT03-CHSITU
+                     , :PSHCDNT03-CHPREC
+                     , :PSHCDNT03-CHTMOV
+                     , :PSHCDNT03-CHNTRY
+                     , :PSHCDNT03-CHILCO
+                     , :PSHCDNT03-CHNOTOS
+                     , :PSHCDNT03-CHNOTBS
+                     , :PSHCDNT03-CHOGER
+                     , :PSHCDNT03-CHEMAIL
+                     , :PSHCDNT03-CHNOTOE
+                     , :PSHCDNT03-CHNOTBE
+                     , :PSHCDNT03-CHAGEN
+                     , :PSHCDNT03-CHASSA
+                     , :PSHCDNT03-CHASSB
+                     , :PSHCDNT03-CHASSC
+                     , :PSHCDNT03-CHCACE
+                     , :PSHCDNT03-CHCCONF
+                     , :PSHCDNT03-CHPASS
+                     , :PSCONTRAT-CUSERID
+                     , :PSCONTRAT-HTIMEEST
+                     , :PSHCDNT03-CHCONTAA
+                     , :PSHCDNT03-CHCONTAB
+                     , :PSHCDNT03-CHCONTAC
+                     , :PSHCDNT03-CHCONTACCC
+                     , :PSHCDNT03-IDESCRDEF
+                  FROM PSHCONTRA2
+                 WHERE CHCCLI  = :PSHCDNT03-CHCCLI
+                   AND CHSITU  = :PSHCDNT03-CHSITU
+                   AND CHTSERV = :PSHCDNT03-CHTSERV
+                 ORDER BY CHZALT DESC
+                 FETCH FIRST ROW ONLY
+           END-EXEC
+
+
+           MOVE CON-PSHCONTR
+             TO VIAL0002-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+              IF DB2-OK OR DB2-DUPREC
+                 IF VIAL0001-CRIACAO
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV1111-COCCLI-S
+                    MOVE PSCK0001-COCCLI-EXISTS
+                      TO PSCV1111-COCCLI-MSG
+                 ELSE
+                    MOVE PSHCDNT03-CHCCLI
+                      TO PSCV1111-COCCLI
+                    MOVE PSHCDNT03-CHDESC
+                      TO PSCV1111-CODESC
+                    MOVE PSHCDNT03-CHNCLIA
+                      TO PSCV1111-CONCLIA
+                    MOVE PSHCDNT03-CHCONTAA
+                      TO PSCV1111-COCONTAA
+      *             MOVE PSHCDNT03-CHNSEQA
+      *               TO PSCV1111-CONSEQA
+                    MOVE PSHCDNT03-CHNCLIB
+                      TO PSCV1111-CONCLIB
+                    MOVE PSHCDNT03-CHCONTAB
+                      TO PSCV1111-COCONTAB
+      *             MOVE PSHCDNT03-CHNSEQB
+      *               TO PSCV1111-CONSEQB
+                    MOVE PSHCDNT03-CHNCLIC
+                      TO PSCV1111-CONCLIC
+                    MOVE PSHCDNT03-CHCONTAC
+                      TO PSCV1111-COCONTAC
+      *             MOVE PSHCDNT03-CHNSEQC
+      *               TO PSCV1111-CONSEQC
+                    MOVE PSHCDNT03-CHCLICCC
+                      TO PSCV1111-COCLICCC
+                    MOVE PSHCDNT03-CHCONTACCC
+                      TO PSCV1111-COCONTACCC
+                    MOVE PSHCDNT03-IDESCRDEF
+                      TO PSCV1111-IDESCRDEF
+      *             MOVE PSHCDNT03-CHSEQCCC
+      *               TO PSCV1111-COSEQCCC
+      *
+                    MOVE PSHCDNT03-CHDABR   TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10    TO PSCV1111-CODABR
+      *
+                    MOVE PSHCDNT03-CHDENC   TO AQCW0005-DT98
+                    PERFORM AQCP0005-CONV-DT8INDT10
+                       THRU AQCP0005-CONV-DT8INDT10-EXIT
+                    MOVE AQCW0005-DTX10    TO PSCV1111-CODENC
+      *
+                    MOVE PSHCDNT03-CHSITU
+                      TO PSCV1111-COSITU
+                    MOVE PSHCDNT03-CHPREC
+                      TO PSCV1111-COPREC
+                    MOVE PSHCDNT03-CHTMOV
+                      TO PSCV1111-COTMOV
+                    MOVE PSHCDNT03-CHNTRY
+                      TO PSCV1111-CONTRY
+                    MOVE PSHCDNT03-CHILCO
+                      TO PSCV1111-COILCO
+                    MOVE PSHCDNT03-CHNOTOS
+                      TO PSCV1111-CONOTOS
+                    MOVE PSHCDNT03-CHNOTBS
+                      TO PSCV1111-CONOTBS
+                    MOVE PSHCDNT03-CHOGER
+                      TO PSCV1111-COOGER
+                    MOVE PSHCDNT03-CHEMAIL
+                      TO PSCV1111-COEMAIL
+                    MOVE PSHCDNT03-CHNOTOE
+                      TO PSCV1111-CONOTOE
+                    MOVE PSHCDNT03-CHNOTBE
+                      TO PSCV1111-CONOTBE
+                    MOVE PSHCDNT03-CHAGEN
+                      TO PSCV1111-COAGEN
+                    MOVE PSHCDNT03-CHASSA
+                      TO PSCV1111-COASSA
+                    MOVE PSHCDNT03-CHASSB
+                      TO PSCV1111-COASSB
+                    MOVE PSHCDNT03-CHASSC
+                      TO PSCV1111-COASSC
+                    MOVE PSHCDNT03-CHCACE
+                      TO PSCV1111-COCACE
+                    MOVE PSHCDNT03-CHCCONF
+                      TO PSCV1111-COCCONF
+                    MOVE PSHCDNT03-CHCONTAA
+                      TO PSCV1111-COCONTAA
+                    MOVE PSHCDNT03-CHCONTAB
+                      TO PSCV1111-COCONTAB
+                    MOVE PSHCDNT03-CHCONTAC
+                      TO PSCV1111-COCONTAC
+                    MOVE PSHCDNT03-CHCONTACCC
+                      TO PSCV1111-COCONTACCC
+                    MOVE PSHCDNT03-IDESCRDEF
+                      TO PSCV1111-IDESCRDEF
+                    IF NOT VIAL0001-VISUALIZACAO
+                        IF PSHCDNT03-CHSITU = PSCK0002-SITCT-INACTIVO
+                           MOVE VIAK0002-ERROS-FUNCAO
+                             TO VIAL0002-IND-ERROS
+                           MOVE PSCK0002-STATUS-ACTIVO
+                             TO PSCV1111-COCCLI-S
+                           MOVE PSCK0001-ERR-COSITU
+                             TO PSCV1111-COCCLI-MSG
+                        END-IF
+                    END-IF
+                 END-IF
+              ELSE
+                 IF NOT VIAL0001-CRIACAO
+                    MOVE VIAK0002-ERROS-FUNCAO
+                      TO VIAL0002-IND-ERROS
+                    MOVE PSCK0002-STATUS-ACTIVO
+                      TO PSCV1111-COCCLI-S
+                    MOVE PSCK0001-COCCLI-N-EXISTS
+                      TO PSCV1111-COCCLI-MSG
+                 END-IF
+              END-IF
+           END-IF.
+       2300-OBTEM-HISTORICO-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            3000-FINAL-PROGRAMA
+      *--------------------------------------------------------------
+       3000-FINAL-PROGRAMA.
+
+           IF VIAL0001-DEBUG-SIM
+              MOVE '3000-FINAL-PROGRAMA.' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE PSCV1111-MSG               TO VIAL0001-MENSAGEM-OUTPUT.
+           MOVE PSCV1111-LENGTH            TO VIAL0001-LENGTH-MSG.
+           MOVE PSCV1111-NR-CAMPOS         TO VIAL0001-NR-CAMPOS.
+           MOVE ZEROES                     TO VIAL0001-OCORRENCIAS.
+
+       3099-FINAL-PROGRAMA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *            5000-OBTEM-TENTATIVAS
+      *--------------------------------------------------------------
+       5000-OBTEM-TENTATIVAS.
+      *
+           IF VIAL0001-DEBUG-SIM
+              MOVE '5000-OBTEM-TENTATIVAS' TO VIAL0015-CALLER-ID
+              PERFORM VIAP0016-TRATA-DEBUG
+                 THRU VIAP0016-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE REG-PSCONTRAT.
+           MOVE PSCV1110-COCCLI                  TO PSCONTRAT-COCCLI.
+           MOVE ZEROES                           TO PSCONTRAT-CONTRY.
+
+           EXEC SQL
+                SELECT  CONTRY
+                  INTO :PSCONTRAT-CONTRY
+                  FROM  PSCONTRAT3
+                 WHERE  COCCLI = :PSCONTRAT-COCCLI
+                 FETCH FIRST ROW ONLY
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF DB2-OK AND NOT DB2-NOTFND
+                MOVE PSCONTRAT-CONTRY      TO WS-NTRY
+           ELSE
+                PERFORM 5100-OBTEM-PARAMETROS
+                   THRU 5100-OBTEM-PARAMETROS-EXIT
+           END-IF.
+      *
+       5099-OBTEM-TENTATIVAS-EXIT.
+           EXIT.
+      ******************************************************************
+      *                   5100-OBTEM-PARAMETROS                        *
+      ******************************************************************
+       5100-OBTEM-PARAMETROS.
+
+           MOVE ZEROES                     TO WS-NTRY.
+
+           INITIALIZE RPARAM.
+      *OBTEM NUMERO DE TENTATIVAS STANDARD
+           MOVE PSCK0002-CONFIGURACOES     TO PSPARAM-PRCODPAR.
+           MOVE PSCK0002-N-TENTATIVAS      TO PSPARAM-PRPARAM.
+           MOVE ZEROES                     TO PSPARAM-PRVALNUM.
+
+           EXEC SQL
+                SELECT  PRTIPPAR
+                     ,  PRVALDAT
+                     ,  PRVALNUM
+                     ,  PRVALBOL
+                     ,  PRPARM0
+                     ,  PRPARM1
+                     ,  PRPARM2
+                     ,  PRPARM3
+                     ,  PRPARM4
+                     ,  PRPARM5
+                     ,  PRPARM6
+                     ,  PRPARM7
+                     ,  PRPARM8
+                     ,  PRPARM9
+                  INTO :PSPARAM-PRTIPPAR
+                     , :PSPARAM-PRVALDAT
+                     , :PSPARAM-PRVALNUM
+                     , :PSPARAM-PRVALBOL
+                     , :PSPARAM-PRPARM0
+                     , :PSPARAM-PRPARM1
+                     , :PSPARAM-PRPARM2
+                     , :PSPARAM-PRPARM3
+                     , :PSPARAM-PRPARM4
+                     , :PSPARAM-PRPARM5
+                     , :PSPARAM-PRPARM6
+                     , :PSPARAM-PRPARM7
+                     , :PSPARAM-PRPARM8
+                     , :PSPARAM-PRPARM9
+                  FROM  PSPARAM
+                 WHERE  PRCODPAR = :PSPARAM-PRCODPAR
+                   AND  PRPARAM  = :PSPARAM-PRPARAM
+           END-EXEC.
+
+           MOVE CON-PSPARAM                TO AQCL0001-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF DB2-OK AND NOT DB2-NOTFND
+              MOVE PSPARAM-PRVALNUM        TO WS-NTRY
+           ELSE
+              MOVE ZEROES                  TO WS-NTRY
+           END-IF.
+
+       5100-OBTEM-PARAMETROS-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+           COPY VIAP0010.
+           COPY AQCP0005.
+           COPY AQCP0009.
+           EXEC SQL INCLUDE VIAP0003 END-EXEC.
+       COPY VIAP0016.
+      *==============================================================

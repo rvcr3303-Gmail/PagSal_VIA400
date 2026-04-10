@@ -1,0 +1,386 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4100.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Validação de ficheiros recebidos                               *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB4100'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+      *    COPY VIAK0001.
+      *    COPY VIAK0002.
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY PSCL5100.
+           COPY SXCL0900.
+           COPY SXCL0901.
+           COPY SXCL0002.
+           COPY SXCL0445.
+           COPY SXCL0760.
+           COPY SXCW0902.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+           COPY AQCW0109.
+           COPY PSCW5100.
+           COPY SXCL0430.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA PSFICHEIR (FICHEIROS)
+           EXEC SQL INCLUDE PSCDFICHEI END-EXEC.
+      * TABELA PSPARAM   (FICHEIROS)
+           EXEC SQL INCLUDE PSCDPARAM  END-EXEC.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 FILLER PIC X.
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 FILLER PIC X.
+
+      ******************************************************************
+      * MÓDULOS
+      ******************************************************************
+
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+            COPY PSCWPS2.
+            COPY BRCL1020.
+            COPY VIAW0050.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PSFICHEIR CURSOR FOR
+                SELECT  FCNCLI
+                     ,  FCDINT
+                     ,  FCNFIC
+                     ,  FCFORM
+                     ,  FCOGER
+                     ,  FCSITU
+                  FROM  PSFICHEIR
+                 WHERE  FCNREG  = :PSFICHEIR-FCNREG
+           END-EXEC.
+
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT
+           END-IF.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES.
+
+           MOVE WS-PROGNAME                TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE             TO SXCW0902-MFILE.
+           MOVE ZERO                       TO AQCW0009-RCODE.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+
+           PERFORM 2100-ABRE-CURSOR-FICHEIRO
+              THRU 2100-ABRE-CURSOR-FICHEIRO-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+             PERFORM 2150-LE-CURSOR-FICHEIRO
+                THRU 2150-LE-CURSOR-FICHEIRO-EXIT
+           END-IF.
+
+           PERFORM 2200-PROC-CURSOR-FICHEIRO
+              THRU 2200-PROC-CURSOR-FICHEIRO-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                OR NOT AQCW0011-OK.
+
+           EXEC SQL
+              CLOSE CRS_PSFICHEIR
+           END-EXEC.
+      *
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-ABRE-CURSOR-FICHEIRO.
+      ******************************************************************
+           INITIALIZE RFICHEIR.
+           MOVE ZEROES                     TO PSFICHEIR-FCNREG.
+
+           EXEC SQL
+              OPEN CRS_PSFICHEIR
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE PSCK0003-OPEN-PSFICHEIR TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2100-ABRE-CURSOR-FICHEIRO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2150-LE-CURSOR-FICHEIRO.
+      ******************************************************************
+           EXEC SQL
+              FETCH  CRS_PSFICHEIR
+               INTO :PSFICHEIR-FCNCLI
+                  , :PSFICHEIR-FCDINT
+                  , :PSFICHEIR-FCNFIC
+                  , :PSFICHEIR-FCFORM
+                  , :PSFICHEIR-FCOGER
+                  , :PSFICHEIR-FCSITU
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-FETCH-PSFICHEIR    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+       2150-LE-CURSOR-FICHEIRO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-PROC-CURSOR-FICHEIRO.
+      ******************************************************************
+
+           IF PSFICHEIR-FCSITU EQUAL PSCK0002-FIC-VALIDO
+              PERFORM 2210-TRATA-FICH-VAL
+                 THRU 2210-TRATA-FICH-VAL-EXIT
+           END-IF
+
+           PERFORM 2150-LE-CURSOR-FICHEIRO
+              THRU 2150-LE-CURSOR-FICHEIRO-EXIT.
+
+       2200-PROC-CURSOR-FICHEIRO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2210-TRATA-FICH-VAL.
+      ******************************************************************
+
+           PERFORM 2400-PROC-FORMATO-PS2
+              THRU 2400-PROC-FORMATO-PS2-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2300-ACTUALIZA-ESTADO
+                 THRU 2300-ACTUALIZA-ESTADO-EXIT
+           END-IF.
+
+       2210-TRATA-FICH-VAL-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-ACTUALIZA-ESTADO.
+      ******************************************************************
+           EXEC SQL
+             UPDATE PSFICHEIR
+                SET FCSITU   = :PSFICHEIR-FCSITU
+                  , CUSERID  = :WS-PROGNAME
+                  , HTIMEEST =  CURRENT TIMESTAMP
+              WHERE FCNCLI   = :PSFICHEIR-FCNCLI
+                AND FCDINT   = :PSFICHEIR-FCDINT
+                AND FCNFIC   = :PSFICHEIR-FCNFIC
+                AND FCFORM   = :PSFICHEIR-FCFORM
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-UPDATE-PSFICHEIR     TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2300-ACTUALIZA-ESTADO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2400-PROC-FORMATO-PS2.
+      ******************************************************************
+
+           PERFORM PSCP5100-FORMATA-BATCH
+              THRU PSCP5100-FORMATA-BATCH-EXIT.
+
+           MOVE PSFICHEIR-FCNCLI           TO PSCL5100-NCLI.
+           MOVE PSFICHEIR-FCDINT           TO PSCL5100-DINT.
+           MOVE PSFICHEIR-FCNFIC           TO PSCL5100-NFIC.
+           MOVE PSFICHEIR-FCOGER           TO PSCL5100-OGER.
+           MOVE PSFICHEIR-FCFORM           TO PSCL5100-FORM.
+
+
+           CALL PSCK0002-PSM5100 USING ETCL0002-COMMAREA
+                                       PSCL5100-DATA.
+
+           MOVE PSCL5100-RCODE             TO AQCW0009-RCODE.
+
+           IF NOT AQCW0009-SEM-ERROS
+             IF AQCW0009-RCODE-VAL
+               SET AQCW0009-RCODE-OK     TO TRUE
+               MOVE PSCK0002-FIC-INVALIDO TO PSFICHEIR-FCSITU
+             ELSE
+               MOVE PSCL5100-CODERR-GRAVE TO SXCW0902-MSGID
+               PERFORM SXCP0902-ESCREVE-MSG
+                  THRU SXCP0902-ESCREVE-MSG-EXIT
+             END-IF
+           END-IF.
+
+       2400-PROC-FORMATO-PS2-EXIT.
+           EXIT.
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+      *
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY SXCP0902.
+           COPY SXCR0445.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+           COPY SXCR0430.
+           COPY SXCR0760.
+           COPY PSCP5100.
+           COPY AQCP0109.
+           COPY VIAP0050.
+           EXEC SQL INCLUDE PSCP0001 END-EXEC.
+      ******************************************************************

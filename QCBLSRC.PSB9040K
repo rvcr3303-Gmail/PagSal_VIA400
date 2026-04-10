@@ -1,0 +1,712 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PSB9040.
+      ******************************************************************
+      *   EXPURGO PJF0099 (MOVIMENTOS DE PAGAMENTO DE SALÁRIOS)
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+      *
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES. DECIMAL-POINT IS COMMA.
+      *
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FPS-REM-FILE
+           ASSIGN   TO DISK-FPSRF99
+                                FILE STATUS  IS VIAW0011-FSTATUS.
+       DATA DIVISION.
+      ******************************************************************
+      *              D A T A   D I V I S I O N                         *
+      ******************************************************************
+       FILE SECTION.
+       FD  FPS-REM-FILE.
+       01  PJF0099-REM.
+000001       05  PJF0099-RECORD PIC X(257).
+000004       05  RMVDO         REDEFINES PJF0099-RECORD.
+000005           06 PJF0099REM-MVBAL      PIC S9(4)         COMP-3.
+000006*                  Balcão
+000007           06 PJF0099REM-MVNCLI     PIC S9(9)         COMP-3.
+000008*                  Número cliente
+000009           06 PJF0099REM-MVNATR     PIC S9(2)         COMP-3.
+000010*                  Natureza
+000011           06 PJF0099REM-MVNSEQ     PIC S9(3)         COMP-3.
+000012*                  Número sequencial
+000013           06 PJF0099REM-MVTDOC     PIC S9(3)         COMP-3.
+000014*                  Tipo de documento
+000015           06 PJF0099REM-MVCOPE     PIC S9(3)         COMP-3.
+000016*                  Código operação
+000017           06 PJF0099REM-MVNDOC     PIC S9(9)         COMP-3.
+000018*                  Número documento
+000019           06 PJF0099REM-MVVLR      PIC S9(13)V9(2)   COMP-3.
+000020*                  Valor que afecta con
+000021           06 PJF0099REM-MVMOED     PIC X(3).
+000022*                  Moeda que afecta con
+000023           06 PJF0099REM-MVVLRT     PIC S9(13)V9(2)   COMP-3.
+000024*                  Valor da transacção
+000025           06 PJF0099REM-MVMOET     PIC X(3).
+000026*                  Moeda da transacção
+000027           06 PJF0099REM-MVSALD     PIC S9(15)V9(2)   COMP-3.
+000028*                  Saldo após movimento
+000029           06 PJF0099REM-MVUSER     PIC X(10).
+000030*                  Lançado por
+000031           06 PJF0099REM-MVHORA     PIC S9(6)         COMP-3.
+000032*                  Hora de lançamento
+000033           06 PJF0099REM-MVDATL     PIC S9(8)         COMP-3.
+000034*                  Data lançamento
+000035           06 PJF0099REM-MVDATV     PIC S9(8)         COMP-3.
+000036*                  Data valor
+000037           06 PJF0099REM-MVDRCX     PIC X(1).
+000038*                  Diário ou caixa
+000039           06 PJF0099REM-MVETRB     PIC X(10).
+000040*                  Estação lançamento
+000041           06 PJF0099REM-MVCCAS     PIC X(10).
+000042*                  Canal
+000043           06 PJF0099REM-MVDTEE     PIC S9(8)         COMP-3.
+000044*                  Data emissão extra
+000045           06 PJF0099REM-MVBALM     PIC S9(4)         COMP-3.
+000046*                  Balcão movimento
+000047           06 PJF0099REM-MVBALC     PIC S9(4)         COMP-3.
+000048*                  Balcão conta Ccb.
+000049           06 PJF0099REM-MVCCB      PIC X(13).
+000050*                  Conta Ccb. movimen
+000051           06 PJF0099REM-MVNOPR     PIC S9(9)         COMP-3.
+000052*                  Nº da operação
+000053           06 PJF0099REM-MVNCX      PIC S9(2)         COMP-3.
+000054*                  Número de caixa
+000055           06 PJF0099REM-MVNTCX     PIC S9(4)         COMP-3.
+000056*                  Nº transacção do
+000057           06 PJF0099REM-MVNORD     PIC S9(7)         COMP-3.
+000058*                  Nº ordem da tran
+000059           06 PJF0099REM-MVMINV     PIC X(1).
+000060*                  Movimento invisí
+000061           06 PJF0099REM-MVDTCB     PIC S9(8)         COMP-3.
+000062*                  Data contabilíst
+000063           06 PJF0099REM-MVEXCT     PIC X(1).
+000064*                  Executor do movi
+000065           06 PJF0099REM-MVDMOV     PIC X(40).
+000066*                  Descritivo movim
+000067           06 PJF0099REM-MVTXA      PIC S9(3)V9(5)    COMP-3.
+000068*                  Taxa aplicada va
+000069           06 PJF0099REM-MVVLRI     PIC S9(13)V9(2)   COMP-3.
+000070*                  Valor incidencia
+000071           06 PJF0099REM-MVAUTR     PIC S9(10)        COMP-3.
+000072*                  Autorização
+000073           06 PJF0099REM-MVTOTV     PIC S9(13)V9(2)   COMP-3.
+000074*                  Total valores
+000075           06 PJF0099REM-MVCDEV     PIC X(2).
+000076*                  Código devolução
+000077           06 PJF0099REM-MVVLRE     PIC S9(13)V9(2)   COMP-3.
+000078*                  Valor p/ extracto
+000079           06 PJF0099REM-MVOBS      PIC X(30).
+000080*                  Observações
+                 06 PJF0099REM-GBMVCONTA  PIC S9(14)        COMP-3.
+      *
+      ******************************************************************
+      *                  WORKING STORAGE SECTION                       *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      *
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSB9040        '.
+      ******************************************************************
+      *                  MENSAGENS                                     *
+      ******************************************************************
+      *
+      *
+      ******************************************************************
+      *                  FILE STATUS                                   *
+      ******************************************************************
+      *
+      *
+      ******************************************************************
+      *                  STATUS DAS TABELAS                            *
+      ******************************************************************
+      *
+      *
+      ******************************************************************
+      *                  CONSTANTES                                    *
+      ******************************************************************
+       01 WS-CONSTANTES.
+          05 WS-PROGNAME                 PIC  X(10) VALUE 'PSB9040'.
+          05 WS-CON-N                       PIC  X(01) VALUE 'N'.
+          05 WS-CON-TABLE-CRITERIA-ID       PIC  X(20)
+                                           VALUE 'PJF0099'.
+          05 CON-FPSRF99                  PIC  X(08) VALUE 'FPSRF99'.
+          05 CON-FPSKF99                  PIC  X(08) VALUE 'FPSKF99'.
+          05 CON-PJF0099                  PIC  X(08) VALUE 'PJF0099'.
+      ******************************************************************
+      *           VARIAVEIS                                            *
+      ******************************************************************
+       01 WS-VARIAVEIS.
+         05 WS-PARAGRAPH-NAME                PIC X(30)    VALUE SPACES.
+         05 WS-TOTAL-READ                    PIC 9(10)    VALUE ZEROES.
+         05 WS-TOTAL-REMOVE                  PIC 9(10)    VALUE ZEROES.
+         05 WS-REMOVE-DAYS                   PIC S9(10) COMP-3
+                                                          VALUE ZEROES.
+         05 WS-CURRENT-DATE                  PIC X(10)    VALUE SPACES.
+         05 WS-MVDATL                        PIC 9(08)    VALUE SPACES.
+         05 WS-MVDATLX REDEFINES WS-MVDATL.
+            10 WS-DATA                       PIC X(08)    VALUE SPACES.
+         05 WS-CURRENT-DATE-R REDEFINES WS-CURRENT-DATE.
+            10 WS-CURRENT-DATE-YEAR          PIC X(04).
+            10 FILLER                        PIC X(01).
+            10 WS-CURRENT-DATE-MONTH         PIC X(02).
+            10 FILLER                        PIC X(01).
+            10 WS-CURRENT-DATE-DAY           PIC X(02).
+         05 WS-DAT-INPUT1                    PIC 9(08)    VALUE ZEROES.
+         05 WS-DAT-RES                       PIC 9(08)    VALUE ZEROES.
+         01  WS-PRAZOS.
+             05  WS-COD-PRZ     PIC X(03).
+             05 FILLER REDEFINES WS-COD-PRZ.
+               10 WS-COD-PRZ-CD PIC X(01).
+               10 WS-COD-PRZ-QT PIC 9(02).
+             05  WS-PRZ-A       PIC 9(01).
+             05  WS-PRZ-M       PIC 9(02).
+             05  WS-PRZ-D       PIC 9(03).
+             05  WS-PRAZO-MESES PIC 9(05).
+             05  WS-PRAZO-ANOS  PIC 9(05).
+
+      ******************************************************************
+      *              DECLARACOES DE COPYBOOKS                          *
+      ******************************************************************
+           EXEC SQL INCLUDE PJCD0099   END-EXEC.
+           EXEC SQL INCLUDE SQLCA      END-EXEC.
+
+       COPY VIAL0001.
+       COPY VIAL0055.
+
+       COPY VIAW0011.
+       COPY VIAW0012.
+       COPY VIAL0015.
+       COPY VIAW0030.
+       COPY AQCW0109.
+       COPY AQCW0009.
+       COPY ETCL1000.
+      *--------------------------------------------------------------
+      *              DECLARACOES DE CURSORES DB2                     *
+      *--------------------------------------------------------------
+      *
+           EXEC SQL
+                DECLARE CURVCT01 CURSOR FOR
+                 SELECT MVBAL
+                     ,  MVNCLI
+                     ,  MVNATR
+                     ,  MVNSEQ
+                     ,  MVTDOC
+                     ,  MVCOPE
+                     ,  MVNDOC
+                     ,  MVVLR
+                     ,  MVMOED
+                     ,  MVVLRT
+                     ,  MVMOET
+                     ,  MVSALD
+                     ,  MVUSER
+                     ,  MVHORA
+                     ,  MVDATL
+                     ,  MVDATV
+                     ,  MVDRCX
+                     ,  MVETRB
+                     ,  MVCCAS
+                     ,  MVDTEE
+                     ,  MVBALM
+                     ,  MVBALC
+                     ,  MVCCB
+                     ,  MVNOPR
+                     ,  MVNCX
+                     ,  MVNTCX
+                     ,  MVNORD
+                     ,  MVMINV
+                     ,  MVDTCB
+                     ,  MVEXCT
+                     ,  MVDMOV
+                     ,  MVTXA
+                     ,  MVVLRI
+                     ,  MVAUTR
+                     ,  MVTOTV
+                     ,  MVCDEV
+                     ,  MVVLRE
+                     ,  MVOBS
+                     ,  GBMVCONTA
+                 FROM PJF0099
+                 WHERE MVDATL < :PJCD0099-MVDATL
+           END-EXEC.
+      *
+       01  FILLER                          PIC X(40) VALUE
+            'FIM DA WORKING-STORAGE PSB9040        '.
+      ******************************************************************
+      *                    LINKAGE SECTION                             *
+      ******************************************************************
+       COPY VIAL0005.
+      ******************************************************************
+      *                  PROCEDURE DIVISION                            *
+      ******************************************************************
+           EXEC SQL INCLUDE VIAP0014 END-EXEC.
+      ******************************************************************
+      *    PROCESSO                                                    *
+      ******************************************************************
+       0000-MAINLINE.
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3099-FIM-PROGRAMA-EXIT.
+
+       0099-MAINLINE-EXIT.
+           GOBACK.
+      ******************************************************************
+      *                  1000-INICIO-PROGRAMA                          *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      *
+           MOVE '1000-INICIO-PROGRAMA'  TO WS-PARAGRAPH-NAME
+      *
+           SET  VIAW0012-SEM-ERROS TO TRUE.
+           SET  VIAL0002-SEM-ERROS TO TRUE.
+           MOVE ZEROES             TO VIAL0100-RCODE
+           MOVE ZEROES             TO WS-TOTAL-READ
+           MOVE ZEROES             TO WS-TOTAL-REMOVE
+
+           IF VIAW0012-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF VIAW0012-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+      * OPEN FICHEIRO DE OUTPUT (REMOVE)
+           OPEN EXTEND FPS-REM-FILE
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF NOT FS-OK
+              SET  VIAW0030-FILE-ERROR    TO TRUE
+              MOVE WS-PROGNAME         TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME      TO VIAW0030-PARAGRAPH-NAME
+              MOVE CON-FPSRF99            TO VIAW0030-FILE-NAME
+              MOVE VIAW0011-FSTATUS       TO VIAW0030-FILE-STATUS
+              MOVE SPACES                 TO VIAW0030-FILE-KEY
+              MOVE 'ERRO NO OPEN DO'      TO VIAW0030-DESC1
+              MOVE 'FICHEIRO DE OUTPUT'
+                                          TO VIAW0030-DESC2
+
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+      *                  2000-PROC-PROGRAMA                            *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAW0012-SEM-ERROS
+              PERFORM 2100-OPEN
+                 THRU 2199-OPEN-EXIT
+           END-IF.
+
+           IF VIAW0012-SEM-ERROS
+              PERFORM 2200-FETCH
+                 THRU 2299-FETCH-EXIT
+
+              IF VIAW0012-SEM-ERROS
+                 IF DB2-OK
+                    PERFORM 2300-CONTINUA
+                       THRU 2399-CONTINUA-EXIT
+                 END-IF
+              END-IF
+
+              PERFORM 2900-CLOSE
+                 THRU 2999-CLOSE-EXIT
+           END-IF.
+
+      *
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                     2100-OPEN
+      *--------------------------------------------------------------
+       2100-OPEN.
+      *
+           MOVE '2100-OPEN'       TO WS-PARAGRAPH-NAME
+      *
+           MOVE WS-CON-TABLE-CRITERIA-ID TO VIAL0055-TABLE-CRITERIA-ID
+
+           PERFORM VIAP0055-CRIT-EXPURGO
+              THRU VIAP0055-CRIT-EXPURGO-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+
+              MOVE VIAL0055-REMOVE-DAYS TO WS-REMOVE-DAYS
+
+              PERFORM 2110-CALCULA-DATA
+                 THRU 2110-CALCULA-DATA-EXIT
+
+              EXEC SQL
+                   OPEN CURVCT01
+              END-EXEC
+
+              MOVE CON-PJF0099 TO VIAW0012-TABLE-NAME
+
+              PERFORM 9020-DB2CHECK
+                 THRU 9029-DB2CHECK-EXIT
+           ELSE
+              SET  VIAW0030-DB2-ERROR       TO TRUE
+              SET  VIAL0002-ABEND-DB2       TO TRUE
+              MOVE 'VIAR0060'               TO VIAW0030-PGMNAME
+              MOVE 'VIAP0055-CRIT-EXPURGO'  TO VIAW0030-PARAGRAPH-NAME
+              MOVE VIAL0002-TABLE-NAME      TO VIAW0030-TABLE-NAME
+              MOVE VIAL0002-SQLCODE         TO VIAW0030-SQLCODE
+              MOVE WS-CON-TABLE-CRITERIA-ID TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NA OBTENCAO DO'
+                                            TO VIAW0030-DESC1
+              MOVE 'CRITERIO DE EXPURGO'
+                                            TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+
+       2199-OPEN-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2110-CALCULA-DATAS
+      *--------------------------------------------------------------
+       2110-CALCULA-DATA.
+      *
+           MOVE '2110-CALCULA-DATA.'      TO WS-PARAGRAPH-NAME
+      *
+           INITIALIZE ETCL1000-AREA-COMUNICACAO.
+           MOVE AQCW0100-AT-DTOP            TO WS-DAT-INPUT1
+           MOVE WS-DAT-INPUT1               TO ETCL1000-DAT-INPUT1
+           SET  ETCL1000-SUBTRAI-PRAZO      TO TRUE
+           MOVE VIAL0055-REMOVE-DAYS        TO ETCL1000-PRZ-D.
+
+           IF VIAL0055-REMOVE-DAYS GREATER THAN 367
+             SET ETCL1000-SUBTRAI-PRAZO TO TRUE
+             COMPUTE WS-PRAZO-MESES = VIAL0055-REMOVE-DAYS / 30
+             IF WS-PRAZO-MESES GREATER THAN 99
+               COMPUTE WS-PRAZO-ANOS  = WS-PRAZO-MESES / 12
+               MOVE 'N'                         TO WS-COD-PRZ-CD
+               MOVE WS-PRAZO-ANOS               TO WS-COD-PRZ-QT
+               MOVE WS-COD-PRZ                  TO ETCL1000-COD-PRZ
+               MOVE ZEROES                      TO ETCL1000-PRZ-D
+             ELSE
+               MOVE 'M'                         TO WS-COD-PRZ-CD
+               MOVE WS-PRAZO-MESES              TO WS-COD-PRZ-QT
+               MOVE WS-COD-PRZ                  TO ETCL1000-COD-PRZ
+               MOVE ZEROES                      TO ETCL1000-PRZ-D
+             END-IF
+           ELSE
+             SET ETCL1000-SUBTRAI-PRAZO TO TRUE
+             MOVE 'D'                         TO WS-COD-PRZ-CD
+             MOVE SPACES                      TO ETCL1000-COD-PRZ
+             MOVE VIAL0055-REMOVE-DAYS        TO ETCL1000-PRZ-D
+           END-IF.
+
+           PERFORM ETCP1000-ROTINA-DATAS
+              THRU ETCP1000-EXIT.
+
+           IF CALCULO-EFECTUADO
+              MOVE ETCL1000-DAT-RES     TO WS-DAT-RES
+              MOVE WS-DAT-RES           TO PJCD0099-MVDATL
+           ELSE
+              MOVE 00010101             TO PJCD0099-MVDATL
+              SET  VIAW0030-DB2-ERROR   TO TRUE
+              SET  VIAW0012-ABEND-DB2   TO TRUE
+              MOVE WS-PROGNAME          TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME    TO VIAW0030-PARAGRAPH-NAME
+              MOVE 'ETR01000'           TO VIAW0030-TABLE-NAME
+              MOVE ZEROES               TO VIAW0030-SQLCODE
+              MOVE SPACES               TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NO CÁLCULO DO DIA '
+                                        TO VIAW0030-DESC1
+              MOVE 'ANTERIOR  '
+                                        TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+           END-IF.
+      *
+       2110-CALCULA-DATA-EXIT.
+           EXIT.
+      *
+      *--------------------------------------------------------------
+      *                     2200-FETCH
+      *--------------------------------------------------------------
+       2200-FETCH.
+      *
+           MOVE '2200-FETCH'      TO WS-PARAGRAPH-NAME
+      *
+           EXEC SQL
+                 FETCH CURVCT01
+                 INTO  :PJCD0099-MVBAL
+                     , :PJCD0099-MVNCLI
+                     , :PJCD0099-MVNATR
+                     , :PJCD0099-MVNSEQ
+                     , :PJCD0099-MVTDOC
+                     , :PJCD0099-MVCOPE
+                     , :PJCD0099-MVNDOC
+                     , :PJCD0099-MVVLR
+                     , :PJCD0099-MVMOED
+                     , :PJCD0099-MVVLRT
+                     , :PJCD0099-MVMOET
+                     , :PJCD0099-MVSALD
+                     , :PJCD0099-MVUSER
+                     , :PJCD0099-MVHORA
+                     , :PJCD0099-MVDATL
+                     , :PJCD0099-MVDATV
+                     , :PJCD0099-MVDRCX
+                     , :PJCD0099-MVETRB
+                     , :PJCD0099-MVCCAS
+                     , :PJCD0099-MVDTEE
+                     , :PJCD0099-MVBALM
+                     , :PJCD0099-MVBALC
+                     , :PJCD0099-MVCCB
+                     , :PJCD0099-MVNOPR
+                     , :PJCD0099-MVNCX
+                     , :PJCD0099-MVNTCX
+                     , :PJCD0099-MVNORD
+                     , :PJCD0099-MVMINV
+                     , :PJCD0099-MVDTCB
+                     , :PJCD0099-MVEXCT
+                     , :PJCD0099-MVDMOV
+                     , :PJCD0099-MVTXA
+                     , :PJCD0099-MVVLRI
+                     , :PJCD0099-MVAUTR
+                     , :PJCD0099-MVTOTV
+                     , :PJCD0099-MVCDEV
+                     , :PJCD0099-MVVLRE
+                     , :PJCD0099-MVOBS
+                     , :PJCD0099-GBMVCONTA
+           END-EXEC
+
+           MOVE CON-PJF0099 TO VIAW0012-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT DB2-OK
+           AND NOT DB2-NOTFND
+              SET  VIAW0030-DB2-ERROR   TO TRUE
+              SET  VIAW0012-ABEND-DB2   TO TRUE
+              MOVE WS-PROGNAME       TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME    TO VIAW0030-PARAGRAPH-NAME
+              MOVE VIAW0012-TABLE-NAME  TO VIAW0030-TABLE-NAME
+              MOVE VIAW0012-SQLCODE     TO VIAW0030-SQLCODE
+              MOVE SPACES               TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NO FETCH DO CURSOR DA'
+                                    TO VIAW0030-DESC1
+              MOVE 'TABELA DE FICHEIROS       '
+                                    TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       2299-FETCH-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                       2300-CONTINUA
+      *--------------------------------------------------------------
+       2300-CONTINUA.
+
+           PERFORM 2400-TRATA-REGISTO
+              THRU 2499-TRATA-OCCURS-EXIT
+             UNTIL DB2-NOTFND
+                OR NOT VIAW0012-SEM-ERROS.
+
+       2399-CONTINUA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2400-TRATA-REGISTO
+      *--------------------------------------------------------------
+       2400-TRATA-REGISTO.
+      *
+           ADD +1  TO WS-TOTAL-READ
+
+           MOVE PJCD0099-MVDATL          TO WS-MVDATL
+
+           ADD +1  TO WS-TOTAL-REMOVE
+           PERFORM 2500-WRITE-REM-FILE
+              THRU 2599-WRITE-REM-FILE-EXIT
+           PERFORM 2700-DELETE-RECORD
+              THRU 2700-DELETE-RECORD-EXIT
+      *
+           PERFORM 2200-FETCH
+              THRU 2299-FETCH-EXIT.
+      *
+       2499-TRATA-OCCURS-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                  2500-WRITE-REM-FILE                           *
+      ******************************************************************
+       2500-WRITE-REM-FILE.
+      *
+            MOVE '2500-WRITE-REM-FILE'  TO WS-PARAGRAPH-NAME
+      *
+           MOVE PJCD0099-MVBAL     TO PJF0099REM-MVBAL
+           MOVE PJCD0099-MVNCLI    TO PJF0099REM-MVNCLI
+           MOVE PJCD0099-MVNATR    TO PJF0099REM-MVNATR
+           MOVE PJCD0099-MVNSEQ    TO PJF0099REM-MVNSEQ
+           MOVE PJCD0099-MVTDOC    TO PJF0099REM-MVTDOC
+           MOVE PJCD0099-MVCOPE    TO PJF0099REM-MVCOPE
+           MOVE PJCD0099-MVNDOC    TO PJF0099REM-MVNDOC
+           MOVE PJCD0099-MVVLR     TO PJF0099REM-MVVLR
+           MOVE PJCD0099-MVMOED    TO PJF0099REM-MVMOED
+           MOVE PJCD0099-MVVLRT    TO PJF0099REM-MVVLRT
+           MOVE PJCD0099-MVMOET    TO PJF0099REM-MVMOET
+           MOVE PJCD0099-MVSALD    TO PJF0099REM-MVSALD
+           MOVE PJCD0099-MVUSER    TO PJF0099REM-MVUSER
+           MOVE PJCD0099-MVHORA    TO PJF0099REM-MVHORA
+           MOVE PJCD0099-MVDATL    TO PJF0099REM-MVDATL
+           MOVE PJCD0099-MVDATV    TO PJF0099REM-MVDATV
+           MOVE PJCD0099-MVDRCX    TO PJF0099REM-MVDRCX
+           MOVE PJCD0099-MVETRB    TO PJF0099REM-MVETRB
+           MOVE PJCD0099-MVCCAS    TO PJF0099REM-MVCCAS
+           MOVE PJCD0099-MVDTEE    TO PJF0099REM-MVDTEE
+           MOVE PJCD0099-MVBALM    TO PJF0099REM-MVBALM
+           MOVE PJCD0099-MVBALC    TO PJF0099REM-MVBALC
+           MOVE PJCD0099-MVCCB     TO PJF0099REM-MVCCB
+           MOVE PJCD0099-MVNOPR    TO PJF0099REM-MVNOPR
+           MOVE PJCD0099-MVNCX     TO PJF0099REM-MVNCX
+           MOVE PJCD0099-MVNTCX    TO PJF0099REM-MVNTCX
+           MOVE PJCD0099-MVNORD    TO PJF0099REM-MVNORD
+           MOVE PJCD0099-MVMINV    TO PJF0099REM-MVMINV
+           MOVE PJCD0099-MVDTCB    TO PJF0099REM-MVDTCB
+           MOVE PJCD0099-MVEXCT    TO PJF0099REM-MVEXCT
+           MOVE PJCD0099-MVDMOV    TO PJF0099REM-MVDMOV
+           MOVE PJCD0099-MVTXA     TO PJF0099REM-MVTXA
+           MOVE PJCD0099-MVVLRI    TO PJF0099REM-MVVLRI
+           MOVE PJCD0099-MVAUTR    TO PJF0099REM-MVAUTR
+           MOVE PJCD0099-MVTOTV    TO PJF0099REM-MVTOTV
+           MOVE PJCD0099-MVCDEV    TO PJF0099REM-MVCDEV
+           MOVE PJCD0099-MVVLRE    TO PJF0099REM-MVVLRE
+           MOVE PJCD0099-MVOBS     TO PJF0099REM-MVOBS
+           MOVE PJCD0099-GBMVCONTA TO PJF0099REM-GBMVCONTA
+      *
+           WRITE PJF0099-REM.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF  NOT FS-OK
+              SET  VIAW0030-FILE-ERROR    TO TRUE
+              MOVE WS-PROGNAME         TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME      TO VIAW0030-PARAGRAPH-NAME
+              MOVE CON-FPSRF99            TO VIAW0030-FILE-NAME
+              MOVE VIAW0011-FSTATUS       TO VIAW0030-FILE-STATUS
+              MOVE SPACES                 TO VIAW0030-FILE-KEY
+              MOVE 'ERRO NA ESCRITA DO'   TO VIAW0030-DESC1
+              MOVE 'FICHEIRO DE OUTPUT'
+                                          TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       2599-WRITE-REM-FILE-EXIT.
+           EXIT.
+      ******************************************************************
+      *                  2700-DELETE-RECORD                            *
+      ******************************************************************
+       2700-DELETE-RECORD.
+      *
+           EXEC SQL
+             DELETE FROM PJF0099
+              WHERE CURRENT OF CURVCT01
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT DB2-OK
+           AND NOT DB2-NOTFND
+              SET  VIAW0030-DB2-ERROR   TO TRUE
+              SET  VIAW0012-ABEND-DB2   TO TRUE
+              MOVE WS-PROGNAME       TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME    TO VIAW0030-PARAGRAPH-NAME
+              MOVE VIAW0012-TABLE-NAME  TO VIAW0030-TABLE-NAME
+              MOVE VIAW0012-SQLCODE     TO VIAW0030-SQLCODE
+              MOVE SPACES               TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NA ELIMINAÇÃO '
+                                    TO VIAW0030-DESC1
+              MOVE 'DO REGISTO       '
+                                    TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       2700-DELETE-RECORD-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2900-CLOSE
+      *--------------------------------------------------------------
+       2900-CLOSE.
+
+           EXEC SQL
+               CLOSE CURVCT01
+           END-EXEC.
+
+       2999-CLOSE-EXIT.
+           EXIT.
+
+
+      ******************************************************************
+      *               3000-FIM-PROGRAMA                                *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      *
+           IF VIAW0012-SEM-ERROS
+              EXEC SQL COMMIT   END-EXEC
+           ELSE
+              EXEC SQL ROLLBACK END-EXEC
+           END-IF
+
+           CLOSE FPS-REM-FILE.
+
+           MOVE '3000-FIM-PROGRAMA'         TO VIAL0015-CALLER-ID
+           MOVE '*** TOTAL LIDOS     : '    TO VIAL0015-CAMPO-NM(1)
+           MOVE WS-TOTAL-READ               TO VIAL0015-CAMPO-VLR(1)
+           MOVE '*** TOTAL REMOVIDOS : '    TO VIAL0015-CAMPO-NM(2)
+           MOVE WS-TOTAL-REMOVE             TO VIAL0015-CAMPO-VLR(2)
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT
+
+           IF VIAW0012-SEM-ERROS
+             PERFORM AQCP0100-REG-FIM
+                THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+       3099-FIM-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+      *                      PROCEDURES                                *
+      ******************************************************************
+              EXEC SQL INCLUDE VIAP9999 END-EXEC.
+       COPY VIAP0055.
+       COPY VIAP0012.
+       COPY VIAP0011.
+       COPY VIAP0030.
+       COPY VIAP0015.
+       COPY AQCP0109.
+       COPY ETCP1000.

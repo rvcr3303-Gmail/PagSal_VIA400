@@ -1,0 +1,356 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4180.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Módulo actualiza os sequenciadores de alteracao da tabela de
+      *    historico de alteracoes, para os registos ja existentes
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+BCI202* 20122019 * AGESTAS* 201219 * CORRECAO DE SEQUENCIADORES        *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB4180'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY SXCL0900.
+           COPY SXCL0901.
+           COPY SXCL0760.
+           COPY SXCW0902.
+           COPY VIAL0015.
+           COPY VIAL0030.
+           COPY VIAW0030.
+           COPY AQCW0109.
+           COPY VIAW0050.
+           COPY BRCL1020.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA PSHISALT  (HISTORICO DE ALTERACOES)
+           EXEC SQL INCLUDE PSCDHISALT END-EXEC.
+
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 FILLER                   PIC  X.
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 FILLER                   PIC  X.
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 FILLER                   PIC  X.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PSHISALT CURSOR FOR
+                SELECT  HATTR
+                     ,  HANCLI
+                     ,  HADINT
+                     ,  HANFIC
+                     ,  HANREG
+                     ,  HAZALT
+                     ,  HAVALOR
+                     ,  HACMOED
+                     ,  HASITC
+                     ,  HANIBO
+                     ,  HANIBA
+                     ,  CUSERID
+                     ,  HTIMEEST
+                  FROM  PSHISTALT
+              ORDER BY  HTIMEEST DESC
+           END-EXEC.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT
+                   UNTIL NOT AQCW0009-SEM-ERROS
+                          OR NOT AQCW0011-OK.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+      *                  11      000     000     000                   *
+      *                 1 1     0  00   0  00   0  00                  *
+      *                   1     0 0 0   0 0 0   0 0 0                  *
+      *                   1     00  0   00  0   00  0                  *
+      *                 11111    000     000     000                   *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES.
+
+           MOVE WS-PROGNAME                      TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE                   TO SXCW0902-MFILE.
+           MOVE ZEROES                           TO AQCW0009-RCODE.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+           PERFORM 1100-ABERTURA-CURSOR
+              THRU 1100-ABERTURA-CURSOR-EXIT.
+
+           PERFORM 1200-LEITURA-CURSOR
+              THRU 1200-LEITURA-CURSOR-EXIT.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-ABERTURA-CURSOR.
+      ******************************************************************
+           EXEC SQL
+                OPEN CRS_PSHISALT
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-OPEN-PSHISALT       TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       1100-ABERTURA-CURSOR-EXIT.
+            EXIT.
+
+      ******************************************************************
+       1200-LEITURA-CURSOR.
+      ******************************************************************
+           EXEC SQL
+                FETCH CRS_PSHISALT
+                 INTO :PSHISALT-HATTR
+                    , :PSHISALT-HANCLI
+                    , :PSHISALT-HADINT
+                    , :PSHISALT-HANFIC
+                    , :PSHISALT-HANREG
+                    , :PSHISALT-HAZALT
+                    , :PSHISALT-HAVALOR
+                    , :PSHISALT-HACMOED
+                    , :PSHISALT-HASITC
+                    , :PSHISALT-HANIBO
+                    , :PSHISALT-HANIBA
+                    , :PSHISALT-CUSERID
+                    , :PSHISALT-HTIMEEST
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-SELECT-PSHISALT    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       1200-LEITURA-CURSOR-EXIT.
+            EXIT.
+
+      ******************************************************************
+      *                  222     000     000     000                   *
+      *                 2   2   0  00   0  00   0  00                  *
+      *                   22    0 0 0   0 0 0   0 0 0                  *
+      *                  2      00  0   00  0   00  0                  *
+      *                 22222    000     000     000                   *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           PERFORM 2100-SEQUENCIA-MENSAGEM
+              THRU 2100-SEQUENCIA-MENSAGEM-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2200-ATUALIZA-SEQUENC
+                 THRU 2200-ATUALIZA-SEQUENC-EXIT
+           END-IF.
+
+           PERFORM 1200-LEITURA-CURSOR
+              THRU 1200-LEITURA-CURSOR-EXIT.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-SEQUENCIA-MENSAGEM.
+      ******************************************************************
+           INITIALIZE  VIAL0030-COMMAREA.
+
+           SET  VIAL0030-SOMA-1            TO TRUE            .
+           MOVE PSCK0002-CSEQ-HAZALT       TO VIAL0030-CSEQUEN.
+      *
+           CALL VIAL0030-NM-ROTINA USING VIAL0030-COMMAREA
+BCI202*                                  VIAL0002-COMMAREA.
+BCI202                                   ETCL0002-COMMAREA.
+
+BCI202*    IF VIAL0002-SEM-ERROS
+BCI202     IF ETCL0002-SEM-ERROS
+              MOVE VIAL0030-NSEQUEN-1      TO PSHISALT-HAZALT
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE PSCK0003-ERR-VIAR0030   TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2100-SEQUENCIA-MENSAGEM-EXIT.
+           EXIT.
+
+      *
+      ******************************************************************
+       2200-ATUALIZA-SEQUENC.
+      ******************************************************************
+           EXEC SQL
+              UPDATE   PSHISTALT
+                 SET   HAZALT = :PSHISALT-HAZALT
+                 WHERE CURRENT OF CRS_PSHISALT
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN AQCW0011-NOTFND
+                MOVE ZEROES                      TO PSHISALT-HAZALT
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-UPDATE-PSHISALT   TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2200-ATUALIZA-SEQUENC-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                 3333     000     000     000                   *
+      *                     3   0  00   0  00   0  00                  *
+      *                   33    0 0 0   0 0 0   0 0 0                  *
+      *                     3   00  0   00  0   00  0                  *
+      *                 3333     000     000     000                   *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           EXEC SQL
+                CLOSE CRS_PSHISALT
+           END-EXEC.
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+      *    PERFORM PSCP0050-REG-FIM
+      *       THRU PSCP0050-REG-FIM-EXIT.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY VIAP0015.
+           COPY VIAP0030.
+           COPY SXCP0902.
+           COPY VIAP0050.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+      * OBTEM DATA DO DIA
+           COPY AQCP0109.
+      *    COPY SXCR0445.
+      ******************************************************************
+      *    EXEC SQL INCLUDE PSCP0001 END-EXEC.
+      ******************************************************************

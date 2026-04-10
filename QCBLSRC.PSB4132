@@ -1,0 +1,2675 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4132.
+      ******************************************************************
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * PRIMEIRO PROCESSAMENTO                                         *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+JF0618* 20190618 * JFERNA * 190618 * FOI ACRESCENTADO O CAMPO COM A    *
+JF0618*          *        *        * SEQUENCIA DA TEI PARA IDENTIFICAR *
+JF0618*          *        *        * A CHAVE COMPLETA DA TEI/FILTERING *
+JF0618*          *        *        * (INCIDENCIA JIRA BCI-55)          *
+AG    * 20190829 * AGESTAS* 190829 * TRATAMENTO ROLLBACK COM HOLD
+PML   * 20221009 * PLIMA  * 221009 * ALTERACAO AUTORIZACAO INACTIVAS   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB4132'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+BCI111*    COPY AQCW0008.
+           COPY AQCK0001.
+           COPY AQCK0003.
+           COPY SPCL5025.
+      **R  COPY ETCL9819.
+           COPY BRCL1020.
+      **R  COPY AQCL0900.
+           COPY VIAL0015.
+           COPY VIAW0050.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY PSCK0001.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY PSCL5035.
+           COPY PSCW5035.
+           COPY PSCL5135.
+           COPY PSCL5610.
+           COPY PSCW5135.
+           COPY PSCL5040.
+           COPY PSCW5040.
+           COPY PSCL5050.
+           COPY PSCW5050.
+           COPY PSCL5060.
+           COPY PSCW5060.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+           COPY AQCW0109.
+           COPY SXCL0430.
+           COPY SXCL0760.
+           COPY SXCW0902.
+           COPY KRCL5010.
+           COPY KRCK0002.
+PML        COPY PSCL5310.
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+           COPY SXCL0002.
+           COPY SXCL0445.
+           COPY PSCL5070.
+           COPY PSCW5070.
+           COPY PSCL5090.
+           COPY PSCW5090.
+           COPY PSCW0055.
+           COPY ETCL0188.
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA PSHEADER  (REG HEADER)
+           EXEC SQL INCLUDE PSCDHEAD6 END-EXEC.
+      * TABELA PSCONTRAT (CONTRATOS)
+           EXEC SQL INCLUDE PSCDCONTR2 END-EXEC.
+      * TABELA PSDETALHE (REG DETALHE)
+JF0618     EXEC SQL INCLUDE PSCDDET003 END-EXEC.
+      * TABELA PSPARAM   (PARAMETRIZAÇÃO)
+           EXEC SQL INCLUDE PSCDPARAM  END-EXEC.
+      * TABELA PSFICHEIR (REG FICHEIRO)
+           EXEC SQL INCLUDE PSCDFICHEI END-EXEC.
+      *
+           EXEC SQL INCLUDE PSCW0057   END-EXEC.
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+      **R  05 CON-MAX                PIC  9(11)V99 VALUE 9999999999999.
+           05 CON-S                  PIC  X(01) VALUE 'S'.
+           05 CON-N                  PIC  X(01) VALUE 'N'.
+           05 CON-PACNT-MOV-CNT-CCB  PIC  X(03) VALUE 'C  '.
+           05 CON-SITU.
+              10 CON-AP              PIC  X(02) VALUE 'AP'.
+              10 CON-NP              PIC  X(02) VALUE 'NP'.
+              10 CON-EP              PIC  X(02) VALUE 'EP'.
+              10 CON-PD              PIC  X(02) VALUE 'PD'.
+              10 CON-PP              PIC  X(02) VALUE 'PP'.
+              10 CON-CR              PIC  X(02) VALUE 'CR'.
+              10 CON-NR              PIC  X(02) VALUE 'NR'.
+PML           10 CON-EU                PIC  X(02) VALUE 'EU'.
+PML        05 CON-PSM5310              PIC  X(10) VALUE 'PSM5310'.
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-JOBNC                 PIC  X(10)  VALUE SPACES.
+           05 WS-TOTAL-TEIS            PIC S9(15)V99  VALUE ZEROES.
+           05 WS-CBAN                  PIC S9(04)  VALUE ZEROES.
+           05 WS-USERC                 PIC  X(10)  VALUE SPACES.
+           05 WS-NOCB                  PIC S9(10)  VALUE ZEROES.
+           05 WS-JOBNC-TEI             PIC  X(10)  VALUE SPACES.
+           05 WS-FICHEIRO.
+              10 WS-HRNCLI             PIC  S9(09) COMP-3 VALUE ZEROES.
+              10 WS-HRDINT             PIC  S9(08) COMP-3 VALUE ZEROES.
+              10 WS-HRNFIC             PIC  S9(06) COMP-3 VALUE ZEROES.
+           05 WS-NTRY                  PIC  9(02).
+           05 WS-TMOV                  PIC  X(01).
+           05 WS-ILCO                  PIC  X(01).
+           05 WS-SALDO                 PIC  S9(19)V99.
+           05 WS-CONTA11               PIC  S9(11) VALUE ZEROES.
+           05 WS-CONTA REDEFINES WS-CONTA11.
+              10 WS-NCLI11             PIC  S9(08) VALUE ZEROES.
+              10 WS-NATR11             PIC  S9(02) VALUE ZEROES.
+              10 WS-NSEQ11             PIC  S9(01) VALUE ZEROES.
+           05 WS-CNTA                  PIC  9(14).
+           05 REDEFINES WS-CNTA.
+              10 WS-NCLI               PIC  9(09).
+              10 WS-NATR               PIC  9(02).
+              10 WS-NSEQ               PIC  9(03).
+           05 WS-VLR-RESG-CCC          PIC  S9(19)V99.
+           05 WS-SLD-DISP-TOT          PIC  S9(19)V99.
+           05 WS-MONT-TOTAL            PIC  S9(19)V99.
+           05 WS-SLD-DISP-DO           PIC  S9(19)V99.
+           05 WS-SALDO-DO              PIC  S9(19)V99.
+
+           05 WS-VALOR-CREDITOS        PIC  S9(19)V99.
+           05 WS-VALOR-CTA-SAL         PIC  S9(19)V99.
+           05 WS-VALOR-CRED-TEI        PIC  S9(19)V99.
+           05 WS-VALOR-DESPESAS        PIC  S9(19)V99.
+           05 WS-QUANT-CREDITOS        PIC  S9(06).
+           05 WS-QUANT-CRED-TEI        PIC  S9(06).
+           05 WS-MONTANTE              PIC  S9(19)V99.
+           05 WS-MONT                  PIC  S9(19)V99.
+           05 WS-ERROS-DETALHE         PIC  9(06).
+           05 WS-TEMPLATE              PIC  X(10).
+           05 WS-NIB.
+              10 WS-NIB-BANCO          PIC  9(04).
+              10 WS-NIB-BALCAO         PIC  9(04).
+              10 WS-NIB-CONTA          PIC  9(11).
+              10 REDEFINES WS-NIB-CONTA.
+                 15 WS-NIB-CLIENTE     PIC  9(08).
+                 15 WS-NIB-NATUREZA    PIC  9(02).
+                 15 WS-NIB-SEQUENCIA   PIC  9(01).
+              10 WS-NIB-CHECK-DIGIT    PIC  9(02).
+           05 WS-HEADER.
+              10 WS-HEADER-SITU        PIC  X(02).
+              10 WS-HEADER-SITC        PIC  9(02).
+              10 WS-HEADER-NOCB        PIC  9(09).
+              10 WS-HEADER-REFORD      PIC  X(20).
+           05 WS-INDICE                PIC  9(03).
+           05 WS-DIM-SEQMV.
+              10 WS-SEQMV OCCURS 100   PIC  9(02).
+           05 WS-DIM-PACNT.
+              10 WS-PACNT OCCURS 100   PIC  X(03).
+           05 WS-DIM-BALC.
+              10 WS-BALC  OCCURS 100   PIC  X(04).
+           05 WS-DIM-CCB.
+              10 WS-CCB   OCCURS 100   PIC  X(13).
+           05 WS-DIM-COPER.
+              10 WS-COPER OCCURS 100   PIC  9(03).
+           05 WS-DIM-QOPER.
+              10 WS-QOPER OCCURS 100   PIC  9(06).
+           05 WS-DIM-VALOR.
+              10 WS-VALOR OCCURS 100   PIC  S9(13)V99.
+           05 WS-DIM-DESCR.
+              10 WS-DESCR OCCURS 100   PIC  X(40).
+           05 WS-COD-OPER              PIC  9(03).
+           05 WS-DESCRICAO             PIC  X(40).
+           05 WS-CNTA-CCB              PIC  X(13).
+           05 WS-IDSP                  PIC  X(01).
+           05 WS-COPERACAO             PIC  9(03).
+           05 WS-GDESCRICAO            PIC  X(40).
+           05 WS-NCNTCONT              PIC  X(13).
+           05 WS-CTIPENC               PIC  X(02).
+           05 WS-CEVENTO               PIC  X(10).
+           05 WS-CTA-SAL-G      OCCURS 5 TIMES.
+              10 WS-CTA-SAL-CCB       PIC  X(13).
+              10 WS-CTA-SAL-VLR       PIC S9(15)V99.
+              10 WS-CTA-SAL-MDA       PIC  X(03).
+              10 WS-CTA-SAL-COPED     PIC S9(03).
+              10 WS-CTA-SAL-COPEC     PIC S9(03).
+              10 WS-CTA-SAL-DESCD     PIC  X(40).
+              10 WS-CTA-SAL-DESCC     PIC  X(40).
+PML        05 WS-AUTR-INAC                 PIC S9(10) VALUE ZEROES.
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 WS-BYPASS                PIC  X(01).
+              88 WS-COM-BYPASS                     VALUE 'S'.
+              88 WS-SEM-BYPASS                     VALUE 'N'.
+           05 WS-REGISTO               PIC  X(01).
+              88 WS-POR-REGISTO                    VALUE 'B'.
+              88 WS-POR-BOLO                       VALUE 'A'.
+           05 WS-EXECUCAO              PIC  9(01).
+              88 WS-EXECUCAO-PRIMEIRA              VALUE 1.
+           05 WS-USER-TEI              PIC  X(01).
+              88 WS-USER-TEI-S                     VALUE 'S'.
+              88 WS-USER-TEI-N                     VALUE 'N'.
+           05 WS-CRIA-ORD              PIC  X(01).
+              88 WS-CRIA-ORD-S                     VALUE 'S'.
+              88 WS-CRIA-ORD-N                     VALUE 'N'.
+           05 WS-CTA-SAL               PIC  X(01).
+              88 WS-CTA-SAL-SIM                    VALUE 'S'.
+              88 WS-CTA-SAL-NAO                    VALUE 'N'.
+BCI353     05 SW-CONTA-ORDENANTE           PIC  X(01) VALUE SPACE.
+BCI353        88 SW-CNTA-INACTIVA                     VALUE 'S'.
+BCI353        88 SW-CNTA-OUTRO                        VALUE 'N'.
+BCI353*
+PML        05 SW-AUTD                      PIC  X(01).
+PML           88 SW-AUTD-OK                        VALUE 'S'.
+PML           88 SW-AUTD-NOK                       VALUE 'N'.
+
+      ******************************************************************
+      * MÓDULOS
+      ******************************************************************
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+
+      ******************************************************************
+           EXEC SQL
+                DECLARE CRS_PSHEADER CURSOR WITH HOLD FOR
+                SELECT  HRNCLI
+                     ,  HRDINT
+                     ,  HRNFIC
+                     ,  HRNTRY
+                     ,  HRSITC
+                     ,  HRSITU
+                     ,  HRCBAN
+                     ,  HRCBAL
+                     ,  HRCNTA
+                     ,  HRCDIG
+                     ,  HRMOED
+                     ,  HRREFORD
+                     ,  HRNOCB
+                     ,  HRAGEN
+                     ,  HRINDBYP
+                     ,  HRCANAL
+                     ,  HRTREMUN
+                     ,  HRTOPE
+                     ,  HRPREXEC
+                     ,  HRETRBV
+                     ,  HRPEXEC
+                  FROM  PSHEADER6
+                 WHERE  (HRNCLI  > :WS-HRNCLI
+                     OR (HRNCLI  = :WS-HRNCLI
+                     AND HRDINT  > :WS-HRDINT)
+                     OR (HRNCLI  = :WS-HRNCLI
+                     AND HRDINT  = :WS-HRDINT
+                     AND HRNFIC  > :WS-HRNFIC)
+                     OR (HRNCLI  = :WS-HRNCLI
+                     AND HRDINT  = :WS-HRDINT
+                     AND HRNFIC  >= :WS-HRNFIC))
+                     AND HRSITU IN (:CON-AP, :CON-NP, :CON-EP)
+                   ORDER BY HRNCLI, HRDINT, HRNFIC
+           END-EXEC.
+      ******************************************************************
+           EXEC SQL
+                DECLARE CRS_PSDETALHE CURSOR FOR
+                SELECT  DTNCLI
+                     ,  DTDINT
+                     ,  DTNFIC
+                     ,  DTNREG
+                     ,  DTREF
+                     ,  DTTOPE
+                     ,  DTSITC
+                     ,  DTCBAN
+                     ,  DTCBAL
+                     ,  DTCNTA
+                     ,  DTCDIG
+                     ,  DTMONT
+                     ,  DTNOME
+                     ,  DTREFTR
+                     ,  DTDVAL
+                     ,  DTNOCB
+                     ,  DTSITU
+                  FROM  PSDETALHE3
+                 WHERE  DTNCLI = :PSDETALHE-DTNCLI
+                   AND  DTDINT = :PSDETALHE-DTDINT
+                   AND  DTNFIC = :PSDETALHE-DTNFIC
+                   AND  DTNOCB = :PSDETALHE-DTNOCB
+                   AND  DTSITU IN (:CON-PD, :CON-PP)
+           END-EXEC.
+
+      ******************************************************************
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2000-PROC-PROGRAMA
+                 THRU 2000-PROC-PROGRAMA-EXIT
+           END-IF.
+
+ES         IF AQCW0100-AT-COMMIT-INACTIVO
+ES            MOVE '3000-FIM-PROGRAMA'     TO VIAL0015-CALLER-ID
+ES            MOVE 'PROGRAMA      '        TO VIAL0015-CAMPO-NM(1)
+ES            MOVE WS-PROGNAME              TO VIAL0015-CAMPO-VLR(1)
+ES            PERFORM VIAP0015-TRATA-DEBUG
+ES               THRU VIAP0015-TRATA-DEBUG-EXIT
+ES         END-IF.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES
+                    , AQCW0011-DATA.
+
+           MOVE WS-PROGNAME                TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE             TO SXCW0902-MFILE.
+           MOVE ZERO                       TO AQCW0009-RCODE.
+           SET  WS-USER-TEI-N              TO TRUE.
+           SET  WS-CRIA-ORD-S              TO TRUE.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      **R
+      **R  PERFORM AQCP0900-FORMATA-BATCH
+      **R     THRU AQCP0900-FORMATA-BATCH.
+      **R
+      **R  PERFORM AQCP0900-LOGIN
+      **R     THRU AQCP0900-LOGIN-EXIT.
+      **R
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      *****************************************************************
+      * DESCRICAO: LOGIN BANKA                                        *
+      *****************************************************************
+      *AQCP0900-LOGIN.
+      **R  CALL 'AQB00900' USING AQCL0900-DATA.
+      **R
+      **R  MOVE AQCL0900-RCODE   TO AQCW0009-RCODE.
+      **R
+      **R  IF NOT AQCW0009-RCODE-OK
+      **R    MOVE ZEROES                    TO AQCW0100-AT-DTOP
+      **R    MOVE AQCK0003-CALL-AQB00900    TO SXCW0902-MSGID
+      **R    PERFORM SXCP0902-ESCREVE-MSG
+      **R    PERFORM SXCP0902-ESCREVE-MSG
+      **R       THRU SXCP0902-ESCREVE-MSG-EXIT
+      **R  END-IF.
+      **R
+      *AQCP0900-LOGIN-EXIT.
+      **R  EXIT.
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+
+           MOVE ZEROES          TO WS-HRNCLI.
+           MOVE ZEROES          TO WS-HRDINT.
+           MOVE ZEROES          TO WS-HRNFIC.
+
+           PERFORM 2100-ABRE-CURSOR-HEADER
+              THRU 2100-ABRE-CURSOR-HEADER-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+             PERFORM 2150-LE-CURSOR-HEADER
+                THRU 2150-LE-CURSOR-HEADER-EXIT
+           END-IF.
+
+           PERFORM 2200-PROC-CURSOR-HEADER
+              THRU 2200-PROC-CURSOR-HEADER-EXIT
+                UNTIL NOT AQCW0009-SEM-ERROS
+                   OR NOT AQCW0011-OK.
+
+           EXEC SQL
+              CLOSE CRS_PSHEADER
+           END-EXEC.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-ABRE-CURSOR-HEADER.
+      ******************************************************************
+           INITIALIZE PSHEADER6.
+
+           EXEC SQL
+                OPEN CRS_PSHEADER
+           END-EXEC
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF AQCW0011-OK
+              CONTINUE
+           ELSE
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-OPEN-PSHEADER        TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2100-ABRE-CURSOR-HEADER-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2150-LE-CURSOR-HEADER.
+      ******************************************************************
+           EXEC SQL
+                FETCH  CRS_PSHEADER
+                 INTO  :PSHEADER-HRNCLI
+                    ,  :PSHEADER-HRDINT
+                    ,  :PSHEADER-HRNFIC
+                    ,  :PSHEADER-HRNTRY
+                    ,  :PSHEADER-HRSITC
+                    ,  :PSHEADER-HRSITU
+                    ,  :PSHEADER-HRCBAN
+                    ,  :PSHEADER-HRCBAL
+                    ,  :PSHEADER-HRCNTA
+                    ,  :PSHEADER-HRCDIG
+                    ,  :PSHEADER-HRMOED
+                    ,  :PSHEADER-HRREFORD
+                    ,  :PSHEADER-HRNOCB
+                    ,  :PSHEADER-HRAGEN
+                    ,  :PSHEADER-HRINDBYP
+                    ,  :PSHEADER-HRCANAL
+                    ,  :PSHEADER-HRTREMUN
+                    ,  :PSHEADER-HRTOPE
+                    ,  :PSHEADER-HRPREXEC
+                    ,  :PSHEADER-HRETRBV
+                    ,  :PSHEADER-HRPEXEC
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                MOVE PSHEADER-HRINDBYP           TO WS-BYPASS
+      *         MOVE PSHEADER-HRSITC             TO WS-HEADER-SITC
+                MOVE PSHEADER-HRNOCB             TO WS-HEADER-NOCB
+                INSPECT PSHEADER-HRETRBV
+                    REPLACING ALL "X " BY "A "
+                IF PSHEADER-HRREFORD EQUAL ZEROES
+                   MOVE SPACES                   TO PSHEADER-HRREFORD
+                END-IF
+      * Na primeira execução tem de cobrar comissao de processamento
+      * de ficheiro
+                IF PSHEADER-HRPEXEC EQUAL PSCK0002-PEXEC-SIM
+                   SET  WS-EXECUCAO-PRIMEIRA        TO TRUE
+                END-IF
+                SET  WS-CTA-SAL-NAO                 TO TRUE
+                INITIALIZE WS-CTA-SAL REPLACING NUMERIC BY ZEROES
+                                           ALPHANUMERIC BY SPACES
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-FETCH-PSHEADER     TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2150-LE-CURSOR-HEADER-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2200-PROC-CURSOR-HEADER.
+      ******************************************************************
+
+           SET AQCW0009-RCODE-OK TO TRUE
+           MOVE SPACES TO SXCW0902-MSGID
+
+           PERFORM 2300-LE-CONTRATO
+              THRU 2300-LE-CONTRATO-EXIT
+
+           IF AQCW0009-SEM-ERROS
+             IF WS-POR-BOLO
+                PERFORM 2250-TRATA-POR-BOLO
+                   THRU 2250-TRATA-POR-BOLO-EXIT
+             END-IF
+           END-IF.
+
+           MOVE ZEROES                     TO WS-EXECUCAO.
+
+           PERFORM 2150-LE-CURSOR-HEADER
+              THRU 2150-LE-CURSOR-HEADER-EXIT.
+
+       2200-PROC-CURSOR-HEADER-EXIT.
+           EXIT.
+
+      *****************************************************************
+       2250-TRATA-POR-BOLO.
+      *****************************************************************
+PML        SET  SW-AUTD-OK                 TO TRUE.
+
+           MOVE SPACES               TO WS-USERC
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 6500-OBTEM-USER-VALIDACAO
+                 THRU 6500-OBTEM-USER-VALIDACAO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2400-VALIDA-ORDENANTE
+                 THRU 2400-VALIDA-ORDENANTE-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+PML        AND SW-AUTD-OK
+             PERFORM 2500-VERIFICA-PROVISAO
+                THRU 2500-VERIFICA-PROVISAO-EXIT
+           END-IF.
+
+      * Creditar beneficiários
+           IF AQCW0009-SEM-ERROS
+PML        AND SW-AUTD-OK
+              PERFORM 4000-TRATA-DETALHE
+                 THRU 4000-TRATA-DETALHE-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+PML        AND SW-AUTD-OK
+      * CALCULA AS COMISSOES DOS MOVIMENTOS EFECTIVAMENTE REALIZADOS
+             PERFORM 5100-CALCULA-COMISSOES
+                THRU 5100-CALCULA-COMISSOES-EXIT
+           END-IF.
+
+      * Debitar ordenante
+           IF AQCW0009-SEM-ERROS
+ PML        AND SW-AUTD-OK
+             PERFORM 5000-COBRA-ORDENANTE
+                 THRU 5000-COBRA-ORDENANTE-EXIT
+           END-IF.
+
+PML        IF SW-AUTD-OK
+              IF AQCW0009-SEM-ERROS
+                 MOVE PSCK0002-FIC-EM-PROC       TO WS-HEADER-SITU
+                 MOVE PSCK0002-SITC-NORMAL       TO WS-HEADER-SITC
+              ELSE
+                 PERFORM 2600-TRATA-REARRANQUE
+                    THRU 2600-TRATA-REARRANQUE-EXIT
+              END-IF
+PML        END-IF.
+
+      * Actualiza estado do header
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2800-UPDATE-CRS-PSHEADER
+                 THRU 2800-UPDATE-CRS-PSHEADER-EXIT
+           END-IF.
+
+       2250-TRATA-POR-BOLO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2300-LE-CONTRATO.
+      ******************************************************************
+           INITIALIZE PSCONTRAT2.
+           MOVE PSHEADER-HRNCLI                  TO PSCONTRAT-COCCLI.
+      *    MOVE PSHEADER-HRTOPE                  TO PSCONTRAT-COTSERV.
+           EVALUATE PSHEADER-HRTOPE
+             WHEN PSCK0002-TSERV-FORNEC
+               MOVE PSHEADER-HRTOPE              TO PSCONTRAT-COTSERV
+             WHEN OTHER
+               MOVE PSCK0002-TSERV-PAGSAL8       TO PSCONTRAT-COTSERV
+           END-EVALUATE
+
+           EXEC SQL
+                SELECT  CODESC
+                     ,  COTMOV
+                     ,  CONTRY
+                     ,  COILCO
+                  INTO :PSCONTRAT-CODESC
+                     , :PSCONTRAT-COTMOV
+                     , :PSCONTRAT-CONTRY
+                     , :PSCONTRAT-COILCO
+                  FROM  PSCONTRAT2
+                 WHERE  COCCLI  = :PSCONTRAT-COCCLI
+                   AND  COTSERV = :PSCONTRAT-COTSERV
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                MOVE PSCONTRAT-COTMOV      TO WS-REGISTO
+                MOVE PSCONTRAT-COILCO      TO WS-ILCO
+           WHEN AQCW0011-NOTFND
+                PERFORM 2320-OBTEM-PARAMETROS
+                   THRU 2329-OBTEM-PARAMETROS-EXIT
+
+                MOVE WS-NTRY               TO PSCONTRAT-CONTRY
+                MOVE WS-TMOV               TO WS-REGISTO
+                MOVE CON-S                 TO WS-ILCO
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL    TO TRUE
+                MOVE PSCK0003-SELECT-PSCONTRAT   TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2300-LE-CONTRATO-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                   2320-OBTEM-PARAMETROS                        *
+      ******************************************************************
+       2320-OBTEM-PARAMETROS.
+
+           MOVE ZEROES                     TO WS-NTRY.
+           MOVE SPACES                     TO WS-TMOV.
+
+           INITIALIZE RPARAM.
+      *OBTEM NUMERO DE TENTATIVAS STANDARD
+           MOVE PSCK0002-CONFIGURACOES     TO PSPARAM-PRCODPAR.
+           MOVE PSCK0002-N-TENTATIVAS      TO PSPARAM-PRPARAM.
+
+           PERFORM PSCP0001-PARAMETRIZACAO
+              THRU PSCP0001-PARAMETRIZACAO-EXIT.
+
+           IF AQCW0011-OK
+              MOVE PSPARAM-PRVALNUM        TO WS-NTRY
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE PSCK0003-PAVLR-INVALIDO TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+           INITIALIZE RPARAM.
+      *OBTEM TIPO DE MOVIMENTACAO STANDARD
+           MOVE PSCK0002-CONFIGURACOES     TO PSPARAM-PRCODPAR.
+ESF        EVALUATE PSHEADER-HRTOPE
+ESF          WHEN PSCK0002-TSERV-FORNEC
+ESF            MOVE PSCK0002-T-MOV-FORN    TO PSPARAM-PRPARAM
+ESF          WHEN OTHER
+               MOVE PSCK0002-T-MOVIMENTO   TO PSPARAM-PRPARAM
+ESF        END-EVALUATE.
+
+           PERFORM PSCP0001-PARAMETRIZACAO
+              THRU PSCP0001-PARAMETRIZACAO-EXIT.
+
+           IF AQCW0011-OK
+              MOVE PSPARAM-PRPARM0         TO WS-TMOV
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE PSCK0003-PAVLR-INVALIDO TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2329-OBTEM-PARAMETROS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2400-VALIDA-ORDENANTE.
+      ******************************************************************
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE '2400-VALIDA-ORDENANTE'  TO VIAL0015-CALLER-ID
+              MOVE 'PSHEADER-HRNCLI'        TO VIAL0015-CAMPO-NM(1)
+              MOVE PSHEADER-HRNCLI          TO VIAL0015-CAMPO-VLR(1)
+              MOVE 'PSHEADER-HRDINT'        TO VIAL0015-CAMPO-NM(2)
+              MOVE PSHEADER-HRDINT          TO VIAL0015-CAMPO-VLR(2)
+              MOVE 'PSHEADER-HRNFIC'        TO VIAL0015-CAMPO-NM(3)
+              MOVE PSHEADER-HRNFIC          TO VIAL0015-CAMPO-VLR(3)
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           PERFORM PSCP5040-FORMATA-BATCH
+              THRU PSCP5040-FORMATA-BATCH-EXIT.
+
+ES5040*    MOVE PSHEADER-HRCNTA            TO PSCL5040-CNTA   .
+ES5040     MOVE PSHEADER-HRCBAN            TO PSCL5040-NIB-BANCO
+ES5040     MOVE PSHEADER-HRCBAL            TO PSCL5040-NIB-BALCAO
+ES5040     MOVE PSHEADER-HRCNTA            TO PSCL5040-NIB-CNTA
+ES5040     MOVE PSHEADER-HRCDIG            TO PSCL5040-NIB-CKDG
+
+ES2210* PASSA TIPO DE OPERAÇÃO PARA VALIDAÇÃO DE RESTRIÇÕES DE
+ES2210* MOVIMENTAÇÃO
+ES2210     IF PSHEADER-HRTREMUN EQUAL PSCK0002-TREMUN-SALARIO
+ES2210        MOVE PSHEADER-HRTOPE         TO PSCL5040-TOPE
+ES2210     ELSE
+ES2210        MOVE PSCK0002-TSERV-BONUS    TO PSCL5040-TOPE
+ES2210     END-IF
+ES2410     SET  PSCL5040-EXECUTOR-USER     TO TRUE
+ES2410     SET  PSCL5040-BYPASS-NAO        TO TRUE
+      *
+      *    CALL PSCK0002-PSM5040 USING PSCL5040-DATA.
+
+           PERFORM PSCP5040-CALL-PSM5040
+              THRU PSCP5040-CALL-PSM5040-EXIT.
+
+           MOVE PSCL5040-RCODE             TO AQCW0009-RCODE
+
+           SET PSCW5040-TTR-EXECUTA TO TRUE
+           SET PSCW5040-DEBITO TO TRUE
+           PERFORM PSCP5040-VALIDA-CTA
+              THRU PSCP5040-VALIDA-CTA-EXIT
+
+PML   *    IF PSCL5040-CNTA-MSG EQUAL PSCK0001-CNT-INAC
+ |    *       SET SW-CNTA-INACTIVA         TO TRUE
+ |    *    END-IF.
+ |    *
+ |    *    IF NOT AQCW0009-SEM-ERROS
+ |    *       IF AQCW0009-RCODE-VAL
+ |    *         MOVE PSCW5040-SITC         TO WS-HEADER-SITC
+ |    *       ELSE
+ |    *         MOVE PSCW5040-MSGID        TO SXCW0902-MSGID
+ |    *         PERFORM SXCP0902-ESCREVE-MSG
+ |    *            THRU SXCP0902-ESCREVE-MSG-EXIT
+ |    *       END-IF
+ |    *    END-IF.
+ |    *
+ |    *    IF AQCW0009-SEM-ERROS
+ |    *       MOVE PSCL5040-SLDD           TO WS-SLD-DISP-DO
+ |    *       MOVE PSCL5040-SLDD           TO PSCW0055-SLD-DISP-DO
+ |    *    END-IF.
+PML   *
+PML        IF AQCW0009-SEM-ERROS
+ |            MOVE PSCL5040-SLDD           TO WS-SLD-DISP-DO
+ |            MOVE PSCL5040-SLDD           TO PSCW0055-SLD-DISP-DO
+ |            IF PSCL5040-CNTA-MSG EQUAL PSCK0001-CNT-INAC
+ |               SET SW-CNTA-INACTIVA      TO TRUE
+ |               PERFORM 2410-VERF-AUTD
+ |                  THRU 2410-VERF-AUTD-EXIT
+ |            END-IF
+ |         ELSE
+ |            IF AQCW0009-RCODE-VAL
+ |              MOVE PSCW5040-SITC         TO WS-HEADER-SITC
+ |            ELSE
+ |              MOVE PSCW5040-MSGID        TO SXCW0902-MSGID
+ |              PERFORM SXCP0902-ESCREVE-MSG
+ |                 THRU SXCP0902-ESCREVE-MSG-EXIT
+ |            END-IF
+ |         END-IF.
+PML
+       2400-VALIDA-ORDENANTE-EXIT.
+           EXIT.
+
+PML   ******************************************************************
+ |     2410-VERF-AUTD.
+ |    ******************************************************************
+ |         MOVE '2410-VERF-AUTD'           TO VIAL0015-CALLER-ID.
+ |         PERFORM VIAP0015-TRATA-DEBUG
+ |            THRU VIAP0015-TRATA-DEBUG-EXIT.
+ |
+ |         PERFORM 6700-VERF-AUTD
+ |            THRU 6700-VERF-AUTD-EXIT.
+ |
+ |         IF  ETCL0002-RCODE-OK
+ |         AND PSCL5310-VAUTD-S
+ |            MOVE PSCL5310-CDGA           TO WS-AUTR-INAC
+ |         ELSE
+ |            SET  SW-AUTD-NOK             TO TRUE
+ |            MOVE CON-EU                  TO WS-HEADER-SITU
+ |            PERFORM 2800-UPDATE-CRS-PSHEADER
+ |               THRU 2800-UPDATE-CRS-PSHEADER-EXIT
+ |            IF NOT AQCW0009-SEM-ERROS
+ |               EVALUATE PSCL5310-CODERR
+ |                WHEN PSCK0001-CLL-ETR00292
+ |                  MOVE PSCK0003-CALL-ETR00292 TO SXCW0902-MSGID
+ |                WHEN PSCK0001-GEN-AUT-DEBI
+ |                  MOVE PSCK0003-ERR-AUT-DEBI  TO SXCW0902-MSGID
+ |                WHEN PSCK0001-GEN-AUT-INAC
+ |                  MOVE PSCK0003-ERR-AUT-INAC  TO SXCW0902-MSGID
+ |                WHEN OTHER
+ |                  MOVE SPACES                 TO SXCW0902-MSGID
+ |               END-EVALUATE
+ |               PERFORM SXCP0902-ESCREVE-MSG
+ |                  THRU SXCP0902-ESCREVE-MSG-EXIT
+ |            END-IF
+ |         END-IF.
+ |
+ |     2410-VERF-AUTD-EXIT.
+ |         EXIT.
+PML
+      ******************************************************************
+       2500-VERIFICA-PROVISAO.
+      ******************************************************************
+           MOVE WS-PROGNAME                      TO VIAW0050-MSGQ
+           MOVE '2500-VERIFICA-PROVISAO'         TO VIAL0015-CALLER-ID
+           PERFORM VIAP0050-TRATA-ERRO-BANKA
+              THRU VIAP0050-TRATA-ERRO-BANKA-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM PSCP0055-VERIF-PROVISAO
+                 THRU PSCP0055-VERIF-PROVISAO-EXIT
+           END-IF.
+
+       2500-VERIFICA-PROVISAO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2600-TRATA-REARRANQUE.
+      ******************************************************************
+
+ES         MOVE WS-PROGNAME                      TO VIAW0050-MSGQ
+ES         MOVE '2600-TRATA-REARRANQUE'          TO VIAL0015-CALLER-ID
+ES         PERFORM VIAP0050-TRATA-ERRO-BANKA
+ES            THRU VIAP0050-TRATA-ERRO-BANKA-EXIT
+
+      *    LIMPA DA QUEUE AS MENSAGENS DE ACESSOS ANTERIORES
+           MOVE WS-PROGNAME            TO SXCW0902-PGMQC
+           MOVE '*CLEAR'               TO SXCW0902-MSGID
+           PERFORM SXCP0902-ESCREVE-MSG
+              THRU SXCP0902-ESCREVE-MSG-EXIT.
+
+
+           IF WS-HEADER-SITC EQUAL PSCK0002-SITC-SEM-SALDO
+              MOVE PSCK0002-FIC-NAO-PROC         TO WS-HEADER-SITU
+              MOVE PSCK0002-PSB4120E             TO WS-TEMPLATE
+              MOVE PSCK0002-REG-POR-PROC         TO PSDETALHE-DTSITU
+           ELSE
+              MOVE PSCK0002-FIC-EM-PROC          TO WS-HEADER-SITU
+           END-IF.
+
+      * SYNCPOINT (ROLLBACK SE PROBLEMAS NO DEBITO DO ORDENANTE)
+AG    *    EXEC SQL ROLLBACK END-EXEC
+AG         EXEC SQL ROLLBACK HOLD END-EXEC
+
+           IF AQCW0100-AT-DEBUG = 'S'
+             DISPLAY 'REARRANQUE...= ' PSHEADER-HRNCLI ' / '
+                                       PSHEADER-HRDINT ' / '
+                                       PSHEADER-HRNFIC
+             DISPLAY 'RCODE/MSGID..= ' AQCW0009-RCODE ' / '
+                                       SXCW0902-MSGID
+           END-IF
+
+           SET  AQCW0009-RCODE-OK TO TRUE
+
+           IF PSDETALHE-DTSITU NOT EQUAL SPACES
+           AND PSDETALHE-DTSITU NOT EQUAL PSCK0002-REG-PROCESSADO
+           AND PSDETALHE-DTSITU NOT EQUAL PSCK0002-REG-ENVIADO-TEI
+RM           IF PSDETALHE-DTNREG NOT EQUAL ZEROES
+ES             PERFORM 4600-UPDATE-REG-ERRO
+ES                THRU 4600-UPDATE-REG-ERRO-EXIT
+RM           END-IF
+           END-IF
+
+ES         IF AQCW0009-SEM-ERROS
+ES         AND WS-TEMPLATE NOT EQUAL SPACES
+ES            PERFORM 9100-CRIA-AVISOS
+ES               THRU 9100-CRIA-AVISOS-EXIT
+ES         END-IF.
+
+      * REABRE O CURSOR
+AG    *    MOVE PSHEADER-HRNCLI TO WS-HRNCLI
+|     *    MOVE PSHEADER-HRDINT TO WS-HRDINT
+|     *    MOVE PSHEADER-HRNFIC TO WS-HRNFIC
+|     *
+|     *    PERFORM 2100-ABRE-CURSOR-HEADER
+|     *       THRU 2100-ABRE-CURSOR-HEADER-EXIT
+AG    *
+PRA   *
+PRA   *    IF AQCW0009-SEM-ERROS
+PRA   *      PERFORM 2150-LE-CURSOR-HEADER
+PRA   *         THRU 2150-LE-CURSOR-HEADER-EXIT
+PRA   *    END-IF.
+PRA   *
+       2600-TRATA-REARRANQUE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2800-UPDATE-CRS-PSHEADER.
+      ******************************************************************
+BCI220*
+BCI220     MOVE '2800-UPDATE-CRS-PSHEADER' TO VIAL0015-CALLER-ID.
+BCI220     IF AQCW0100-AT-DEBUG-SIM
+BCI220        MOVE 'PSHEADER-HRNCLI'       TO VIAL0015-CAMPO-NM(1)
+BCI220        MOVE  PSHEADER-HRNCLI        TO VIAL0015-CAMPO-VLR(1)
+BCI220        MOVE 'PSHEADER-HRDINT'       TO VIAL0015-CAMPO-NM(2)
+BCI220        MOVE  PSHEADER-HRDINT        TO VIAL0015-CAMPO-VLR(2)
+BCI220        MOVE 'PSHEADER-HRNFIC'       TO VIAL0015-CAMPO-NM(3)
+BCI220        MOVE  PSHEADER-HRNFIC        TO VIAL0015-CAMPO-VLR(3)
+BCI220        MOVE 'WS-HEADER-SITU'        TO VIAL0015-CAMPO-NM(4)
+BCI220        MOVE  WS-HEADER-SITU         TO VIAL0015-CAMPO-VLR(4)
+BCI220        MOVE 'WS-HEADER-SITC'        TO VIAL0015-CAMPO-NM(5)
+BCI220        MOVE  WS-HEADER-SITC         TO VIAL0015-CAMPO-VLR(5)
+BCI220        MOVE 'WS-HEADER-NOCB'        TO VIAL0015-CAMPO-NM(6)
+BCI220        MOVE  WS-HEADER-NOCB         TO VIAL0015-CAMPO-VLR(6)
+BCI220        PERFORM VIAP0015-TRATA-DEBUG
+BCI220           THRU VIAP0015-TRATA-DEBUG-EXIT
+BCI220     END-IF.
+BCI220*
+           MOVE WS-HEADER-SITU                   TO PSHEADER-HRSITU.
+           MOVE WS-HEADER-SITC                   TO PSHEADER-HRSITC.
+           MOVE WS-HEADER-NOCB                   TO PSHEADER-HRNOCB.
+           ADD  1                                TO PSHEADER-HRNTRY.
+           IF PSHEADER-HRPREXEC EQUAL SPACES
+              MOVE WS-PROGNAME                   TO PSHEADER-HRPREXEC
+           END-IF.
+           MOVE PSCK0002-PEXEC-NAO               TO PSHEADER-HRPEXEC.
+BCI220*
+BCI220     IF AQCW0100-AT-DEBUG-SIM
+BCI220        MOVE '2800-UPDATE-CRS-PSHEADER'
+BCI220                                     TO VIAL0015-CALLER-ID
+BCI220        MOVE 'PSHEADER-HRNCLI'       TO VIAL0015-CAMPO-NM(1)
+BCI220        MOVE  PSHEADER-HRNCLI        TO VIAL0015-CAMPO-VLR(1)
+BCI220        MOVE 'PSHEADER-HRDINT'       TO VIAL0015-CAMPO-NM(2)
+BCI220        MOVE  PSHEADER-HRDINT        TO VIAL0015-CAMPO-VLR(2)
+BCI220        MOVE 'PSHEADER-HRNFIC'       TO VIAL0015-CAMPO-NM(3)
+BCI220        MOVE  PSHEADER-HRNFIC        TO VIAL0015-CAMPO-VLR(3)
+BCI220        MOVE 'PSHEADER-HRSITU'       TO VIAL0015-CAMPO-NM(4)
+BCI220        MOVE  PSHEADER-HRSITU        TO VIAL0015-CAMPO-VLR(4)
+BCI220        MOVE 'PSHEADER-HRSITC'       TO VIAL0015-CAMPO-NM(5)
+BCI220        MOVE  PSHEADER-HRSITC        TO VIAL0015-CAMPO-VLR(5)
+BCI220        MOVE 'PSHEADER-HRNOCB'       TO VIAL0015-CAMPO-NM(6)
+BCI220        MOVE  PSHEADER-HRNOCB        TO VIAL0015-CAMPO-VLR(6)
+BCI220        MOVE 'PSHEADER-HRNTRY'       TO VIAL0015-CAMPO-NM(7)
+BCI220        MOVE  PSHEADER-HRNTRY        TO VIAL0015-CAMPO-VLR(7)
+BCI220        MOVE 'PSHEADER-HRPREXEC'     TO VIAL0015-CAMPO-NM(8)
+BCI220        MOVE  PSHEADER-HRPREXEC      TO VIAL0015-CAMPO-VLR(8)
+BCI220        MOVE 'PSHEADER-HRPEXEC'      TO VIAL0015-CAMPO-NM(9)
+BCI220        MOVE  PSHEADER-HRPEXEC       TO VIAL0015-CAMPO-VLR(9)
+BCI220        PERFORM VIAP0015-TRATA-DEBUG
+BCI220           THRU VIAP0015-TRATA-DEBUG-EXIT
+BCI220     END-IF.
+BCI220*
+           EXEC SQL
+              UPDATE PSHEADER6
+                 SET HRSITU    = :PSHEADER-HRSITU
+                   , HRSITC    = :PSHEADER-HRSITC
+                   , HRNOCB    = :PSHEADER-HRNOCB
+                   , HRNTRY    = :PSHEADER-HRNTRY
+                   , CUSERID   = :WS-PROGNAME
+                   , HTIMEEST  =  CURRENT TIMESTAMP
+                   , HRPREXEC  = :PSHEADER-HRPREXEC
+                   , HRPEXEC   = :PSHEADER-HRPEXEC
+               WHERE    HRNCLI = :PSHEADER-HRNCLI
+                   AND  HRDINT = :PSHEADER-HRDINT
+                   AND  HRNFIC = :PSHEADER-HRNFIC
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF AQCW0011-OK
+      * SYNCPOINT (COMMIT DEPOIS DE ACTUALIZAR O HEADER)
+              EXEC SQL COMMIT END-EXEC
+           ELSE
+              SET  AQCW0009-RCODE-APL            TO TRUE
+              MOVE PSCK0003-UPDATE-PSHEADER      TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       2800-UPDATE-CRS-PSHEADER-EXIT.
+           EXIT.
+
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+            PERFORM AQCP0002-TRATA-SYNCPOINT
+               THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+            IF AQCW0009-SEM-ERROS
+               PERFORM AQCP0100-REG-FIM
+                  THRU AQCP0100-REG-FIM-EXIT
+            END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+      *                                                                *
+      *                    CREDITO AO BENEFICIARIO                     *
+      *                                                                *
+      ******************************************************************
+       4000-TRATA-DETALHE.
+      ******************************************************************
+           MOVE ZEROES                           TO WS-VALOR-CREDITOS.
+           MOVE ZEROES                           TO WS-VALOR-CTA-SAL .
+           MOVE ZEROES                           TO WS-QUANT-CREDITOS.
+           MOVE ZEROES                           TO WS-VALOR-CRED-TEI.
+           MOVE ZEROES                           TO WS-QUANT-CRED-TEI.
+           MOVE ZEROES                           TO WS-ERROS-DETALHE.
+
+           PERFORM 6000-OBTEM-ESTACAO-CANAL
+              THRU 6000-OBTEM-ESTACAO-CANAL-EXIT.
+
+           PERFORM 4100-ABRE-CURSOR-DETALHE
+              THRU 4100-ABRE-CURSOR-DETALHE-EXIT.
+
+           PERFORM 4200-PROC-CURSOR-DETALHE
+              THRU 4200-PROC-CURSOR-DETALHE-EXIT
+             UNTIL NOT AQCW0009-SEM-ERROS
+                OR NOT AQCW0011-OK.
+
+           PERFORM 4900-FECHA-CURSOR-DETALHE
+              THRU 4900-FECHA-CURSOR-DETALHE-EXIT.
+
+       4000-TRATA-DETALHE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4100-ABRE-CURSOR-DETALHE.
+      ******************************************************************
+           INITIALIZE                            DCLPSDETALHE3.
+           MOVE PSHEADER-HRNCLI                  TO PSDETALHE-DTNCLI.
+           MOVE PSHEADER-HRDINT                  TO PSDETALHE-DTDINT.
+           MOVE PSHEADER-HRNFIC                  TO PSDETALHE-DTNFIC.
+           MOVE ZEROES                           TO PSDETALHE-DTNOCB.
+ES2708     SET  WS-CRIA-ORD-S                    TO TRUE.
+
+           EXEC SQL
+              OPEN CRS_PSDETALHE
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                PERFORM 4150-LE-CURSOR-DETALHE
+                   THRU 4150-LE-CURSOR-DETALHE-EXIT
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-OPEN-PSDETALHE     TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       4100-ABRE-CURSOR-DETALHE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4150-LE-CURSOR-DETALHE.
+      ******************************************************************
+           EXEC SQL
+                FETCH   CRS_PSDETALHE
+                 INTO  :PSDETALHE-DTNCLI
+                    ,  :PSDETALHE-DTDINT
+                    ,  :PSDETALHE-DTNFIC
+                    ,  :PSDETALHE-DTNREG
+                    ,  :PSDETALHE-DTREF
+                    ,  :PSDETALHE-DTTOPE
+                    ,  :PSDETALHE-DTSITC
+                    ,  :PSDETALHE-DTCBAN
+                    ,  :PSDETALHE-DTCBAL
+                    ,  :PSDETALHE-DTCNTA
+                    ,  :PSDETALHE-DTCDIG
+                    ,  :PSDETALHE-DTMONT
+                    ,  :PSDETALHE-DTNOME
+                    ,  :PSDETALHE-DTREFTR
+                    ,  :PSDETALHE-DTDVAL
+                    ,  :PSDETALHE-DTNOCB
+                    ,  :PSDETALHE-DTSITU
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+           WHEN AQCW0011-NOTFND
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-FETCH-PSDETALHE    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       4150-LE-CURSOR-DETALHE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4200-PROC-CURSOR-DETALHE.
+      ******************************************************************
+           IF PSDETALHE-DTCBAN EQUAL AQCW0100-AT-CBAN
+      * Chama o módulo de credito ao beneficiario
+              PERFORM 4300-CREDITO-BENEFICIARIO
+                 THRU 4300-CREDITO-BENEFICIARIO-EXIT
+           ELSE
+              IF WS-CRIA-ORD-S
+                 SET WS-CRIA-ORD-N            TO TRUE
+      * No registo de header, é necessário comunicar o total das TEIS
+                 PERFORM 4455-TOTAL-TEIS
+                    THRU 4455-TOTAL-TEIS-EXIT
+                 IF AQCW0009-SEM-ERROS
+                    PERFORM 4450-FAZ-HEADER-TEI
+                       THRU 4450-FAZ-HEADER-TEI-EXIT
+                 END-IF
+              END-IF
+      * Chama o módulo de envio de TEI
+              IF AQCW0009-SEM-ERROS
+                 PERFORM 4400-FAZ-TEI-BENEFICIARIO
+                    THRU 4400-FAZ-TEI-BENEFICIARIO-EXIT
+              END-IF
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 4500-UPDATE-PSDETALHE
+                 THRU 4500-UPDATE-PSDETALHE-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 4150-LE-CURSOR-DETALHE
+                 THRU 4150-LE-CURSOR-DETALHE-EXIT
+           END-IF.
+      *
+       4200-PROC-CURSOR-DETALHE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4300-CREDITO-BENEFICIARIO.
+      ******************************************************************
+
+           INITIALIZE                              PSCL5135-DATA   .
+           MOVE WS-PROGNAME                      TO PSCL5135-PGMC  .
+           MOVE PSHEADER-HRETRBV                 TO PSCL5135-JOBNC .
+           MOVE PSCK0002-TTR-VAZIO               TO PSCL5135-TTR   .
+           MOVE PSFICHEIR-FCUSRCNF               TO PSCL5135-USERC .
+ES0610     MOVE PSFICHEIR-FCUSRCNF               TO PSCL5135-USER  .
+           MOVE WS-PROGNAME                      TO PSCL5135-PGMQC .
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5135-ESTR  .
+           MOVE PSCK0002-APTR-APL                TO PSCL5135-APTR  .
+           MOVE PSCK0002-HCLI-VMSG               TO PSCL5135-HCLI  .
+           MOVE PSCK0002-VNCR-NVAL               TO PSCL5135-VNCR  .
+
+           MOVE PSDETALHE-DTNCLI                 TO PSCL5135-NCLI  .
+           MOVE PSDETALHE-DTDINT                 TO PSCL5135-DINT  .
+           MOVE PSDETALHE-DTNFIC                 TO PSCL5135-NFIC  .
+           MOVE PSDETALHE-DTNREG                 TO PSCL5135-NREG  .
+           MOVE PSDETALHE-DTCNTA                 TO PSCL5135-CNTA  .
+           MOVE PSHEADER-HRMOED                  TO PSCL5135-MOED  .
+           MOVE PSDETALHE-DTMONT                 TO PSCL5135-MONT  .
+d--b  *    MOVE PSCONTRAT-CODESC                 TO PSCL5135-DESC  .
+           IF PSDETALHE-DTREFTR EQUAL ZEROES
+              MOVE SPACES                        TO PSCL5135-DESC
+           ELSE
+d--b          MOVE PSDETALHE-DTREFTR             TO PSCL5135-DESC
+           END-IF
+           MOVE WS-HEADER-NOCB                   TO PSCL5135-NOCB  .
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5135-AT-CBAN .
+           MOVE AQCW0100-AT-BALM                 TO PSCL5135-AT-BALM .
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5135-AT-DTOP .
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5135-AT-CMOE .
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5135-AT-DEBUG.
+           MOVE WS-ILCO                          TO PSCL5135-ILCO    .
+           MOVE PSHEADER-HRAGEN                  TO PSCL5135-BALM    .
+           MOVE PSHEADER-HRTREMUN                TO PSCL5135-TREMUN  .
+           MOVE PSHEADER-HRTOPE                  TO PSCL5135-TOPE    .
+BCI-88     MOVE WS-CNTA                          TO PSCL5135-CTA-ORD.
+
+           INITIALIZE ETCL0002-COMMAREA.
+
+           PERFORM ETCP0003-STD-INIT
+              THRU ETCP0003-STD-INIT-EXIT
+
+           CALL PSCK0002-PSM5135 USING ETCL0002-COMMAREA
+                                       PSCL5135-DATA.
+
+           MOVE PSCL5135-RCODE                   TO AQCW0009-RCODE
+
+           IF NOT AQCW0009-SEM-ERROS
+             MOVE PSCL5135-CODERR-GRAVE       TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF
+
+           IF AQCW0009-SEM-ERROS
+              IF PSCL5135-SITC EQUAL PSCK0002-SITC-NORMAL
+                 ADD  PSDETALHE-DTMONT            TO WS-VALOR-CREDITOS
+ES               IF PSCL5135-CTA-SAL-SIM
+ES                SET  WS-CTA-SAL-SIM            TO TRUE
+ES                ADD  PSCL5135-CTA-SAL-VLR(1)   TO WS-CTA-SAL-VLR(1)
+ES                ADD  PSCL5135-CTA-SAL-VLR(2)   TO WS-CTA-SAL-VLR(2)
+ES                MOVE PSCL5135-CTA-SAL-COPED(1) TO WS-CTA-SAL-COPED(1)
+ES                MOVE PSCL5135-CTA-SAL-DESCD(1) TO WS-CTA-SAL-DESCD(1)
+ES                MOVE PSCL5135-CTA-SAL-MDA(1)   TO WS-CTA-SAL-MDA(1)
+ES                MOVE PSCL5135-CTA-SAL-COPED(2) TO WS-CTA-SAL-COPED(2)
+ES                MOVE PSCL5135-CTA-SAL-DESCD(2) TO WS-CTA-SAL-DESCD(2)
+ES                MOVE PSCL5135-CTA-SAL-MDA(2)   TO WS-CTA-SAL-MDA(2)
+ES               END-IF
+                 ADD  1                           TO WS-QUANT-CREDITOS
+
+                 MOVE PSCK0002-REG-PROCESSADO     TO PSDETALHE-DTSITU
+                 MOVE PSCK0002-SITC-NORMAL        TO PSDETALHE-DTSITC
+                 MOVE PSCL5135-NOCB               TO PSDETALHE-DTNOCB
+                 MOVE PSCL5135-NOCB               TO WS-HEADER-NOCB
+                 MOVE PSCK0002-PSB4130A           TO WS-TEMPLATE
+                 PERFORM 9100-CRIA-AVISOS
+                    THRU 9100-CRIA-AVISOS-EXIT
+              ELSE
+                ADD  1                           TO WS-ERROS-DETALHE
+                IF PSCL5135-SITC EQUAL ZEROES
+                   MOVE PSCK0002-SITC-NIB-BEN-INV
+                                                 TO PSDETALHE-DTSITC
+                ELSE
+                   MOVE PSCL5135-SITC            TO PSDETALHE-DTSITC
+                END-IF
+                MOVE PSCK0002-REG-PENDENTE       TO PSDETALHE-DTSITU
+                MOVE ZEROES                      TO PSDETALHE-DTNOCB
+                MOVE PSCK0002-PSB4130D           TO WS-TEMPLATE
+                PERFORM 9100-CRIA-AVISOS
+                   THRU 9100-CRIA-AVISOS-EXIT
+              END-IF
+           ELSE
+                IF AQCW0100-AT-DEBUG-SIM
+                   DISPLAY 'PSM5135...= ' AQCW0009-RCODE
+                   ' / ' PSCL5135-CODERR-GRAVE
+                   ' / ' PSDETALHE-DTCNTA
+                END-IF
+                MOVE PSCL5135-SITC               TO PSDETALHE-DTSITC
+                MOVE ZEROES                      TO PSDETALHE-DTNOCB
+                MOVE PSCK0002-REG-PENDENTE       TO PSDETALHE-DTSITU
+                MOVE PSCL5135-CODERR-GRAVE       TO SXCW0902-MSGID
+ES              MOVE PSCL5135-TEMPLATE           TO WS-TEMPLATE
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       4300-CREDITO-BENEFICIARIO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4400-FAZ-TEI-BENEFICIARIO.
+      ******************************************************************
+
+           INITIALIZE                               PSCL5610-DATA  .
+           MOVE WS-PROGNAME                      TO PSCL5610-PGMC  .
+ES    *    MOVE WS-JOBNC-TEI                     TO PSCL5610-JOBNC .
+      * TEIS ebanking tem de ser INTERNET
+ES    *    MOVE PSHEADER-HRETRBV                 TO PSCL5610-JOBNC .
+           IF PSHEADER-HRCANAL EQUAL PSCK0002-CANAL-HOMEBANK
+              MOVE WS-JOBNC-TEI                  TO PSCL5610-JOBNC
+           ELSE
+              MOVE PSHEADER-HRETRBV              TO PSCL5610-JOBNC
+           END-IF
+           MOVE PSCK0002-TTR-TMBEN               TO PSCL5610-TTR   .
+           MOVE PSFICHEIR-FCUSRCNF               TO PSCL5610-USERC .
+           MOVE WS-PROGNAME                      TO PSCL5610-PGMQC .
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5610-ESTR  .
+           MOVE PSCK0002-APTR-APL                TO PSCL5610-APTR  .
+           MOVE WS-NOCB                          TO PSCL5610-NOCB  .
+
+           MOVE PSHEADER-HRNCLI                  TO PSCL5610-NCLI  .
+           MOVE PSHEADER-HRNFIC                  TO PSCL5610-NFIC  .
+           MOVE PSHEADER-HRDINT                  TO PSCL5610-DINT  .
+           MOVE PSHEADER-HRAGEN                  TO PSCL5610-BALM  .
+           MOVE PSHEADER-HRMOED                  TO PSCL5610-MOED  .
+           IF PSHEADER-HRREFORD NOT EQUAL SPACES
+              MOVE PSHEADER-HRREFORD             TO PSCL5610-REFORD
+           ELSE
+              MOVE PSCK0002-DESC-PAGSAL          TO PSCL5610-REFORD
+           END-IF.
+           MOVE PSHEADER-HRMOED                  TO PSCL5610-MOED  .
+
+      *    MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA   .
+      *    MOVE WS-NIB-NATUREZA                  TO PSCL5610-NATR  .
+      *    MOVE WS-NIB-SEQUENCIA                 TO PSCL5610-NSEQ  .
+      *    MOVE PSHEADER-HRCNTA                  TO AQCW0008-CONTA11
+      *    MOVE AQCW0008-NCLI11                  TO AQCW0008-NCLI23
+      *    MOVE AQCW0008-NATR11                  TO AQCW0008-NATR23
+      *    MOVE AQCW0008-NSEQ11                  TO AQCW0008-NSEQ23
+      *    MOVE AQCW0008-CONTA23                 TO PSCL5610-CONTA
+      *
+ES         MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA .
+ES         PERFORM 5351-OBTEM-CONTA
+ES            THRU 5351-OBTEM-CONTA-EXIT
+ES         MOVE WS-CNTA                          TO PSCL5610-CONTA
+      *
+           MOVE PSDETALHE-DTDVAL                 TO PSCL5610-DVAL  .
+           MOVE PSCK0002-COPT-TEI                TO PSCL5610-TOPE  .
+           MOVE PSDETALHE-DTMONT                 TO PSCL5610-MONT  .
+           MOVE PSDETALHE-DTCBAN                 TO PSCL5610-CBAN  .
+           MOVE PSDETALHE-DTCBAL                 TO PSCL5610-CBAL  .
+           MOVE PSDETALHE-DTCNTA                 TO PSCL5610-CNTA  .
+           MOVE PSDETALHE-DTCDIG                 TO PSCL5610-CDIG  .
+           MOVE PSDETALHE-DTREFTR                TO PSCL5610-REFTR .
+           IF PSDETALHE-DTNOME NOT EQUAL SPACES
+              MOVE PSDETALHE-DTNOME              TO PSCL5610-NOME
+           ELSE
+              MOVE PSCK0002-DESC-PAGSAL          TO PSCL5610-NOME
+           END-IF.
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5610-AT-CBAN.
+           MOVE AQCW0100-AT-BALM                 TO PSCL5610-AT-BALM.
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5610-AT-DTOP.
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5610-AT-CMOE.
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5610-AT-DEBUG.
+           MOVE ZEROES                           TO PSCL5610-RCODE
+
+           IF PSDETALHE-DTMONT > 0
+              CALL PSCK0002-PSM5610 USING ETCL0002-COMMAREA
+                                          PSCL5610-DATA
+           END-IF.
+
+           MOVE PSCL5610-RCODE                   TO AQCW0009-RCODE
+
+ES         IF NOT AQCW0009-SEM-ERROS
+             MOVE '4400-FAZ-TEI-BENEFICIARIO'
+                                                TO VIAL0015-CALLER-ID
+ES           MOVE WS-PROGNAME                   TO VIAW0050-MSGQ
+ES           PERFORM VIAP0050-TRATA-ERRO-BANKA
+ES              THRU VIAP0050-TRATA-ERRO-BANKA-EXIT
+ES         END-IF
+
+           IF NOT AQCW0009-SEM-ERROS
+             MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF
+
+           IF AQCW0009-SEM-ERROS
+                ADD  PSDETALHE-DTMONT            TO WS-VALOR-CRED-TEI
+                ADD  1                           TO WS-QUANT-CRED-TEI
+                MOVE PSCK0002-REG-ENVIADO-TEI    TO PSDETALHE-DTSITU
+                MOVE PSCK0002-SITC-NORMAL        TO PSDETALHE-DTSITC
+                MOVE PSCL5610-NOCB               TO PSDETALHE-DTNOCB
+JF0618          MOVE PSCL5610-NSTE               TO PSDETALHE-DTNSTE
+                MOVE PSCK0002-PSB4130A           TO WS-TEMPLATE
+                PERFORM 9100-CRIA-AVISOS
+                   THRU 9100-CRIA-AVISOS-EXIT
+           ELSE
+             IF AQCW0100-AT-DEBUG-SIM
+             DISPLAY 'PSM5610...= ' AQCW0009-RCODE
+                     ' / ' PSCL5610-CODERR-GRAVE
+             END-IF
+             IF AQCW0009-RCODE-VAL
+                IF PSCL5610-CODERR-GRAVE = PSCK0003-NOME-TEI-OBRG
+                   SET AQCW0009-RCODE-INF TO TRUE
+                   MOVE PSCK0002-PSB4130E           TO WS-TEMPLATE
+                ELSE
+                   IF PSCL5610-CODERR-GRAVE = PSCK0003-NOME-TEI-OBRG
+                      SET AQCW0009-RCODE-INF TO TRUE
+                      MOVE PSCK0002-PSB4130F           TO WS-TEMPLATE
+                   ELSE
+                     MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+                     MOVE PSCK0002-PSB4130C           TO WS-TEMPLATE
+                   END-IF
+                END-IF
+                ADD  1                           TO WS-ERROS-DETALHE
+                MOVE PSCK0002-SITC-NIB-BEN-INV   TO PSDETALHE-DTSITC
+                MOVE PSCK0002-REG-PENDENTE       TO PSDETALHE-DTSITU
+                MOVE ZEROES                      TO PSDETALHE-DTNOCB
+                PERFORM 9100-CRIA-AVISOS
+                   THRU 9100-CRIA-AVISOS-EXIT
+             ELSE
+                MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+             END-IF
+           END-IF.
+
+       4400-FAZ-TEI-BENEFICIARIO-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4450-FAZ-HEADER-TEI.
+      ******************************************************************
+           INITIALIZE                               PSCL5610-DATA  .
+           MOVE WS-PROGNAME                      TO PSCL5610-PGMC  .
+ES    *    MOVE WS-JOBNC-TEI                     TO PSCL5610-JOBNC .
+ES    *    MOVE PSHEADER-HRETRBV                 TO PSCL5610-JOBNC .
+           IF PSHEADER-HRCANAL EQUAL PSCK0002-CANAL-HOMEBANK
+              MOVE WS-JOBNC-TEI                  TO PSCL5610-JOBNC
+           ELSE
+              MOVE PSHEADER-HRETRBV              TO PSCL5610-JOBNC
+           END-IF
+           MOVE PSCK0002-TTR-TMORD               TO PSCL5610-TTR   .
+           MOVE PSFICHEIR-FCUSRCNF               TO PSCL5610-USERC .
+           MOVE WS-PROGNAME                      TO PSCL5610-PGMQC .
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5610-ESTR  .
+           MOVE PSCK0002-APTR-APL                TO PSCL5610-APTR  .
+
+           MOVE PSHEADER-HRNCLI                  TO PSCL5610-NCLI  .
+           MOVE PSHEADER-HRNFIC                  TO PSCL5610-NFIC  .
+           MOVE PSHEADER-HRDINT                  TO PSCL5610-DINT  .
+           MOVE PSHEADER-HRAGEN                  TO PSCL5610-BALM  .
+           MOVE PSHEADER-HRMOED                  TO PSCL5610-MOED  .
+           IF PSHEADER-HRREFORD NOT EQUAL SPACES
+              MOVE PSHEADER-HRREFORD             TO PSCL5610-REFORD
+           ELSE
+              MOVE PSCK0002-DESC-PAGSAL          TO PSCL5610-REFORD
+           END-IF.
+           MOVE PSDETALHE-DTNOCB                 TO PSCL5610-NOCB  .
+           MOVE PSHEADER-HRMOED                  TO PSCL5610-MOED  .
+
+      *    MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA   .
+      *    MOVE WS-NIB-NATUREZA                  TO PSCL5610-NATR  .
+      *    MOVE WS-NIB-SEQUENCIA                 TO PSCL5610-NSEQ  .
+      *    MOVE PSHEADER-HRCNTA                  TO AQCW0008-CONTA11
+      *    MOVE AQCW0008-NCLI11                  TO AQCW0008-NCLI23
+      *    MOVE AQCW0008-NATR11                  TO AQCW0008-NATR23
+      *    MOVE AQCW0008-NSEQ11                  TO AQCW0008-NSEQ23
+      *    MOVE AQCW0008-CONTA23                 TO PSCL5610-CONTA
+      *
+ES         MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA .
+ES         PERFORM 5351-OBTEM-CONTA
+ES            THRU 5351-OBTEM-CONTA-EXIT
+ES         MOVE WS-CNTA                          TO PSCL5610-CONTA
+      *
+           MOVE PSDETALHE-DTDVAL                 TO PSCL5610-DVAL  .
+           MOVE PSCK0002-COPT-TEI                TO PSCL5610-TOPE  .
+      *    MOVE PSDETALHE-DTMONT                 TO PSCL5610-MONT  .
+           MOVE WS-TOTAL-TEIS                    TO PSCL5610-MONT  .
+           MOVE PSDETALHE-DTCBAN                 TO PSCL5610-CBAN  .
+           MOVE PSDETALHE-DTCBAL                 TO PSCL5610-CBAL  .
+           MOVE PSDETALHE-DTCNTA                 TO PSCL5610-CNTA  .
+           MOVE PSDETALHE-DTCDIG                 TO PSCL5610-CDIG  .
+           MOVE PSDETALHE-DTREFTR                TO PSCL5610-REFTR .
+           IF PSDETALHE-DTNOME NOT EQUAL SPACES
+              MOVE PSDETALHE-DTNOME              TO PSCL5610-NOME
+           ELSE
+              MOVE PSCK0002-DESC-PAGSAL          TO PSCL5610-NOME
+           END-IF.
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5610-AT-CBAN.
+           MOVE AQCW0100-AT-BALM                 TO PSCL5610-AT-BALM.
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5610-AT-DTOP.
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5610-AT-CMOE.
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5610-AT-DEBUG.
+
+           CALL PSCK0002-PSM5610 USING ETCL0002-COMMAREA
+                                       PSCL5610-DATA.
+
+           MOVE PSCL5610-RCODE                   TO AQCW0009-RCODE
+
+ES         IF NOT AQCW0009-SEM-ERROS
+             MOVE '4450-FAZ-HEADER-TEI'         TO VIAL0015-CALLER-ID
+ES           MOVE WS-PROGNAME                   TO VIAW0050-MSGQ
+ES           PERFORM VIAP0050-TRATA-ERRO-BANKA
+ES              THRU VIAP0050-TRATA-ERRO-BANKA-EXIT
+ES         END-IF
+
+           IF NOT AQCW0009-SEM-ERROS
+             MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF
+
+           IF AQCW0009-SEM-ERROS
+             MOVE PSCL5610-NOCB           TO WS-NOCB
+           ELSE
+             IF AQCW0100-AT-DEBUG-SIM
+             DISPLAY 'PSM5610...= ' AQCW0009-RCODE
+                     ' / ' PSCL5610-CODERR-GRAVE
+             END-IF
+
+             IF AQCW0009-RCODE-VAL
+                IF PSCL5610-CODERR-GRAVE = PSCK0003-NOME-TEI-OBRG
+                   SET AQCW0009-RCODE-INF TO TRUE
+                   MOVE PSCK0002-PSB4130E           TO WS-TEMPLATE
+                ELSE
+                   IF PSCL5610-CODERR-GRAVE = PSCK0003-NOME-TEI-OBRG
+                      SET AQCW0009-RCODE-INF TO TRUE
+                      MOVE PSCK0002-PSB4130F           TO WS-TEMPLATE
+                   ELSE
+                     MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+                     MOVE PSCK0002-PSB4130C           TO WS-TEMPLATE
+                   END-IF
+                END-IF
+                ADD  1                           TO WS-ERROS-DETALHE
+                MOVE PSCK0002-SITC-NIB-BEN-INV   TO PSDETALHE-DTSITC
+                MOVE PSCK0002-REG-PENDENTE       TO PSDETALHE-DTSITU
+                MOVE ZEROES                      TO PSDETALHE-DTNOCB
+                PERFORM 9100-CRIA-AVISOS
+                   THRU 9100-CRIA-AVISOS-EXIT
+             ELSE
+                MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+             END-IF
+           END-IF.
+
+       4450-FAZ-HEADER-TEI-EXIT.
+           EXIT.
+
+      *****************************************************************
+       4455-TOTAL-TEIS.
+      *****************************************************************
+           MOVE PSHEADER-HRNCLI                  TO PSDETALHE-DTNCLI.
+           MOVE PSHEADER-HRDINT                  TO PSDETALHE-DTDINT.
+           MOVE PSHEADER-HRNFIC                  TO PSDETALHE-DTNFIC.
+           MOVE AQCW0100-AT-CBAN                 TO WS-CBAN         .
+           MOVE ZEROES                           TO PSDETALHE-DTNOCB.
+           MOVE ZEROES                           TO WS-TOTAL-TEIS.
+
+      * É preciso saber o valor total das TEIS,
+      * para enviar no registo de HEADER
+
+           EXEC SQL
+                SELECT  IFNULL(SUM(DTMONT), 0)
+                  INTO :WS-TOTAL-TEIS
+                  FROM  PSDETALHE
+                 WHERE  DTNCLI =  :PSDETALHE-DTNCLI
+                   AND  DTDINT =  :PSDETALHE-DTDINT
+                   AND  DTNFIC =  :PSDETALHE-DTNFIC
+                   AND  DTCBAN <> :WS-CBAN
+                   AND  DTNOCB =  :PSDETALHE-DTNOCB
+                   AND  DTSITU IN (:CON-PD, :CON-PP)
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL      TO TRUE
+                MOVE PSCK0003-SELECT-PSDETALHE  TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+             END-EVALUATE.
+      *
+       4455-TOTAL-TEIS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       4500-UPDATE-PSDETALHE.
+      ******************************************************************
+           MOVE AQCW0100-AT-DTOP           TO PSDETALHE-DTDVAL.
+           MOVE WS-PROGNAME                TO PSDETALHE-CUSERID.
+
+           EXEC SQL
+              UPDATE PSDETALHE3
+                 SET DTSITC    = :PSDETALHE-DTSITC
+                   , DTDVAL    = :PSDETALHE-DTDVAL
+                   , DTNOCB    = :PSDETALHE-DTNOCB
+JF0618             , DTNSTE    = :PSDETALHE-DTNSTE
+                   , DTSITU    = :PSDETALHE-DTSITU
+                   , CUSERID   = :PSDETALHE-CUSERID
+                   , HTIMEEST  =  CURRENT TIMESTAMP
+               WHERE CURRENT OF CRS_PSDETALHE
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN OTHER
+                MOVE '4500-UPDATE-PSDETALHE'   TO VIAL0015-CALLER-ID
+                MOVE 'PSDETALHE-DTNCLI'        TO VIAL0015-CAMPO-NM(1)
+                MOVE  PSDETALHE-DTNCLI         TO VIAL0015-CAMPO-VLR(1)
+                MOVE 'PSDETALHE-DTCNTA'        TO VIAL0015-CAMPO-NM(2)
+                MOVE  PSDETALHE-DTCNTA         TO VIAL0015-CAMPO-VLR(2)
+                MOVE 'PSDETALHE-DTSITC'        TO VIAL0015-CAMPO-NM(3)
+                MOVE  PSDETALHE-DTSITC         TO VIAL0015-CAMPO-VLR(3)
+                MOVE 'PSDETALHE-DTDVAL'        TO VIAL0015-CAMPO-NM(4)
+                MOVE  PSDETALHE-DTDVAL         TO VIAL0015-CAMPO-VLR(4)
+                MOVE 'PSDETALHE-DTNOCB'        TO VIAL0015-CAMPO-NM(5)
+                MOVE  PSDETALHE-DTNOCB         TO VIAL0015-CAMPO-VLR(5)
+JF0618          MOVE 'PSDETALHE-DTNSTE'        TO VIAL0015-CAMPO-NM(6)
+JF0618          MOVE  PSDETALHE-DTNSTE         TO VIAL0015-CAMPO-VLR(6)
+                MOVE 'PSDETALHE-DTSITU'        TO VIAL0015-CAMPO-NM(7)
+                MOVE  PSDETALHE-DTSITU         TO VIAL0015-CAMPO-VLR(7)
+                PERFORM VIAP0015-TRATA-DEBUG
+                   THRU VIAP0015-TRATA-DEBUG-EXIT
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-UPDATE-PSDETALHE   TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       4500-UPDATE-PSDETALHE-EXIT.
+            EXIT.
+
+      ******************************************************************
+       4600-UPDATE-REG-ERRO.
+      ******************************************************************
+           MOVE AQCW0100-AT-DTOP           TO PSDETALHE-DTDVAL.
+           MOVE WS-PROGNAME                TO PSDETALHE-CUSERID.
+           MOVE ZEROES                     TO PSDETALHE-DTNOCB.
+
+           EXEC SQL
+              UPDATE PSDETALHE
+                 SET DTSITC    = :PSDETALHE-DTSITC
+                   , DTDVAL    = :PSDETALHE-DTDVAL
+                   , DTNOCB    = :PSDETALHE-DTNOCB
+                   , DTSITU    = :PSDETALHE-DTSITU
+                   , CUSERID   = :PSDETALHE-CUSERID
+                   , HTIMEEST  =  CURRENT TIMESTAMP
+               WHERE DTNCLI = :PSDETALHE-DTNCLI
+                 AND DTDINT = :PSDETALHE-DTDINT
+                 AND DTNFIC = :PSDETALHE-DTNFIC
+                 AND DTNREG = :PSDETALHE-DTNREG
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN OTHER
+                MOVE '4600-UPDATE-REG-ERRO   ' TO VIAL0015-CALLER-ID
+                MOVE 'PSDETALHE-DTNCLI'        TO VIAL0015-CAMPO-NM(1)
+                MOVE  PSDETALHE-DTNCLI         TO VIAL0015-CAMPO-VLR(1)
+                MOVE 'PSDETALHE-DTDINT'        TO VIAL0015-CAMPO-NM(2)
+                MOVE  PSDETALHE-DTDINT         TO VIAL0015-CAMPO-VLR(2)
+                MOVE 'PSDETALHE-DTNFIC'        TO VIAL0015-CAMPO-NM(3)
+                MOVE  PSDETALHE-DTNFIC         TO VIAL0015-CAMPO-VLR(3)
+                MOVE 'PSDETALHE-DTNREG'        TO VIAL0015-CAMPO-NM(4)
+                MOVE  PSDETALHE-DTNREG         TO VIAL0015-CAMPO-VLR(4)
+                MOVE 'PSDETALHE-DTNOCB'        TO VIAL0015-CAMPO-NM(5)
+                MOVE  PSDETALHE-DTNOCB         TO VIAL0015-CAMPO-VLR(5)
+                MOVE 'PSDETALHE-DTSITU'        TO VIAL0015-CAMPO-NM(6)
+                MOVE  PSDETALHE-DTSITU         TO VIAL0015-CAMPO-VLR(6)
+                MOVE 'PSDETALHE-DTSITC'        TO VIAL0015-CAMPO-NM(7)
+                MOVE  PSDETALHE-DTSITC         TO VIAL0015-CAMPO-VLR(7)
+                MOVE 'PSDETALHE-DTDVAL'        TO VIAL0015-CAMPO-NM(8)
+                MOVE  PSDETALHE-DTDVAL         TO VIAL0015-CAMPO-VLR(8)
+                MOVE 'SQLCODE         '        TO VIAL0015-CAMPO-NM(9)
+                MOVE  SQLCODE                  TO VIAL0015-CAMPO-VLR(9)
+                PERFORM VIAP0015-TRATA-DEBUG
+                   THRU VIAP0015-TRATA-DEBUG-EXIT
+                MOVE PSCK0003-UPDATE-PSDETALHE   TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       4600-UPDATE-REG-ERRO-EXIT.
+            EXIT.
+
+      ******************************************************************
+       4900-FECHA-CURSOR-DETALHE.
+      ******************************************************************
+           EXEC SQL
+                CLOSE CRS_PSDETALHE
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-CLOSE-PSDETALHE    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       4900-FECHA-CURSOR-DETALHE-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                                                                *
+      *                      DEBITO AO ORDENANTE                       *
+      *                                                                *
+      ******************************************************************
+       5000-COBRA-ORDENANTE.
+      ******************************************************************
+      * OBTEM VALOR DAS COMISSÕES (VALOR MAIS IMPOSTO DE SELO)
+      * ASSOCIADAS ÀS CONTAS SALÁRIO
+           COMPUTE WS-VALOR-CTA-SAL = WS-CTA-SAL-VLR(1)
+                                    + WS-CTA-SAL-VLR(2)
+
+           COMPUTE WS-MONT-TOTAL  = WS-VALOR-CREDITOS
+                                  + WS-VALOR-CRED-TEI
+                                  + WS-VALOR-DESPESAS
+ES                                + WS-VALOR-CTA-SAL.
+
+           IF WS-MONT-TOTAL NOT EQUAL ZEROES
+             IF WS-SLD-DISP-DO < WS-MONT-TOTAL
+                COMPUTE WS-VLR-RESG-CCC = WS-MONT-TOTAL -
+                                          WS-SLD-DISP-DO
+                MOVE WS-VLR-RESG-CCC TO WS-MONTANTE
+                PERFORM 5310-VALIDA-CCC
+                   THRU 5310-VALIDA-CCC-EXIT
+
+                IF AQCW0009-SEM-ERROS
+                   PERFORM 5320-MOVIMENTA-SALDO-CCC
+                      THRU 5320-MOVIMENTA-SALDO-CCC-EXIT
+                END-IF
+             END-IF
+           END-IF.
+
+      * Só debita as TEIs após movimentação da CCC (caso se aplique)
+      * Débito do montante das TEIS ao ordenante
+           IF AQCW0009-SEM-ERROS
+           AND WS-CRIA-ORD-N
+              PERFORM 7000-FINALIZA-TEI
+                 THRU 7000-FINALIZA-TEI-EXIT
+           END-IF.
+
+      * DEBITA O VALOR DOS CRÉDITOS DE REGISTOS DO BANCO
+           IF AQCW0009-SEM-ERROS
+               MOVE WS-VALOR-CREDITOS TO WS-MONTANTE
+               MOVE CON-N             TO WS-IDSP
+               MOVE PSHEADER-HRREFORD TO WS-DESCRICAO
+               PERFORM 5400-DEBITO-ORDENANTE
+                  THRU 5400-DEBITO-ORDENANTE-EXIT
+           END-IF.
+
+      * DEBITA O VALOR DAS DESPESAS
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-VALOR-DESPESAS TO WS-MONTANTE
+              PERFORM 5500-COBRANCA-DESPESAS
+                 THRU 5500-COBRANCA-DESPESAS-EXIT
+           END-IF.
+
+      * DEBITA O VALOR DAS DESPESAS ASSOCIADAS A CONTAS SALÁRIO
+           IF AQCW0009-SEM-ERROS
+              IF WS-CTA-SAL-SIM
+                 PERFORM 8000-DESPESAS-ADICIONAIS
+                    THRU 8000-DESPESAS-ADICIONAIS-EXIT
+              END-IF
+           END-IF.
+
+       5000-COBRA-ORDENANTE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2530-CALCULA-COMISSOES.
+      ******************************************************************
+           INITIALIZE PSCL5035-DATA.
+           MOVE WS-PROGNAME                      TO PSCL5035-PGMC.
+           MOVE PSCK0002-TTR-VAZIO               TO PSCL5035-TTR.
+           MOVE WS-PROGNAME                      TO PSCL5035-JOBNC.
+           MOVE WS-PROGNAME                      TO PSCL5035-USERC.
+           MOVE WS-PROGNAME                      TO PSCL5035-PGMQC.
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5035-ESTR.
+           MOVE PSCK0002-APTR-APL                TO PSCL5035-APTR.
+
+           MOVE PSHEADER-HRNCLI                  TO PSCL5035-NCLI.
+           MOVE PSHEADER-HRDINT                  TO PSCL5035-DINT.
+           MOVE PSHEADER-HRNFIC                  TO PSCL5035-NFIC.
+           MOVE PSHEADER-HRMOED                  TO PSCL5035-MOED.
+           MOVE PSHEADER-HRCANAL                 TO PSCL5035-CANAL.
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5035-AT-CBAN
+           MOVE AQCW0100-AT-BALM                 TO PSCL5035-AT-BALM
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5035-AT-DTOP
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5035-AT-CMOE
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5035-AT-DEBUG
+           MOVE PSHEADER-HRTOPE                  TO PSCL5035-TSERV.
+
+           PERFORM PSCP5035-CALL-PSM5035
+              THRU PSCP5035-CALL-PSM5035-EXIT.
+
+           MOVE PSCL5035-RCODE                TO AQCW0009-RCODE.
+
+           IF NOT AQCW0009-SEM-ERROS
+             IF AQCW0100-AT-DEBUG-SIM
+               DISPLAY 'PSM5035...= ' AQCW0009-RCODE
+                       ' // ' PSCL5035-CODERR-GRAVE
+             END-IF
+             MOVE PSCL5035-CODERR-GRAVE       TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+             MOVE PSCL5035-SEQMV              TO PSCW0055-SEQMV
+             MOVE PSCL5035-PACNT              TO PSCW0055-PACNT
+             MOVE PSCL5035-COPER              TO PSCW0055-COPER
+             MOVE PSCL5035-BALC               TO PSCW0055-BALC
+             MOVE PSCL5035-CCB                TO PSCW0055-CCB
+             MOVE PSCL5035-QOPER              TO PSCW0055-QOPER
+             MOVE PSCL5035-VALOR              TO PSCW0055-VALOR
+             MOVE PSCL5035-DESCR              TO PSCW0055-DESCR
+           END-IF.
+
+           MOVE ZEROES                TO PSCW0055-VLR-DESP
+           PERFORM 2531-CORRIGE-COMISSOES
+              THRU 2531-CORRIGE-COMISSOES-EXIT
+                VARYING WS-INDICE FROM 1 BY 1
+                  UNTIL WS-INDICE > 100
+                     OR NOT AQCW0009-SEM-ERROS.
+
+       2530-CALCULA-COMISSOES-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2531-CORRIGE-COMISSOES.
+      ******************************************************************
+           EVALUATE PSCW0055-D-SEQMV (WS-INDICE)
+           WHEN PSCK0002-FICHEIRO-MIN THRU PSCK0002-FICHEIRO-MAX
+      * Reprocessamentos não cobra despesas de processamento ficheiro
+                IF WS-EXECUCAO-PRIMEIRA
+                   MOVE 1                TO PSCW0055-D-QOPER (WS-INDICE)
+                ELSE
+                   MOVE 0                TO PSCW0055-D-QOPER (WS-INDICE)
+                END-IF
+           WHEN PSCK0002-TRFS-INT-MIN THRU PSCK0002-TRFS-INT-MAX
+                MOVE PSCW0055-QT-CRED    TO PSCW0055-D-QOPER (WS-INDICE)
+           WHEN PSCK0002-TRFS-OIC-MIN THRU PSCK0002-TRFS-OIC-MAX
+                MOVE PSCW0055-QT-TEI     TO PSCW0055-D-QOPER (WS-INDICE)
+           WHEN OTHER
+                MOVE ZEROES              TO PSCW0055-D-QOPER (WS-INDICE)
+           END-EVALUATE.
+
+      * Calculo do total de despesas efectas ao ficheiro
+      * (exclui movimentacao contabilistica das contrapartidas)
+           IF PSCW0055-D-PACNT (WS-INDICE) NOT = CON-PACNT-MOV-CNT-CCB
+              COMPUTE PSCW0055-VLR-DESP = PSCW0055-VLR-DESP +
+                                        ( PSCW0055-D-VALOR (WS-INDICE) *
+                                          PSCW0055-D-QOPER (WS-INDICE) )
+           END-IF.
+
+       2531-CORRIGE-COMISSOES-EXIT.
+           EXIT.
+PML   *****************************************************************
+PML   *2540-SIMUL-VALIDA-CCC.
+PML   *****************************************************************
+PML   *
+PML   *    INITIALIZE                         PSCL5050-DATA
+PML   *    MOVE PSCK0002-TTR-VALID         TO PSCL5050-TTR
+PML   *
+PML   *    PERFORM 5350-CHAMA-MODULO-CCC
+PML   *       THRU 5350-CHAMA-MODULO-CCC-EXIT.
+PML   *
+PML   *    IF AQCW0009-SEM-ERROS
+PML   *       COMPUTE PSCW0055-SLD-DISP-TOT    = PSCW0055-SLD-DISP-DO +
+PML   *                                          PSCL5050-VALOR
+PML   *    END-IF.
+PML   *
+PML   *2540-SIMUL-VALIDA-CCC-EXIT.
+PML   *    EXIT.
+      ******************************************************************
+       5100-CALCULA-COMISSOES.
+      ******************************************************************
+           INITIALIZE PSCL5035-DATA.
+           MOVE WS-PROGNAME                      TO PSCL5035-PGMC.
+           MOVE PSCK0002-TTR-VAZIO               TO PSCL5035-TTR.
+           MOVE WS-PROGNAME                      TO PSCL5035-JOBNC.
+           MOVE WS-PROGNAME                      TO PSCL5035-USERC.
+           MOVE WS-PROGNAME                      TO PSCL5035-PGMQC.
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5035-ESTR.
+           MOVE PSCK0002-APTR-APL                TO PSCL5035-APTR.
+
+           MOVE PSHEADER-HRNCLI                  TO PSCL5035-NCLI.
+           MOVE PSHEADER-HRDINT                  TO PSCL5035-DINT.
+           MOVE PSHEADER-HRNFIC                  TO PSCL5035-NFIC.
+           MOVE PSHEADER-HRMOED                  TO PSCL5035-MOED.
+           MOVE PSHEADER-HRCANAL                 TO PSCL5035-CANAL.
+           MOVE PSHEADER-HRTOPE                  TO PSCL5035-TSERV.
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5035-AT-CBAN
+           MOVE AQCW0100-AT-BALM                 TO PSCL5035-AT-BALM
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5035-AT-DTOP
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5035-AT-CMOE
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5035-AT-DEBUG
+
+           PERFORM PSCP5035-CALL-PSM5035
+              THRU PSCP5035-CALL-PSM5035-EXIT.
+
+           MOVE PSCL5035-RCODE                TO AQCW0009-RCODE.
+
+           IF NOT AQCW0009-SEM-ERROS
+             IF AQCW0100-AT-DEBUG-SIM
+               DISPLAY 'PSM5035...= ' AQCW0009-RCODE
+                       ' // ' PSCL5035-CODERR-GRAVE
+             END-IF
+             MOVE PSCL5035-CODERR-GRAVE       TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+             MOVE PSCL5035-SEQMV              TO WS-DIM-SEQMV
+             MOVE PSCL5035-PACNT              TO WS-DIM-PACNT
+             MOVE PSCL5035-COPER              TO WS-DIM-COPER
+             MOVE PSCL5035-BALC               TO WS-DIM-BALC
+             MOVE PSCL5035-CCB                TO WS-DIM-CCB
+             MOVE PSCL5035-QOPER              TO WS-DIM-QOPER
+             MOVE PSCL5035-VALOR              TO WS-DIM-VALOR
+             MOVE PSCL5035-DESCR              TO WS-DIM-DESCR
+           END-IF.
+
+           MOVE ZEROES                TO WS-VALOR-DESPESAS
+           PERFORM 5150-CORRIGE-COMISSOES
+              THRU 5150-CORRIGE-COMISSOES-EXIT
+                VARYING WS-INDICE FROM 1 BY 1
+                  UNTIL WS-INDICE > 100
+                     OR NOT AQCW0009-SEM-ERROS.
+
+       5100-CALCULA-COMISSOES-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5150-CORRIGE-COMISSOES.
+      ******************************************************************
+           EVALUATE WS-SEQMV (WS-INDICE)
+           WHEN PSCK0002-FICHEIRO-MIN THRU PSCK0002-FICHEIRO-MAX
+      * Reprocessamentos n?o cobra despesas de processamento ficheiro
+                IF WS-EXECUCAO-PRIMEIRA
+                   MOVE 1                TO WS-QOPER (WS-INDICE)
+                ELSE
+                   MOVE 0                TO WS-QOPER (WS-INDICE)
+                END-IF
+           WHEN PSCK0002-TRFS-INT-MIN THRU PSCK0002-TRFS-INT-MAX
+                MOVE WS-QUANT-CREDITOS   TO WS-QOPER (WS-INDICE)
+           WHEN PSCK0002-TRFS-OIC-MIN THRU PSCK0002-TRFS-OIC-MAX
+                MOVE WS-QUANT-CRED-TEI   TO WS-QOPER (WS-INDICE)
+           WHEN OTHER
+                MOVE ZERO                TO WS-QOPER (WS-INDICE)
+           END-EVALUATE.
+
+      * Calculo do total de despesas afectas ao ficheiro
+      * (exclui movimentacao contabilistica das contrapartidas)
+           IF WS-PACNT (WS-INDICE) NOT = CON-PACNT-MOV-CNT-CCB
+              COMPUTE WS-VALOR-DESPESAS = WS-VALOR-DESPESAS +
+                                        ( WS-VALOR (WS-INDICE) *
+                                          WS-QOPER (WS-INDICE) )
+           END-IF.
+
+       5150-CORRIGE-COMISSOES-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5310-VALIDA-CCC.
+      ******************************************************************
+
+           INITIALIZE                         PSCL5050-DATA
+           MOVE PSCK0002-TTR-VALID         TO PSCL5050-TTR
+      *    MOVE WS-VLR-RESG-CCC            TO PSCL5050-VALOR
+
+           PERFORM 5350-CHAMA-MODULO-CCC
+              THRU 5350-CHAMA-MODULO-CCC-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              COMPUTE WS-SLD-DISP-TOT = WS-SLD-DISP-DO +
+                                        PSCL5050-VALOR
+
+              IF WS-SLD-DISP-TOT < WS-MONT-TOTAL
+                 SET  AQCW0009-RCODE-VAL         TO TRUE
+                 MOVE PSCK0002-SITC-SEM-SALDO    TO WS-HEADER-SITC
+                 MOVE ZEROES                     TO WS-HEADER-NOCB
+              ELSE
+                 CONTINUE
+              END-IF
+           END-IF.
+
+       5310-VALIDA-CCC-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5320-MOVIMENTA-SALDO-CCC.
+      ******************************************************************
+
+      *    LIMPA DA QUEUE AS MENSAGENS DE ACESSOS ANTERIORES
+           MOVE '*CLEAR'               TO SXCW0902-MSGID
+           PERFORM SXCP0902-ESCREVE-MSG
+              THRU SXCP0902-ESCREVE-MSG-EXIT.
+
+           INITIALIZE                         PSCL5050-DATA
+           MOVE PSCK0002-TTR-ACTIV         TO PSCL5050-TTR
+           MOVE WS-VLR-RESG-CCC            TO PSCL5050-VALOR
+
+           PERFORM 5350-CHAMA-MODULO-CCC
+              THRU 5350-CHAMA-MODULO-CCC-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              COMPUTE WS-SLD-DISP-TOT = WS-SLD-DISP-DO +
+                                          PSCL5050-VALOR
+           END-IF.
+
+       5320-MOVIMENTA-SALDO-CCC-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5350-CHAMA-MODULO-CCC.
+      ******************************************************************
+           MOVE WS-PROGNAME                TO PSCL5050-PGMC
+ES1111*    MOVE WS-PROGNAME                TO PSCL5050-JOBNC
+           MOVE PSFICHEIR-FCUSRCNF         TO PSCL5050-USERC
+           MOVE WS-PROGNAME                TO PSCL5050-PGMQC .
+      * ENVIA A ESTAÇÃO DE TRABALHO, ANTES MOVIA SÓ O NOME DO PROGRAMA
+ES1111     MOVE PSHEADER-HRETRBV           TO PSCL5050-JOBNC .
+           MOVE AQCW0009-RCODE             TO PSCL5050-RCODE .
+           MOVE PSCK0002-ESTR-NEXE         TO PSCL5050-ESTR  .
+           MOVE PSCK0002-APTR-APL          TO PSCL5050-APTR  .
+           MOVE PSCK0002-HCLI-VMSG         TO PSCL5050-HCLI  .
+           MOVE PSCK0002-VNCR-NVAL         TO PSCL5050-VNCR  .
+           MOVE WS-HEADER-NOCB             TO PSCL5050-NOCB.
+ES5050*    MOVE PSHEADER-HRCNTA            TO WS-NIB-CONTA   .
+ES5050*    MOVE WS-NIB-CLIENTE             TO PSCL5050-NCLI  .
+ES5050*    MOVE WS-NIB-NATUREZA            TO PSCL5050-NATR  .
+ES5050*    MOVE WS-NIB-SEQUENCIA           TO PSCL5050-NSEQ  .
+ES5050     PERFORM 5351-OBTEM-CONTA
+ES5050        THRU 5351-OBTEM-CONTA-EXIT
+           MOVE WS-CNTA                    TO PSCL5050-CONTA.
+           MOVE WS-NCLI                    TO PSCL5050-NCLI.
+           MOVE AQCW0100-AT-CBAN           TO PSCL5050-AT-CBAN
+           MOVE AQCW0100-AT-BALM           TO PSCL5050-AT-BALM
+           MOVE AQCW0100-AT-DTOP           TO PSCL5050-AT-DTOP
+           MOVE AQCW0100-AT-CMOE           TO PSCL5050-AT-CMOE
+           MOVE AQCW0100-AT-DEBUG          TO PSCL5050-AT-DEBUG
+           MOVE PSHEADER-HRTOPE            TO PSCL5050-TSERV.
+
+           CALL PSCK0002-PSM5050 USING ETCL0002-COMMAREA
+                                       PSCL5050-DATA.
+
+           MOVE PSCL5050-RCODE                TO AQCW0009-RCODE.
+
+           IF AQCW0009-SEM-ERROS
+              MOVE PSCL5050-NOCB              TO WS-HEADER-NOCB
+           ELSE
+              IF AQCW0100-AT-DEBUG-SIM
+                MOVE '5350-CHAMA-MODULO-CCC'  TO VIAL0015-CALLER-ID
+                MOVE 'PSHEADER-HRCNTA'        TO VIAL0015-CAMPO-NM(1)
+                MOVE PSHEADER-HRCNTA          TO VIAL0015-CAMPO-VLR(1)
+                MOVE 'AQCW0009-RCODE'         TO VIAL0015-CAMPO-NM(2)
+                MOVE AQCW0009-RCODE           TO VIAL0015-CAMPO-VLR(2)
+                MOVE 'PSCL5050-CODERR-GRAVE'  TO VIAL0015-CAMPO-NM(3)
+                MOVE PSCL5050-CODERR-GRAVE    TO VIAL0015-CAMPO-VLR(3)
+                PERFORM VIAP0015-TRATA-DEBUG
+                   THRU VIAP0015-TRATA-DEBUG-EXIT
+              END-IF
+
+              MOVE ZERO                       TO WS-HEADER-NOCB
+              MOVE ZERO                       TO PSCL5050-VALOR
+              MOVE PSCK0002-SITC-NAO-ACEITE   TO WS-HEADER-SITC
+              MOVE PSCL5050-CODERR-GRAVE      TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       5350-CHAMA-MODULO-CCC-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5351-OBTEM-CONTA.
+      ******************************************************************
+      *
+           INITIALIZE ETCL0188-DATA   REPLACING NUMERIC BY ZEROES
+                                           ALPHANUMERIC BY SPACES
+      *
+           MOVE AQCW0009-RCODE            TO ETCL0002-RCODE
+           MOVE AQCW0100-AT-VERSAO-SYS    TO ETCL0002-CVERSAO
+ES5050     MOVE PSHEADER-HRCBAN           TO ETCL0188-CDNIB-BANCO
+ES5050     MOVE PSHEADER-HRCBAL           TO ETCL0188-CDNIB-BALCAO
+ES5050     MOVE PSHEADER-HRCNTA           TO ETCL0188-CDNIB-CONTA
+ES5050     MOVE PSHEADER-HRCDIG           TO ETCL0188-CDNIB-CDIG
+
+           SET  ETCL0188-CDTTR-CSCNT      TO TRUE
+
+           CALL ETCL0188-ROTINA        USING ETCL0002-COMMAREA
+                                             ETCL0188-DATA.
+      *
+      * Se o NIB não existir no BANKA, segue o percurso normal
+      * do programa e formata o erro de cliente inexistente mais
+      * à frente, formata os dados da conta com a conta de input
+      *
+           IF NOT ETCL0002-RCODE-OK
+              SET ETCL0002-RCODE-OK        TO TRUE
+              MOVE ETCL0188-CDNIB-NCLI     TO WS-NCLI
+              MOVE ETCL0188-CDNIB-NATR     TO WS-NATR
+              MOVE ETCL0188-CDNIB-SEQ      TO WS-NSEQ
+      * Se estiver tudo bem, usa os dados da conta devolvidos
+      * pela API
+           ELSE
+              MOVE ETCL0188-CDCONTA        TO WS-CNTA
+      *       MOVE ETCL0188-CDNCLI         TO WS-NCLI
+      *       MOVE ETCL0188-CDNATR         TO WS-NATR
+      *       MOVE ETCL0188-CDNSEQ         TO WS-NSEQ
+           END-IF.
+      *
+       5351-OBTEM-CONTA-EXIT.
+           EXIT.
+
+
+      ******************************************************************
+       5400-DEBITO-ORDENANTE.
+      ******************************************************************
+           INITIALIZE PSCL5070-DATA.
+           MOVE WS-PROGNAME                      TO PSCL5070-PGMC.
+
+           MOVE PSCK0002-TTR-DEBSB               TO PSCL5070-TTR.
+
+           MOVE PSHEADER-HRETRBV                 TO PSCL5070-JOBNC.
+           MOVE PSFICHEIR-FCUSRCNF               TO PSCL5070-USERC.
+           MOVE PSFICHEIR-FCUSRCNF               TO PSCL5070-USER .
+BCI353*    IF SW-CNTA-INACTIVA AND PSCL5070-AUTR EQUAL ZEROES
+BCI353*       MOVE SPACES                        TO PSCL5070-USER
+BCI353*    END-IF.
+PML        IF SW-CNTA-INACTIVA
+ |            MOVE WS-AUTR-INAC                  TO PSCL5070-AUTR
+PML        END-IF.
+BCI353*
+           MOVE WS-PROGNAME                      TO PSCL5070-PGMQC.
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5070-ESTR  .
+           MOVE PSCK0002-APTR-APL                TO PSCL5070-APTR  .
+           MOVE PSCK0002-HCLI-NVAL               TO PSCL5070-HCLI  .
+           MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA   .
+           PERFORM 5351-OBTEM-CONTA
+              THRU 5351-OBTEM-CONTA-EXIT
+ES5070     MOVE WS-NCLI                          TO PSCL5070-NCLI  .
+           MOVE WS-CNTA                          TO PSCL5070-CONTA
+           MOVE WS-MONTANTE                      TO PSCL5070-MONT.
+           MOVE WS-HEADER-NOCB                   TO PSCL5070-NOPR.
+           MOVE PSHEADER-HRMOED                  TO PSCL5070-MOED.
+           MOVE PSHEADER-HRNCLI                  TO PSCL5070-CCLI.
+           MOVE WS-COD-OPER                      TO PSCL5070-COPE.
+           MOVE WS-DESCRICAO                     TO PSCL5070-DESC.
+           MOVE WS-CNTA-CCB                      TO PSCL5070-CCB.
+           MOVE WS-IDSP                          TO PSCL5070-IDSP.
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5070-AT-CBAN
+           MOVE AQCW0100-AT-BALM                 TO PSCL5070-AT-BALM
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5070-AT-DTOP
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5070-AT-CMOE
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5070-AT-DEBUG
+ES0308     MOVE PSHEADER-HRAGEN                  TO PSCL5070-BALM
+           MOVE PSHEADER-HRTREMUN                TO PSCL5070-TREMUN
+           MOVE PSHEADER-HRTOPE                  TO PSCL5070-TOPE
+
+           IF PSCL5070-MONT IS GREATER THAN ZEROES
+      *       CALL PSCK0002-PSM5070 USING PSCL5070-DATA
+              PERFORM PSCP5070-CALL-PSM5070
+                 THRU PSCP5070-CALL-PSM5070-EXIT
+
+              MOVE PSCL5070-RCODE             TO AQCW0009-RCODE
+
+              IF AQCW0009-SEM-ERROS
+                MOVE PSCL5070-NOPR            TO WS-HEADER-NOCB
+              ELSE
+                MOVE PSCL5070-CODERR-GRAVE    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+              END-IF
+           END-IF.
+
+       5400-DEBITO-ORDENANTE-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5500-COBRANCA-DESPESAS.
+      ******************************************************************
+           PERFORM 5550-PROC-DESPESAS
+              THRU 5550-PROC-DESPESAS-EXIT
+                VARYING WS-INDICE FROM 1 BY 1
+                  UNTIL WS-INDICE > 100
+                     OR AQCW0009-COM-ERROS.
+
+           MOVE ZEROES                      TO WS-COD-OPER.
+           MOVE SPACES                      TO WS-DESCRICAO.
+           MOVE SPACES                      TO WS-CNTA-CCB.
+
+       5500-COBRANCA-DESPESAS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       5550-PROC-DESPESAS.
+      ******************************************************************
+           INITIALIZE PSCL5070-DATA.
+
+           MOVE WS-COPER (WS-INDICE)        TO WS-COD-OPER  .
+           MOVE WS-DESCR (WS-INDICE)        TO WS-DESCRICAO .
+           MOVE WS-CCB   (WS-INDICE)        TO WS-CNTA-CCB  .
+           MOVE CON-S                       TO WS-IDSP.
+
+           COMPUTE WS-MONTANTE  = WS-VALOR (WS-INDICE) *
+                                  WS-QOPER (WS-INDICE).
+
+           PERFORM 5400-DEBITO-ORDENANTE
+              THRU 5400-DEBITO-ORDENANTE-EXIT.
+
+       5550-PROC-DESPESAS-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                6000-OBTEM-ESTACAO-CANAL                        *
+      ******************************************************************
+       6000-OBTEM-ESTACAO-CANAL.
+
+           MOVE SPACES                     TO WS-JOBNC.
+
+           INITIALIZE RPARAM.
+      *OBTEM ESTACAO DE TRABALHO ASSOCIADA AO CANAL
+           MOVE PSCK0002-CODPAR-ESTTRAB    TO PSPARAM-PRCODPAR.
+           MOVE PSHEADER-HRCANAL           TO PSPARAM-PRPARAM.
+
+           PERFORM PSCP0001-PARAMETRIZACAO
+              THRU PSCP0001-PARAMETRIZACAO-EXIT.
+
+           IF AQCW0011-OK
+              MOVE PSPARAM-PRPARM0         TO WS-JOBNC
+              MOVE PSPARAM-PRPARM1         TO WS-JOBNC-TEI
+           ELSE
+              IF AQCW0011-NOTFND
+                 MOVE WS-PROGNAME          TO WS-JOBNC
+                 MOVE WS-PROGNAME          TO WS-JOBNC-TEI
+              ELSE
+                 SET  AQCW0009-RCODE-APL      TO TRUE
+                 MOVE PSCK0003-PAVLR-INVALIDO TO SXCW0902-MSGID
+                 PERFORM SXCP0902-ESCREVE-MSG
+                    THRU SXCP0902-ESCREVE-MSG-EXIT
+              END-IF
+           END-IF.
+
+       6000-OBTEM-ESTACAO-CANAL-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+      *                   6400-PARAM-USER-CONF                         *
+      ******************************************************************
+       6400-PARAM-USER-CONF.
+
+           MOVE SPACES                     TO WS-USER-TEI
+
+           INITIALIZE RPARAM.
+      *OBTEM INDICADOR DE UTILIZADOR DE CONFIRMAÇÃO
+           MOVE PSCK0002-CONFIGURACOES     TO PSPARAM-PRCODPAR.
+           MOVE PSCK0002-USR-CONF-TEI      TO PSPARAM-PRPARAM.
+
+           PERFORM PSCP0001-PARAMETRIZACAO
+              THRU PSCP0001-PARAMETRIZACAO-EXIT.
+
+           IF AQCW0011-OK
+              MOVE PSPARAM-PRVALBOL        TO WS-USER-TEI
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE PSCK0003-PAVLR-INVALIDO TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       6400-PARAM-USER-CONF-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                6500-OBTEM-USER-VALIDACAO                       *
+      ******************************************************************
+       6500-OBTEM-USER-VALIDACAO.
+      *
+           MOVE PSHEADER-HRNCLI          TO PSFICHEIR-FCNCLI
+           MOVE PSHEADER-HRDINT          TO PSFICHEIR-FCDINT
+           MOVE PSHEADER-HRNFIC          TO PSFICHEIR-FCNFIC
+           MOVE PSCK0002-FCNREG-HEADER   TO PSFICHEIR-FCNREG
+           MOVE SPACES                   TO PSFICHEIR-FCUSRCNF
+      *
+           EXEC SQL
+             SELECT FCUSRCNF
+               INTO :PSFICHEIR-FCUSRCNF
+               FROM PSFICHEIR
+              WHERE FCNCLI = :PSFICHEIR-FCNCLI
+                AND FCDINT = :PSFICHEIR-FCDINT
+                AND FCNFIC = :PSFICHEIR-FCNFIC
+                AND FCNREG = :PSFICHEIR-FCNREG
+           END-EXEC.
+      *
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                CONTINUE
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL          TO TRUE
+                MOVE PSCK0003-FETCH-PSFICHEIR    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+      *
+       6500-OBTEM-USER-VALIDACAO-EXIT.
+           EXIT.
+
+PML   ******************************************************************
+ |     6700-VERF-AUTD.
+ |    ******************************************************************
+ |         MOVE '6700-VERF-AUTD'           TO VIAL0015-CALLER-ID.
+ |         PERFORM VIAP0015-TRATA-DEBUG
+ |            THRU VIAP0015-TRATA-DEBUG-EXIT.
+ |
+ |         INITIALIZE PSCL5310-DATA         REPLACING NUMERIC BY ZEROES
+ |                                               ALPHANUMERIC BY SPACES.
+ |
+ |         MOVE WS-PROGNAME                TO PSCL5310-PGMC.
+ |         MOVE PSHEADER-HRETRBV           TO PSCL5310-JOBNC.
+ |         MOVE PSFICHEIR-FCUSRCNF         TO PSCL5310-USERC.
+ |         MOVE WS-PROGNAME                TO PSCL5310-PGMQC.
+ |         MOVE PSFICHEIR-FCUSRCNF         TO PSCL5310-USERP.
+ |
+ |         CALL CON-PSM5310 USING ETCL0002-COMMAREA
+ |                                PSCL5310-DATA.
+ |
+ |     6700-VERF-AUTD-EXIT.
+ |         EXIT.
+PML
+      ******************************************************************
+       7000-FINALIZA-TEI.
+      ******************************************************************
+           INITIALIZE                               PSCL5610-DATA  .
+           MOVE WS-PROGNAME                      TO PSCL5610-PGMC  .
+           IF PSHEADER-HRCANAL EQUAL PSCK0002-CANAL-HOMEBANK
+ES            MOVE WS-JOBNC-TEI                  TO PSCL5610-JOBNC
+           ELSE
+ES            MOVE PSHEADER-HRETRBV              TO PSCL5610-JOBNC
+           END-IF
+           MOVE PSCK0002-TTR-TMFIM               TO PSCL5610-TTR   .
+           MOVE PSFICHEIR-FCUSRCNF               TO PSCL5610-USERC .
+           MOVE WS-PROGNAME                      TO PSCL5610-PGMQC .
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5610-ESTR  .
+           MOVE PSCK0002-APTR-APL                TO PSCL5610-APTR  .
+
+           MOVE PSHEADER-HRNCLI                  TO PSCL5610-NCLI  .
+           MOVE PSHEADER-HRNFIC                  TO PSCL5610-NFIC  .
+           MOVE PSHEADER-HRDINT                  TO PSCL5610-DINT  .
+           MOVE PSHEADER-HRAGEN                  TO PSCL5610-BALM  .
+           MOVE PSHEADER-HRMOED                  TO PSCL5610-MOED  .
+           IF PSHEADER-HRREFORD NOT EQUAL SPACES
+              MOVE PSHEADER-HRREFORD             TO PSCL5610-REFORD
+           ELSE
+              MOVE PSCK0002-DESC-PAGSAL          TO PSCL5610-REFORD
+           END-IF.
+           MOVE WS-NOCB                          TO PSCL5610-NOCB  .
+           MOVE PSHEADER-HRMOED                  TO PSCL5610-MOED  .
+
+      *    MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA   .
+      *    MOVE WS-NIB-NATUREZA                  TO PSCL5610-NATR  .
+      *    MOVE WS-NIB-SEQUENCIA                 TO PSCL5610-NSEQ  .
+BCI111*    MOVE PSHEADER-HRCNTA                  TO AQCW0008-CONTA11
+BCI111*    MOVE AQCW0008-NCLI11                  TO AQCW0008-NCLI23
+BCI111*    MOVE AQCW0008-NATR11                  TO AQCW0008-NATR23
+BCI111*    MOVE AQCW0008-NSEQ11                  TO AQCW0008-NSEQ23
+BCI111*    MOVE AQCW0008-CONTA23                 TO PSCL5610-CONTA
+BCI111*
+BCI111     MOVE PSHEADER-HRCNTA                  TO WS-NIB-CONTA.
+BCI111     PERFORM 5351-OBTEM-CONTA
+BCI111        THRU 5351-OBTEM-CONTA-EXIT.
+BCI111     MOVE WS-CNTA                          TO PSCL5610-CONTA.
+BCI111*
+           MOVE ZEROES                           TO PSCL5610-AUTR  .
+PML        IF SW-CNTA-INACTIVA
+ |            MOVE WS-AUTR-INAC                  TO PSCL5610-AUTR
+PML        END-IF.
+
+           MOVE PSCK0002-COPT-TEI                TO PSCL5610-TOPE  .
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5610-AT-CBAN.
+           MOVE AQCW0100-AT-BALM                 TO PSCL5610-AT-BALM.
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5610-AT-DTOP.
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5610-AT-CMOE.
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5610-AT-DEBUG.
+
+           CALL PSCK0002-PSM5610 USING ETCL0002-COMMAREA
+                                       PSCL5610-DATA.
+
+           MOVE PSCL5610-RCODE                   TO AQCW0009-RCODE
+
+ES         IF NOT AQCW0009-SEM-ERROS
+ES           MOVE WS-PROGNAME                   TO VIAW0050-MSGQ
+ES           MOVE '7000-FINALIZA-TEI'         TO VIAL0015-CALLER-ID
+ES           PERFORM VIAP0050-TRATA-ERRO-BANKA
+ES              THRU VIAP0050-TRATA-ERRO-BANKA-EXIT
+ES         END-IF
+
+           IF NOT AQCW0009-SEM-ERROS
+             MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+             PERFORM SXCP0902-ESCREVE-MSG
+                THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF
+
+           IF AQCW0009-SEM-ERROS
+             MOVE PSCL5610-NOCB           TO WS-NOCB
+           ELSE
+             IF AQCW0100-AT-DEBUG-SIM
+             DISPLAY 'PSM5610...= ' AQCW0009-RCODE
+                     ' / ' PSCL5610-CODERR-GRAVE
+             END-IF
+             IF AQCW0009-RCODE-VAL
+                IF PSCL5610-CODERR-GRAVE = PSCK0003-NOME-TEI-OBRG
+                   SET AQCW0009-RCODE-INF TO TRUE
+                   MOVE PSCK0002-PSB4130E           TO WS-TEMPLATE
+                ELSE
+                   IF PSCL5610-CODERR-GRAVE = PSCK0003-NOME-TEI-OBRG
+                      SET AQCW0009-RCODE-INF TO TRUE
+                      MOVE PSCK0002-PSB4130F           TO WS-TEMPLATE
+                   ELSE
+                     MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+                     MOVE PSCK0002-PSB4130C           TO WS-TEMPLATE
+                   END-IF
+                END-IF
+                ADD  1                           TO WS-ERROS-DETALHE
+                MOVE PSCK0002-SITC-NIB-BEN-INV   TO PSDETALHE-DTSITC
+                MOVE PSCK0002-REG-PENDENTE       TO PSDETALHE-DTSITU
+                MOVE ZEROES                      TO PSDETALHE-DTNOCB
+                PERFORM 9100-CRIA-AVISOS
+                   THRU 9100-CRIA-AVISOS-EXIT
+             ELSE
+                MOVE PSCL5610-CODERR-GRAVE       TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+             END-IF
+           END-IF.
+      *
+       7000-FINALIZA-TEI-EXIT.
+           EXIT.
+
+      ******************************************************************
+       8000-DESPESAS-ADICIONAIS.
+      ******************************************************************
+      *
+           IF VIAL0015-DEBUG-SIM
+              MOVE '8000-DESPESAS-ADICIONAIS'  TO VIAL0015-CALLER-ID
+                PERFORM VIAP0015-TRATA-DEBUG
+                   THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE KRCK0002-CEVEN-SALARIO     TO WS-CEVENTO.
+           MOVE KRCK0002-CTIPENC-IMPOSTO   TO WS-CTIPENC.
+           PERFORM 8100-OBTEM-CONTRAPARTIDA
+              THRU 8100-OBTEM-CONTRAPARTIDA-EXIT
+
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-COPERACAO               TO WS-CTA-SAL-COPEC(1)
+              MOVE WS-GDESCRICAO              TO WS-CTA-SAL-DESCC(1)
+              MOVE WS-NCNTCONT                TO WS-CTA-SAL-CCB(1)
+           END-IF
+
+           IF AQCW0009-SEM-ERROS
+              MOVE KRCK0002-CEVEN-SELO        TO WS-CEVENTO
+              MOVE KRCK0002-CTIPENC-IMPOSTO   TO WS-CTIPENC
+              PERFORM 8100-OBTEM-CONTRAPARTIDA
+                 THRU 8100-OBTEM-CONTRAPARTIDA-EXIT
+
+              IF AQCW0009-SEM-ERROS
+                 MOVE WS-COPERACAO               TO WS-CTA-SAL-COPEC(2)
+                 MOVE WS-GDESCRICAO              TO WS-CTA-SAL-DESCC(2)
+                 MOVE WS-NCNTCONT                TO WS-CTA-SAL-CCB(2)
+              END-IF
+           END-IF.
+      *
+
+      * DEBITA VALOR DAS COMISSÕES DAS CONTAS SALÁRIO
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-CTA-SAL-COPED(1)        TO WS-COD-OPER
+              MOVE WS-CTA-SAL-VLR(1)          TO WS-MONTANTE
+              MOVE WS-CTA-SAL-DESCD(1)        TO WS-DESCRICAO
+              MOVE SPACES                     TO WS-CNTA-CCB
+              MOVE CON-S                      TO WS-IDSP
+              PERFORM 5400-DEBITO-ORDENANTE
+                 THRU 5400-DEBITO-ORDENANTE-EXIT
+           END-IF.
+
+      * CREDITA VALOR DAS COMISSÕES DAS CONTAS SALÁRIO
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-CTA-SAL-COPEC(1)        TO WS-COD-OPER
+              MOVE WS-CTA-SAL-VLR(1)          TO WS-MONTANTE
+              MOVE WS-CTA-SAL-DESCC(1)        TO WS-DESCRICAO
+              MOVE WS-CTA-SAL-CCB(1)          TO WS-CNTA-CCB
+              MOVE CON-S                      TO WS-IDSP
+              PERFORM 5400-DEBITO-ORDENANTE
+                 THRU 5400-DEBITO-ORDENANTE-EXIT
+           END-IF.
+
+      * DEBITA VALOR DO IMPOSTO DE SELO
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-CTA-SAL-COPED(2)        TO WS-COD-OPER
+              MOVE WS-CTA-SAL-VLR(2)          TO WS-MONTANTE
+              MOVE WS-CTA-SAL-DESCD(2)        TO WS-DESCRICAO
+              MOVE SPACES                     TO WS-CNTA-CCB
+              MOVE CON-S                      TO WS-IDSP
+              PERFORM 5400-DEBITO-ORDENANTE
+                 THRU 5400-DEBITO-ORDENANTE-EXIT
+           END-IF.
+
+      * CREDITA VALOR DO IMPOSTO DE SELO
+           IF AQCW0009-SEM-ERROS
+              MOVE WS-CTA-SAL-COPEC(2)        TO WS-COD-OPER
+              MOVE WS-CTA-SAL-VLR(2)          TO WS-MONTANTE
+              MOVE WS-CTA-SAL-DESCC(2)        TO WS-DESCRICAO
+              MOVE WS-CTA-SAL-CCB(2)          TO WS-CNTA-CCB
+              MOVE CON-S                      TO WS-IDSP
+              PERFORM 5400-DEBITO-ORDENANTE
+                 THRU 5400-DEBITO-ORDENANTE-EXIT
+           END-IF.
+      *
+       8000-DESPESAS-ADICIONAIS-EXIT.
+           EXIT.
+
+      ******************************************************************
+       8100-OBTEM-CONTRAPARTIDA.
+      ******************************************************************
+      *
+           MOVE '8100-OBTEM-CONTRAPARTIDA' TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           INITIALIZE                         KRCL5010-DATA.
+           MOVE WS-CEVENTO                 TO KRCL5010-CEVENTO.
+           MOVE PSHEADER-HRMOED            TO KRCL5010-CMOEDA.
+           MOVE WS-CTIPENC                 TO KRCL5010-CTIPENC.
+      *
+           PERFORM CALL-KRCP5010
+              THRU CALL-KRCP5010-EXIT.
+      *
+           IF ETCL0002-SEM-ERROS
+              MOVE ETCL0002-RCODE          TO AQCW0009-RCODE
+              MOVE KRCL5010-COPERACAO(1)   TO WS-COPERACAO
+              MOVE KRCL5010-GDESCRICAO(1)  TO WS-GDESCRICAO
+              MOVE KRCL5010-NCNTCONT(1)    TO WS-NCNTCONT
+           ELSE
+              SET  AQCW0009-RCODE-APL      TO TRUE
+              MOVE VIAL0015-CALLER-ID      TO AQCW0100-PARAGRAPH
+              MOVE SPACES                  TO AQCW0100-NM-ENTIDADE
+              MOVE WS-PROGNAME             TO AQCW0100-PGMNAME
+      *       MOVE SPACES                  TO AQCW0100-SQLCODE
+PML           MOVE ZEROES                  TO AQCW0100-SQLCODE
+              MOVE SPACES                  TO AQCW0100-FILE-STATUS
+              MOVE 'ERRO NO ACESSO A     ' TO AQCW0100-DESC1
+              MOVE 'ROTINA KRM50010      ' TO AQCW0100-DESC2
+              PERFORM AQCP0100-ESCREVE-MSG
+                 THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-IF.
+      *
+       8100-OBTEM-CONTRAPARTIDA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       9100-CRIA-AVISOS.
+      ******************************************************************
+           INITIALIZE PSCL5090-DATA.
+           MOVE WS-PROGNAME                      TO PSCL5090-PGMC .
+           MOVE PSCK0002-TTR-CRAVI               TO PSCL5090-TTR  .
+           MOVE WS-PROGNAME                      TO PSCL5090-JOBNC.
+           MOVE WS-PROGNAME                      TO PSCL5090-USERC.
+           MOVE WS-PROGNAME                      TO PSCL5090-PGMQC.
+           MOVE PSCK0002-RCODE-OK                TO PSCL5090-RCODE.
+           MOVE PSCK0002-ESTR-NEXE               TO PSCL5090-ESTR .
+           MOVE PSCK0002-APTR-APL                TO PSCL5090-APTR .
+           MOVE PSHEADER-HRNCLI                  TO PSCL5090-NCLI .
+           MOVE PSHEADER-HRDINT                  TO PSCL5090-DINT .
+           MOVE PSHEADER-HRNFIC                  TO PSCL5090-NFIC .
+           MOVE WS-TEMPLATE                      TO PSCL5090-TEMP .
+           MOVE PSDETALHE-DTNREG                 TO PSCL5090-NREG .
+           MOVE PSHEADER-HROGER                  TO PSCL5090-OGER .
+           MOVE PSHEADER-HRAGEN                  TO PSCL5090-AGEN .
+           MOVE PSHEADER-HRAGEN                  TO PSCL5090-AGEN .
+
+           MOVE PSDETALHE-DTREF                  TO PSCL5090-REF  .
+           MOVE PSDETALHE-DTTREG                 TO PSCL5090-TREG .
+           MOVE PSDETALHE-DTTOPE                 TO PSCL5090-TOPE .
+           MOVE PSDETALHE-DTSITC                 TO PSCL5090-SITC .
+           MOVE PSDETALHE-DTSITR                 TO PSCL5090-SITR .
+           MOVE PSDETALHE-DTCBAN                 TO PSCL5090-CBAN .
+           MOVE PSDETALHE-DTCBAL                 TO PSCL5090-CBAL .
+           MOVE PSDETALHE-DTCNTA                 TO PSCL5090-CNTA .
+           MOVE PSDETALHE-DTCDIG                 TO PSCL5090-CDIG .
+           MOVE PSDETALHE-DTMONT                 TO PSCL5090-MONT .
+           MOVE PSDETALHE-DTNOME                 TO PSCL5090-NOME .
+           MOVE PSDETALHE-DTREFTR                TO PSCL5090-REFTR.
+           MOVE PSDETALHE-DTDVAL                 TO PSCL5090-DVAL .
+           MOVE AQCW0100-AT-CBAN                 TO PSCL5090-AT-CBAN
+           MOVE AQCW0100-AT-BALM                 TO PSCL5090-AT-BALM
+           MOVE AQCW0100-AT-DTOP                 TO PSCL5090-AT-DTOP
+           MOVE AQCW0100-AT-CMOE                 TO PSCL5090-AT-CMOE
+           MOVE AQCW0100-AT-DEBUG                TO PSCL5090-AT-DEBUG
+
+           IF PSCL5090-TEMP NOT EQUAL SPACES
+              CALL PSCK0002-PSM5090 USING ETCL0002-COMMAREA
+                                          PSCL5090-DATA
+
+ES    * NUNCA DESCOMENTAR ESTE MOVE, APÓS UM ERRO ELE VAI ENVIAR O
+      * AVISO E REINICIA O AQCW0009 E JÁ NÃO VAI AO ROLLBACK
+      *       MOVE PSCL5090-RCODE TO AQCW0009-RCODE
+      *
+      *       IF NOT AQCW0009-SEM-ERROS
+      *         IF AQCW0100-AT-DEBUG-SIM
+      *           DISPLAY 'PSM5090...= ' AQCW0009-RCODE
+      *                ' / ' PSCL5090-CODERR-GRAVE
+      *         END-IF
+      *         MOVE PSCL5090-CODERR-GRAVE       TO SXCW0902-MSGID
+      *         PERFORM SXCP0902-ESCREVE-MSG
+      *            THRU SXCP0902-ESCREVE-MSG-EXIT
+      *       END-IF
+           END-IF.
+
+       9100-CRIA-AVISOS-EXIT.
+            EXIT.
+
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY SXCP0902.
+           COPY SXCR0445.
+           COPY SXCR0430.
+           COPY SXCR0760.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+           COPY AQCP0109.
+           COPY PSCP5040.
+           COPY PSCP5035.
+           COPY PSCP5135.
+           COPY PSCP5050.
+           COPY PSCP5070.
+           EXEC SQL INCLUDE PSCP0055 END-EXEC.
+           COPY PSCP5060.
+           COPY VIAP0015.
+           COPY VIAP0050.
+      **R  COPY ETCR9819.
+      * Consulta de parametrização
+           EXEC SQL INCLUDE PSCP0001 END-EXEC.
+           COPY KRCP5010.

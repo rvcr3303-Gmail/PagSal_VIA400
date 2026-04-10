@@ -1,0 +1,625 @@
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4169.
+      ******************************************************************
+      *                                                                *
+      *                   - PAGAMENTO DE SALARIOS -                    *
+      *                                                                *
+      ******************************************************************
+      * Módulo tratamento de mensagens e envio de correio electronico  *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SOURCE-COMPUTER. IBM-AS400.
+       OBJECT-COMPUTER. IBM-AS400.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+      ******************************************************************
+       INPUT-OUTPUT SECTION.
+      ******************************************************************
+      *                      INPUT-OUTPUT SECTION                      *
+      ******************************************************************
+       FILE-CONTROL.
+           SELECT PSMAIL
+                  ASSIGN      TO DISK-VIAF0069
+                  FILE STATUS IS WS-PSMAIL-STATUS.
+
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       FILE SECTION.
+      ******************************************************************
+      *                          FILE SECTION                          *
+      ******************************************************************
+       FD  PSMAIL.
+       01  PSMAIL-REG.
+      * INTERFACE COM O MODULO DE EMAIL VIAM0055
+      * 01  PSMAIL-VIAF0069.
+           COPY DDS-ALL-FORMATS OF VIAF0069  PREFIX BY 'PSMAIL-'.
+
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME              PIC  X(10) VALUE 'PSB4169'.
+
+      ******************************************************************
+      * ARQUITECTURA
+      ******************************************************************
+           COPY AQCK0001.
+           COPY AQCL0001.
+           COPY AQCW0011.
+           COPY VIAL0015.
+           COPY PSCK0002.
+           COPY PSCK0003.
+           COPY SXCL0900.
+           COPY SXCL0901.
+           COPY SXCW0902.
+           COPY AQCW0109.
+           COPY SXCL0430.
+           COPY SXCL0445.
+           COPY SXCL0760.
+
+      ******************************************************************
+      * TABELAS
+      ******************************************************************
+      * TABELA PSEMAIL   (EMAIL)
+           EXEC SQL INCLUDE PSCDEMAIL  END-EXEC.
+      * TABELA PSFICHEIR (FICHEIROS)
+           EXEC SQL INCLUDE PSCDFICHEI END-EXEC.
+      * TABELA PSPARAM   (PARAMETROS )
+           EXEC SQL INCLUDE PSCDPARAM  END-EXEC.
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+       01  WS-CONSTANTES.
+           05 CON-TEI-ENV              PIC X(02) VALUE 'ET'.
+           05 CON-PROCESSADO           PIC X(02) VALUE 'PR'.
+           05 CON-VIGOR                PIC X(01) VALUE 'V'.
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01  WS-VARIAVEIS.
+           05 WS-CHAVE.
+              10 WS-OGER               PIC  X(25).
+              10 WS-FICH.
+                 15 WS-NCLI            PIC  9(09).
+                 15 WS-DINT            PIC  9(08).
+                 15 WS-NFIC            PIC  9(06).
+              10 WS-TEMP               PIC  X(10).
+           05 WS-CHAVE-ANTERIOR.
+              10 WS-OGER-ANTERIOR      PIC  X(25).
+              10 WS-FICH-ANTERIOR.
+                 15 WS-NCLI-ANTERIOR   PIC  9(09).
+                 15 WS-DINT-ANTERIOR   PIC  9(08).
+                 15 WS-NFIC-ANTERIOR   PIC  9(06).
+              10 WS-TEMP-ANTERIOR      PIC  X(10).
+           05 WS-BALCAO                PIC S9(04) VALUE ZEROES.
+           05 WS-BUFFER                PIC  X(100).
+           05 WS-GBPBEMAIL             PIC  X(080).
+
+      ******************************************************************
+      * SWITCHES
+      ******************************************************************
+       01  WS-SWITCHES.
+           05 WS-PSMAIL-STATUS         PIC  X(02).
+              88 WS-PSMAIL-OK                      VALUE '00'.
+              88 WS-PSMAIL-EOF                     VALUE '10'.
+
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+           COPY PSCWPS2.
+           COPY SXCL0002.
+           COPY SXCL0380.
+           COPY VIAW0050.
+           COPY VIAW0030.
+           COPY BRCL1020.
+           COPY ARCL5050.
+           COPY ARCL5005.
+
+      ******************************************************************
+      * DB2
+      ******************************************************************
+           EXEC SQL INCLUDE SQLCA END-EXEC.
+
+           EXEC SQL
+                DECLARE CRS_PSFICHEIR CURSOR FOR
+                SELECT FCNCLI
+                     , FCDINT
+                     , FCNFIC
+                     , FCNREG
+                     , FCNOMEF
+                     , FCFORM
+                     , FCREG
+                     , FCSITU
+                     , FCOGER
+                     , FCAGEN
+                     , FCDCAR
+                     , FCDPRO
+                     , FCSITR
+                     , FCUSRINT
+                     , FCUSRCNF
+                     , FCINDBYP
+                     , FCCANAL
+                     , FCNCLIB
+                     , FCNATRB
+                     , FCNSEQB
+                     , FCDINTB
+                     , FCREFORDB
+                     , FCMONTB
+                     , FCTREGB
+                     , FCNCLIC
+                     , FCNATRC
+                     , FCNSEQC
+                     , FCDINTC
+                     , FCREFORDC
+                     , FCMONTC
+                     , FCTREGC
+                  FROM PSFICHEIR
+                 WHERE FCSITU = :PSFICHEIR-FCSITU
+                   AND FCNREG = :PSFICHEIR-FCNREG
+              ORDER BY FCNCLI
+                     , FCDINT
+                     , FCNFIC
+                     , FCNREG
+           END-EXEC.
+
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+           COPY AQCW0009.
+
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+      ******************************************************************
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+
+      ******************************************************************
+      *                  11      000     000     000                   *
+      *                 1 1     0  00   0  00   0  00                  *
+      *                   1     0 0 0   0 0 0   0 0 0                  *
+      *                   1     00  0   00  0   00  0                  *
+      *                 11111    000     000     000                   *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           INITIALIZE WS-VARIAVEIS
+                    , WS-SWITCHES.
+
+           MOVE WS-PROGNAME                      TO SXCW0902-PGMQC.
+           MOVE PSCK0002-MFILE                   TO SXCW0902-MFILE.
+           SET AQCW0009-RCODE-OK                 TO TRUE.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+
+           PERFORM 1100-ABERTURA-CURSOR
+              THRU 1100-ABERTURA-CURSOR-EXIT.
+
+           PERFORM 1200-LEITURA-CURSOR
+              THRU 1200-LEITURA-CURSOR-EXIT.
+
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       1100-ABERTURA-CURSOR.
+      ******************************************************************
+
+           MOVE PSCK0002-FIC-AGUARDA-CONF        TO PSFICHEIR-FCSITU
+           MOVE PSCK0002-FCNREG-TRAILER          TO PSFICHEIR-FCNREG
+
+           EXEC SQL
+                OPEN CRS_PSFICHEIR
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT AQCW0011-OK
+              SET  AQCW0009-RCODE-VAL            TO TRUE
+              MOVE PSCK0003-OPEN-PSMENSAG        TO SXCW0902-MSGID
+              PERFORM SXCP0902-ESCREVE-MSG
+                 THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-IF.
+
+       1100-ABERTURA-CURSOR-EXIT.
+            EXIT.
+
+      ******************************************************************
+       1200-LEITURA-CURSOR.
+      ******************************************************************
+           EXEC SQL
+                FETCH CRS_PSFICHEIR
+                 INTO :PSFICHEIR-FCNCLI
+                    , :PSFICHEIR-FCDINT
+                    , :PSFICHEIR-FCNFIC
+                    , :PSFICHEIR-FCNREG
+                    , :PSFICHEIR-FCNOMEF
+                    , :PSFICHEIR-FCFORM
+                    , :PSFICHEIR-FCREG
+                    , :PSFICHEIR-FCSITU
+                    , :PSFICHEIR-FCOGER
+                    , :PSFICHEIR-FCAGEN
+                    , :PSFICHEIR-FCDCAR
+                    , :PSFICHEIR-FCDPRO
+                    , :PSFICHEIR-FCSITR
+                    , :PSFICHEIR-FCUSRINT
+                    , :PSFICHEIR-FCUSRCNF
+                    , :PSFICHEIR-FCINDBYP
+                    , :PSFICHEIR-FCCANAL
+                    , :PSFICHEIR-FCNCLIB
+                    , :PSFICHEIR-FCNATRB
+                    , :PSFICHEIR-FCNSEQB
+                    , :PSFICHEIR-FCDINTB
+                    , :PSFICHEIR-FCREFORDB
+                    , :PSFICHEIR-FCMONTB
+                    , :PSFICHEIR-FCTREGB
+                    , :PSFICHEIR-FCNCLIC
+                    , :PSFICHEIR-FCNATRC
+                    , :PSFICHEIR-FCNSEQC
+                    , :PSFICHEIR-FCDINTC
+                    , :PSFICHEIR-FCREFORDC
+                    , :PSFICHEIR-FCMONTC
+                    , :PSFICHEIR-FCTREGC
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                MOVE PSFICHEIR-FCAGEN            TO WS-OGER
+                MOVE PSFICHEIR-FCNCLI            TO WS-NCLI
+                MOVE PSFICHEIR-FCDINT            TO WS-DINT
+                MOVE PSFICHEIR-FCNFIC            TO WS-NFIC
+                MOVE SPACES                      TO WS-TEMP
+           WHEN AQCW0011-NOTFND
+                MOVE SPACES                      TO WS-OGER
+                MOVE ZEROES                      TO WS-NCLI
+                MOVE ZEROES                      TO WS-DINT
+                MOVE ZEROES                      TO WS-NFIC
+                MOVE SPACES                      TO WS-TEMP
+           WHEN OTHER
+                SET  AQCW0009-RCODE-VAL          TO TRUE
+                MOVE PSCK0003-SELECT-PSMENSAG    TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       1200-LEITURA-CURSOR-EXIT.
+            EXIT.
+
+      ******************************************************************
+      *                  222     000     000     000                   *
+      *                 2   2   0  00   0  00   0  00                  *
+      *                   22    0 0 0   0 0 0   0 0 0                  *
+      *                  2      00  0   00  0   00  0                  *
+      *                 22222    000     000     000                   *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           OPEN OUTPUT PSMAIL.
+
+           PERFORM 2100-PROC-ANEXO
+              THRU 2100-PROC-ANEXO-EXIT
+                   UNTIL NOT AQCW0009-SEM-ERROS OR NOT AQCW0011-OK.
+
+           CLOSE PSMAIL
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      ******************************************************************
+       2100-PROC-ANEXO.
+      ******************************************************************
+           INITIALIZE                               RAF0069.
+           MOVE WS-CHAVE                         TO WS-CHAVE-ANTERIOR.
+
+      * Nome e endereços da agência
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2215-OBTEM-DADOS-AGENCIA
+                 THRU 2215-OBTEM-DADOS-AGENCIA-EXIT
+           END-IF.
+
+      * Nome do titular da conta
+ES    * QUANDO O NÚMERO DE CLIENTE NÃO EXISTE A API FICA EM MSGW
+ES    *    IF AQCW0009-SEM-ERROS
+ES    *       PERFORM 2220-OBTEM-NOME-1-TITULAR
+ES    *          THRU 2220-OBTEM-NOME-1-TITULAR-EXIT
+ES    *    END-IF.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM 2230-TRATA-TOTAIS
+                 THRU 2230-TRATA-TOTAIS-EXIT
+           END-IF.
+
+      * ESCREVE O REGISTO
+           IF AQCW0009-SEM-ERROS
+              IF PSMAIL-EMAG NOT EQUAL SPACES
+
+                 PERFORM 2230-VALIDA-WHITE-LIST
+                    THRU 2239-VALIDA-WHITE-LIST-EXIT
+
+                 MOVE PSFICHEIR-FCNCLI            TO PSMAIL-NCLI
+                 MOVE PSFICHEIR-FCDINT            TO PSMAIL-DINT
+                 MOVE PSFICHEIR-FCNFIC            TO PSMAIL-NFIC
+                 WRITE PSMAIL-REG
+
+                 IF NOT WS-PSMAIL-OK
+                    SET  AQCW0009-RCODE-APL         TO TRUE
+                    MOVE PSCK0003-WRITE-PSMSGOGER   TO SXCW0902-MSGID
+                    PERFORM SXCP0902-ESCREVE-MSG
+                       THRU SXCP0902-ESCREVE-MSG-EXIT
+                 END-IF
+              END-IF
+           END-IF.
+
+      * PROCESSA TODOS OS REGISTOS EXISTENTES NA TABELA
+           IF AQCW0009-RCODE-VAL
+              SET AQCW0009-RCODE-OK              TO TRUE
+           END-IF.
+
+           PERFORM 1200-LEITURA-CURSOR
+              THRU 1200-LEITURA-CURSOR-EXIT.
+
+       2100-PROC-ANEXO-EXIT.
+            EXIT.
+
+      ******************************************************************
+       2215-OBTEM-DADOS-AGENCIA.
+      ******************************************************************
+              INITIALIZE REMAIL
+              MOVE PSFICHEIR-FCAGEN           TO PSEMAIL-EMCINT
+              MOVE PSCK0002-EMINT-AGENCIA     TO PSEMAIL-EMINT
+
+              EXEC SQL
+                   SELECT  EMMAIL
+                     INTO :PSEMAIL-EMMAIL
+                     FROM  PSEMAIL
+                    WHERE  EMCINT = :PSEMAIL-EMCINT
+                      AND  EMINT  = :PSEMAIL-EMINT
+              END-EXEC
+
+              PERFORM 9020-DB2CHECK
+                 THRU 9029-DB2CHECK-EXIT
+
+              EVALUATE TRUE
+              WHEN AQCW0011-OK
+                   MOVE 'AGENCIA '               TO PSMAIL-AGEN
+                   MOVE PSFICHEIR-FCAGEN         TO PSMAIL-AGEN(9:)
+                   MOVE PSEMAIL-EMMAIL           TO PSMAIL-EMAG
+              WHEN AQCW0011-NOTFND
+                   PERFORM 4000-OBTEM-EMAIL-BALCAO
+                      THRU 4000-OBTEM-EMAIL-BALCAO-EXIT
+              WHEN OTHER
+                   SET  AQCW0009-RCODE-APL       TO TRUE
+                   MOVE PSCK0003-SELECT-PSEMAIL  TO SXCW0902-MSGID
+                   PERFORM SXCP0902-ESCREVE-MSG
+                      THRU SXCP0902-ESCREVE-MSG-EXIT
+              END-EVALUATE.
+
+       2215-OBTEM-DADOS-AGENCIA-EXIT.
+            EXIT.
+
+      ******************************************************************
+       2220-OBTEM-NOME-1-TITULAR.
+      ******************************************************************
+           INITIALIZE SXCL0380-DATA.
+
+           MOVE AQCW0100-AT-VERSAO-SYS           TO SXCL0380-VERSAO
+           MOVE WS-PROGNAME                      TO SXCL0380-PGMC.
+           MOVE PSCK0002-TTR-NOME-CLI            TO SXCL0380-TTR.
+           MOVE WS-PROGNAME                      TO SXCL0380-JOBNC.
+           MOVE WS-PROGNAME                      TO SXCL0380-USERC.
+           MOVE WS-PROGNAME                      TO SXCL0380-PGMQC.
+           MOVE PSCK0002-ESTR-NEXE               TO SXCL0380-ESTR.
+           MOVE PSCK0002-APTR-APL                TO SXCL0380-APTR.
+JF    *    MOVE PSCK0002-HCLI-NVAL               TO SXCL0380-HCLI.
+JF         MOVE PSCK0002-HCLI-VMSG               TO SXCL0380-HCLI.
+           MOVE PSCK0002-VNCR-NVAL               TO SXCL0380-VNCR.
+ES0609     MOVE 1                                TO SXCL0380-CLBAL.
+           MOVE PSFICHEIR-FCNCLI                 TO SXCL0380-CLNCLI.
+
+           CALL SXCL0380-ROTINA
+                USING SXCL0002-COMMAREA,
+                      SXCL0380-DATA.
+
+           MOVE SXCL0380-RCODE                   TO AQCW0009-RCODE.
+           EVALUATE TRUE
+           WHEN AQCW0009-SEM-ERROS
+                MOVE SXCL0380-DWT OF SXCL0380-WT OF SXCL0380-DATA(1)
+                                                 TO PSMAIL-NOME
+           WHEN AQCW0009-RCODE-VAL
+                CONTINUE
+           WHEN OTHER
+                MOVE SXCL0380-RCODE              TO AQCW0009-RCODE
+                MOVE PSCK0003-CALL-SXRM0380      TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+
+       2220-OBTEM-NOME-1-TITULAR-EXIT.
+            EXIT.
+
+      ******************************************************************
+       2230-TRATA-TOTAIS.
+      ******************************************************************
+      *
+           MOVE PSFICHEIR-FCSITU            TO PSMAIL-SITU.
+           MOVE PSFICHEIR-FCREG             TO PSCWPS2.
+
+           MOVE PSCWPS2-TOTAL-REGISTOS      TO PSMAIL-RINV.
+           MOVE PSCWPS2-TOTAL-VALORES       TO PSMAIL-TINV.
+      *
+       2230-TRATA-TOTAIS-EXIT.
+            EXIT.
+
+      ******************************************************************
+      *                 3333     000     000     000                   *
+      *                     3   0  00   0  00   0  00                  *
+      *                   33    0 0 0   0 0 0   0 0 0                  *
+      *                     3   00  0   00  0   00  0                  *
+      *                 3333     000     000     000                   *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+           EXEC SQL
+                CLOSE CRS_PSFICHEIR
+           END-EXEC.
+
+           PERFORM AQCP0009-TRATA-RCODE
+              THRU AQCP0009-TRATA-RCODE-EXIT.
+
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-REG-FIM
+                 THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+
+      ******************************************************************
+       4000-OBTEM-EMAIL-BALCAO.
+      ******************************************************************
+      *
+           MOVE PSFICHEIR-FCAGEN           TO WS-BALCAO
+
+           EXEC SQL
+              SELECT  GBPBBUFFER,
+                      GBPBEMAIL
+                INTO :WS-BUFFER,
+                     :WS-GBPBEMAIL
+                FROM  GBPABAL
+               WHERE  GBPBBAL  = :WS-BALCAO
+                 AND  GBPBSITU = :CON-VIGOR
+               WITH UR
+           END-EXEC
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT
+
+           EVALUATE TRUE
+           WHEN AQCW0011-OK
+                MOVE 'AGENCIA '               TO PSMAIL-AGEN
+                MOVE PSFICHEIR-FCAGEN         TO PSMAIL-AGEN(9:)
+      **R       MOVE WS-BUFFER(2:80)          TO PSMAIL-EMAG
+                MOVE WS-GBPBEMAIL             TO PSMAIL-EMAG
+           WHEN AQCW0011-NOTFND
+                MOVE SPACES                   TO PSMAIL-AGEN
+                                                 PSMAIL-EMAG
+           WHEN OTHER
+                SET  AQCW0009-RCODE-APL       TO TRUE
+                MOVE PSCK0003-SELECT-PSEMAIL  TO SXCW0902-MSGID
+                PERFORM SXCP0902-ESCREVE-MSG
+                   THRU SXCP0902-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+       4000-OBTEM-EMAIL-BALCAO-EXIT.
+            EXIT.
+      *****************************************************************
+       2230-VALIDA-WHITE-LIST.
+      *****************************************************************
+      *
+           MOVE '2230-VALIDA-WHITE-LIST ' TO VIAL0015-CALLER-ID
+           IF VIAL0015-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           MOVE PSMAIL-EMAG       TO ARCL5050-EMAIL.
+
+           PERFORM CALL-ARM50050
+              THRU CALL-ARM50050-EXIT.
+
+           IF  NOT ETCL0002-SEM-ERROS
+               SET  AQCW0009-RCODE-APL     TO TRUE
+               SET  VIAW0030-DB2-ERROR     TO TRUE
+               MOVE ARCL5050-ROTINA        TO VIAW0030-PGMNAME
+               MOVE VIAL0015-CALLER-ID     TO VIAW0030-PARAGRAPH-NAME
+               MOVE 'ERRO NO ACESSO ROTINA ARM50050'
+                                           TO VIAW0030-DESC1
+               PERFORM VIAP0030-ESCREVE-SPOOL
+                  THRU VIAP0030-ESCREVE-SPOOL-EXIT
+           ELSE
+              IF ARCL5050-FLAG-EMAIL NOT EQUAL 'S'
+                  MOVE SPACES    TO PSMAIL-EMAG
+              END-IF
+           END-IF.
+
+       2239-VALIDA-WHITE-LIST-EXIT.
+           EXIT.
+
+     ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+      ******************************************************************
+           COPY AQCP0009.
+           COPY AQCP0011.
+           COPY SXCP0902.
+      ******************************************************************
+           COPY SXCR0380.
+      * PARAMETROS STANDARD ARQUITECTURA BATCH
+           COPY SXCR0430.
+           COPY AQCP0109.
+           COPY VIAP0015.
+           COPY SXCR0445.
+           COPY SXCR0760.
+           COPY VIAP0050.
+           COPY VIAP0030.
+           COPY ARCR5005.
+           COPY ARCP5050.
+
+           EXEC SQL INCLUDE PSCP0001 END-EXEC.
+
+      ******************************************************************

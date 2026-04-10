@@ -1,0 +1,279 @@
+       COPY VIAW0001.
+       IDENTIFICATION DIVISION.
+      ******************************************************************
+      *           I D E N T I F I C A T I O N   D I V I S I O N        *
+      ******************************************************************
+      * PROGRAM NAME
+      ******************************************************************
+       PROGRAM-ID. PSB4090.
+      ******************************************************************
+      *                                                                *
+      *                     - ARQUITECTURA BATCH -                     *
+      *                                                                *
+      ******************************************************************
+      * Re-activa aplicacao                                            *
+      *                                                                *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      *          *        *        *                                   *
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+       CONFIGURATION SECTION.
+      ******************************************************************
+      *                     CONFIGURATION SECTION                      *
+      ******************************************************************
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+      ******************************************************************
+       DATA DIVISION.
+      ******************************************************************
+      *                   D A T A   D I V I S I O N                    *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      ******************************************************************
+      *                    WORKING STORAGE SECTION                     *
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'INICIO WORKING-STORAGE'.
+
+      ******************************************************************
+      * PROGRAM CONTROL
+      ******************************************************************
+       01  WS-PROGRAM-CONTROL.
+           05 WS-PROGNAME               PIC  X(10) VALUE 'PSB4090'.
+           05 CON-VIAT0500              PIC  X(08) VALUE 'VIAT0500'.
+      ******************************************************************
+      * INCLUDES DB2
+      ******************************************************************
+           EXEC SQL INCLUDE VIAD0500 END-EXEC.
+           EXEC SQL INCLUDE SQLCA    END-EXEC.
+      ******************************************************************
+      * CONSTANTES
+      ******************************************************************
+
+      ******************************************************************
+      * VARIAVEIS
+      ******************************************************************
+       01 WS-VARIAVEIS.
+         05 WS-PARAGRAPH-NAME              PIC X(30)    VALUE SPACES.
+         05 WS-TOT-FETCH                   PIC 9(09)    VALUE ZEROES.
+         05 WS-TOT-DELETE                  PIC 9(09)    VALUE ZEROES.
+      ******************************************************************
+      * COPYS
+      ******************************************************************
+       COPY AQCL0001.
+       COPY ARCK0001.
+       COPY AQCW0109.
+       COPY AQCW0011.
+       COPY VIAL0015.
+       COPY VIATK001.
+       COPY VIAW0011.
+       COPY VIAW0012.
+       COPY PSCK0002.
+      ******************************************************************
+       01  FILLER              PIC X(40) VALUE 'FIM DA WORKING-STORAGE'.
+      ******************************************************************
+       LINKAGE SECTION.
+      ******************************************************************
+      *                        LINKAGE SECTION                         *
+      ******************************************************************
+       COPY AQCW0009.
+      ******************************************************************
+       PROCEDURE DIVISION USING AQCW0009-DATA.
+      ******************************************************************
+      *              P R O C E D U R E   D I V I S I O N               *
+      ******************************************************************
+       0000-MAINLINE.
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1000-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2000-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3000-FIM-PROGRAMA-EXIT.
+
+       0000-MAINLINE-EXIT.
+           GOBACK.
+      ******************************************************************
+      *                           Validação                            *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      ******************************************************************
+           MOVE '1000-INICIO-PROGRAMA     ' TO WS-PARAGRAPH-NAME.
+
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           IF AQCW0009-RCODE NOT NUMERIC
+              MOVE ZEROES                  TO AQCW0009-RCODE
+           END-IF.
+      *
+           PERFORM AQCP0100-REG-INICIO
+              THRU AQCP0100-REG-INICIO-EXIT.
+
+           IF AQCW0009-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE AQCW0100-AT-COMMIT      TO VIAL0015-CAMPOS-CHAVE
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+       1000-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+      *                    Processamento Principal                     *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      ******************************************************************
+           MOVE '2000-PROC-PROGRAMA       ' TO WS-PARAGRAPH-NAME.
+
+           PERFORM 2100-APAGAR-REGISTO
+              THRU 2100-APAGAR-REGISTO-EXIT.
+
+       2000-PROC-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+      *                    2100-APAGAR-REGISTO                         *
+      ******************************************************************
+       2100-APAGAR-REGISTO.
+      *
+           MOVE '2100-APAGAR-REGISTO'      TO WS-PARAGRAPH-NAME.
+      *
+           MOVE PSCK0002-CAPLIC-PS         TO VIAD0500-APLIC    .
+           MOVE VIAK0002-ALL-SERVICES      TO VIAD0500-SERVCODE .
+           MOVE 'PSB4010'                  TO VIAD0500-CUSERID  .
+      *
+           EXEC SQL
+             DELETE FROM VIAT0500_INACTIV
+              WHERE APLIC    = :VIAD0500-APLIC
+                AND SERVCODE = :VIAD0500-SERVCODE
+                AND CUSERID  = :VIAD0500-CUSERID
+           END-EXEC.
+
+           MOVE SQLCODE                    TO VIAW0012-SQLCODE   .
+           MOVE CON-VIAT0500               TO VIAW0012-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           EVALUATE TRUE
+             WHEN VIAW0012-OK
+             WHEN VIAW0012-NOTFND
+                 ADD 1                      TO WS-TOT-DELETE
+             WHEN OTHER
+                 SET  AQCW0009-RCODE-APL    TO TRUE
+                 SET  VIAW0012-ABEND-DB2    TO TRUE
+                 MOVE WS-PARAGRAPH-NAME     TO AQCW0100-PARAGRAPH
+                 MOVE VIAW0012-TABLE-NAME   TO AQCW0100-NM-ENTIDADE
+                 MOVE VIAW0012-SQLCODE      TO AQCW0100-SQLCODE
+
+                 PERFORM AQCP0100-ESCREVE-MSG
+                    THRU AQCP0100-ESCREVE-MSG-EXIT
+           END-EVALUATE.
+      *
+       2100-APAGAR-REGISTO-EXIT.
+           EXIT.
+      ******************************************************************
+      *                             Final                              *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      ******************************************************************
+      *
+           MOVE '3000-FIM-PROGRAMA.'   TO VIAL0015-CALLER-ID
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           PERFORM 3100-DISPLAY-ESTATISTICA
+              THRU 3100-DISPLAY-ESTATISTICA-EXIT.
+      *
+           PERFORM 3200-COMMIT-CONTROL
+              THRU 3200-COMMIT-CONTROL-EXIT.
+      *
+           PERFORM 3300-PROCESSOS-FINAIS
+              THRU 3300-PROCESSOS-FINAIS-EXIT.
+      *
+       3000-FIM-PROGRAMA-EXIT.
+            EXIT.
+      ******************************************************************
+      *    Escreve no VIAF0015 o numero de accoes efectuadas
+      ******************************************************************
+       3100-DISPLAY-ESTATISTICA.
+           MOVE '3100-DISPLAY-ESTATISTICA' TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE SPACE                      TO VIAL0015-CAMPOS-CHAVE.
+           STRING  'TOTAL LINHAS    = ' WS-TOT-FETCH
+                 DELIMITED BY SIZE       INTO VIAL0015-CAMPOS-CHAVE.
+      *
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT.
+      *
+           MOVE SPACE                      TO VIAL0015-CAMPOS-CHAVE.
+           STRING  'TOTAL SERVICOS  = ' WS-TOT-DELETE
+                 DELIMITED BY SIZE       INTO VIAL0015-CAMPOS-CHAVE.
+      *
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT.
+      *
+       3100-DISPLAY-ESTATISTICA-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+      *    Efectua commit ou rollback de acordo com o RCODE
+      ******************************************************************
+       3200-COMMIT-CONTROL.
+           MOVE '3200-COMMIT-CONTROL.'     TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              MOVE AQCW0009-RCODE          TO VIAL0015-CAMPOS-CHAVE
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+           MOVE AQCW0009-RCODE             TO AQCL0001-RCODE.
+           PERFORM AQCP0002-TRATA-SYNCPOINT
+              THRU AQCP0002-TRATA-SYNCPOINT-EXIT.
+      *
+       3200-COMMIT-CONTROL-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+       3300-PROCESSOS-FINAIS.
+      ******************************************************************
+           MOVE '3300-PROCESSOS-FINAIS.'   TO VIAL0015-CALLER-ID.
+           IF AQCW0100-AT-DEBUG-SIM
+              PERFORM VIAP0015-TRATA-DEBUG
+                 THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+      *
+            PERFORM AQCP0100-REG-FIM
+               THRU AQCP0100-REG-FIM-EXIT.
+      *
+       3300-PROCESSOS-FINAIS-EXIT.
+           EXIT.
+      *
+      ******************************************************************
+           EXEC SQL INCLUDE AQCP0002 END-EXEC.
+           COPY AQCP0109.
+           COPY VIAP0011.
+           COPY VIAP0012.
+           COPY VIAP0015.
+************************************************************************

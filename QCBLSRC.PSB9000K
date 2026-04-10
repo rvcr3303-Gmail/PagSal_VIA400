@@ -1,0 +1,706 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PSB9000.
+      ******************************************************************
+      *   EXPURGO PSFICHEIR
+      ******************************************************************
+       ENVIRONMENT DIVISION.
+      ******************************************************************
+      *           E N V I R O N M E N T         D I V I S I O N        *
+      ******************************************************************
+      *
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES. DECIMAL-POINT IS COMMA.
+      *
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FPS-REM-FILE
+           ASSIGN   TO DISK-FPSRFCH
+                                FILE STATUS  IS VIAW0011-FSTATUS.
+      *    SELECT FPS-KEEP-FILE
+      *    ASSIGN   TO DISK-FPSKFCH
+      *                         FILE STATUS  IS VIAW0011-FSTATUS.
+      *
+       DATA DIVISION.
+      ******************************************************************
+      *              D A T A   D I V I S I O N                         *
+      ******************************************************************
+       FILE SECTION.
+       FD  FPS-REM-FILE.
+       01  PSFICHEIR-REM.
+             05  PSFFICHEIR-RECORD PIC X(666).
+             05  RFFICHEIR     REDEFINES PSFFICHEIR-RECORD.
+                 06 PSFICHREM-FCNCLI      PIC S9(9)         COMP-3.
+      *                  Número de Cliente
+                 06 PSFICHREM-FCDINT      PIC S9(8)         COMP-3.
+      *                  Data Integração
+                 06 PSFICHREM-FCNFIC      PIC S9(6)         COMP-3.
+      *                  Número ficheiro
+                 06 PSFICHREM-FCNREG      PIC S9(14)        COMP-3.
+      *                  Total de registos
+                 06 PSFICHREM-FCNOMEF     PIC X(10).
+      *                  Nome do Ficheiro
+                 06 PSFICHREM-FCFORM      PIC X(1).
+      *                  Código do Formato
+                 06 PSFICHREM-FCREG       PIC X(150).
+      *                  Registo
+                 06 PSFICHREM-FCSITU      PIC X(2).
+      *                  Situação
+                 06 PSFICHREM-FCOGER      PIC X(10).
+      *                  Orgão de Gerência
+                 06 PSFICHREM-FCAGEN      PIC S9(4)         COMP-3.
+      *                  Código da Agência
+                 06 PSFICHREM-FCDCAR      PIC S9(8)         COMP-3.
+      *                  Data Carregamento
+                 06 PSFICHREM-FCDPRO      PIC S9(8)         COMP-3.
+      *                  Data Processamento
+                 06 PSFICHREM-FCSITR      PIC S9(1)         COMP-3.
+      *                  Situação Registo
+                 06 PSFICHREM-FCUSRINT    PIC X(10).
+      *                  Utilizador Integraç.
+                 06 PSFICHREM-FCUSRCNF    PIC X(10).
+      *                  Utilizador Confirma.
+                 06 PSFICHREM-FCINDBYP    PIC X(1).
+      *                  Indicador Bypass
+                 06 PSFICHREM-FCCANAL     PIC X(10).
+      *                  Canal
+                 06 PSFICHREM-FCNCLIB     PIC S9(9)         COMP-3.
+      *                  Número de Cliente B
+                 06 PSFICHREM-FCNATRB     PIC S9(2)         COMP-3.
+      *                  Natureza B
+                 06 PSFICHREM-FCNSEQB     PIC S9(3)         COMP-3.
+      *                  Sequência B
+                 06 PSFICHREM-FCDINTB     PIC S9(8)         COMP-3.
+      *                  Data Integração
+                 06 PSFICHREM-FCREFORDB   PIC X(20).
+      *                  Referência Ordenante
+                 06 PSFICHREM-FCMONTB     PIC S9(11)V9(2)   COMP-3.
+      *                  Importância Total
+                 06 PSFICHREM-FCTREGB     PIC S9(14)        COMP-3.
+      *                  Total de registos
+                 06 PSFICHREM-FCNCLIC     PIC S9(9)         COMP-3.
+      *                  Número de Cliente B
+                 06 PSFICHREM-FCNATRC     PIC S9(2)         COMP-3.
+      *                  Natureza B
+                 06 PSFICHREM-FCNSEQC     PIC S9(3)         COMP-3.
+      *                  Sequência B
+                 06 PSFICHREM-FCDINTC     PIC S9(8)         COMP-3.
+      *                  Data Integração
+                 06 PSFICHREM-FCREFORDC   PIC X(20).
+      *                  Referência Ordenante
+                 06 PSFICHREM-FCMONTC     PIC S9(11)V9(2)   COMP-3.
+      *                  Importância Total
+                 06 PSFICHREM-FCTREGC     PIC S9(14)        COMP-3.
+      *                  Total de registos
+                 06 PSFICHREM-CUSERID     PIC X(10).
+      *                  Utilizador Alteração
+                 06 PSFICHREM-HTIMEEST    PIC X(26).
+      *                  Timestamp Alteração
+                 06 PSFICHREM-FCETRBI     PIC X(10).
+                 06 PSFICHREM-FCETRBV     PIC X(10).
+                 06 PSFICHREM-FCTREMUN    PIC X(1).
+                 06 PSFICHREM-FCTSERV     PIC X(2).
+                 06 PSFICHREM-FCRALT      PIC X(1).
+                 06 PSFICHREM-FCHTIMEV    PIC X(26).
+                 06 PSFICHREM-FCNOCB      PIC S9(9)         COMP-3.
+                 06 PSFICHREM-FCNOMEB     PIC X(80).
+                 06 PSFICHREM-FCDDEB      PIC X(40).
+                 06 PSFICHREM-FCDCRED     PIC X(40).
+                 06 PSFICHREM-FCCONTA     PIC X(21).
+                 06 PSFICHREM-FCCONTAB    PIC S9(14)        COMP-3.
+      *                  Conta B
+                 06 PSFICHREM-FCCONTAC    PIC S9(14)        COMP-3.
+      *                  Conta C
+                 06 PSFICHREM-CSWCTA      PIC X(40).
+      *
+      ******************************************************************
+      *                  WORKING STORAGE SECTION                       *
+      ******************************************************************
+       WORKING-STORAGE SECTION.
+      *
+       01  FILLER                          PIC X(40) VALUE
+           'INICIO WORKING-STORAGE PSB9000        '.
+      ******************************************************************
+      *                  MENSAGENS                                     *
+      ******************************************************************
+      *
+      *
+      ******************************************************************
+      *                  FILE STATUS                                   *
+      ******************************************************************
+      *
+      *
+      ******************************************************************
+      *                  STATUS DAS TABELAS                            *
+      ******************************************************************
+      *
+      *
+      ******************************************************************
+      *                  CONSTANTES                                    *
+      ******************************************************************
+       01 WS-CONSTANTES.
+          05 WS-PROGNAME                    PIC  X(10) VALUE 'PSB9000'.
+          05 WS-CON-N                       PIC  X(01) VALUE 'N'.
+          05 WS-CON-TABLE-CRITERIA-ID       PIC  X(20)
+                                           VALUE 'PSFICHEIR'.
+          05 CON-FPSRFCH                    PIC  X(08) VALUE 'FPSRFCH'.
+          05 CON-FPSKFCH                    PIC  X(08) VALUE 'FPSKFCH'.
+          05 CON-PSFICHEIR                  PIC X(10) VALUE 'PSFICHEIR'.
+      ******************************************************************
+      *           VARIAVEIS                                            *
+      ******************************************************************
+       01 WS-VARIAVEIS.
+         05 WS-PARAGRAPH-NAME                PIC X(30)    VALUE SPACES.
+         05 WS-TOTAL-READ                    PIC 9(10)    VALUE ZEROES.
+         05 WS-TOTAL-REMOVE                  PIC 9(10)    VALUE ZEROES.
+         05 WS-TOTAL-KEEP                    PIC 9(10)    VALUE ZEROES.
+         05 WS-REMOVE-DAYS                   PIC S9(10) COMP-3
+                                                          VALUE ZEROES.
+         05 WS-CURRENT-DATE                  PIC X(10)    VALUE SPACES.
+         05 WS-CURRENT-DATE-R REDEFINES WS-CURRENT-DATE.
+            10 WS-CURRENT-DATE-YEAR          PIC X(04).
+            10 FILLER                        PIC X(01).
+            10 WS-CURRENT-DATE-MONTH         PIC X(02).
+            10 FILLER                        PIC X(01).
+            10 WS-CURRENT-DATE-DAY           PIC X(02).
+         05 WS-DAT-INPUT1                    PIC 9(08)    VALUE ZEROES.
+         05 WS-DAT-RES                       PIC 9(08)    VALUE ZEROES.
+         01  WS-PRAZOS.
+             05  WS-COD-PRZ     PIC X(03).
+             05 FILLER REDEFINES WS-COD-PRZ.
+               10 WS-COD-PRZ-CD PIC X(01).
+               10 WS-COD-PRZ-QT PIC 9(02).
+             05  WS-PRZ-A       PIC 9(01).
+             05  WS-PRZ-M       PIC 9(02).
+             05  WS-PRZ-D       PIC 9(03).
+             05  WS-PRAZO-MESES PIC 9(05).
+             05  WS-PRAZO-ANOS  PIC 9(05).
+
+
+      ******************************************************************
+      *              DECLARACOES DE COPYBOOKS                          *
+      ******************************************************************
+           EXEC SQL INCLUDE PSCDFICHEI END-EXEC.
+           EXEC SQL INCLUDE SQLCA      END-EXEC.
+
+       COPY VIAL0001.
+       COPY VIAL0055.
+
+       COPY VIAW0011.
+       COPY VIAW0012.
+
+       COPY VIAL0015.
+       COPY VIAW0030.
+       COPY AQCW0109.
+       COPY AQCW0009.
+       COPY ETCL1000.
+      ******************************************************************
+      *              DECLARACOES DE CURSORES DB2                       *
+      ******************************************************************
+      *--------------------------------------------------------------
+      *              DECLARACOES DE CURSORES DB2                     *
+      *--------------------------------------------------------------
+      *
+           EXEC SQL
+                DECLARE CURVCT01 CURSOR FOR
+                 SELECT FCNCLI
+                     ,  FCDINT
+                     ,  FCNFIC
+                     ,  FCNREG
+                     ,  FCNOMEF
+                     ,  FCFORM
+                     ,  FCREG
+                     ,  FCSITU
+                     ,  FCOGER
+                     ,  FCAGEN
+                     ,  FCDCAR
+                     ,  FCDPRO
+                     ,  FCSITR
+                     ,  FCUSRINT
+                     ,  FCUSRCNF
+                     ,  FCINDBYP
+                     ,  FCCANAL
+                     ,  FCNCLIB
+                     ,  FCNATRB
+                     ,  FCNSEQB
+                     ,  FCDINTB
+                     ,  FCREFORDB
+                     ,  FCMONTB
+                     ,  FCTREGB
+                     ,  FCNCLIC
+                     ,  FCNATRC
+                     ,  FCNSEQC
+                     ,  FCDINTC
+                     ,  FCREFORDC
+                     ,  FCMONTC
+                     ,  FCTREGC
+                     ,  CUSERID
+                     ,  HTIMEEST
+                 FROM PSFFICHEIR
+                 WHERE FCDCAR < :PSFICHEIR-FCDCAR
+                  FOR UPDATE
+           END-EXEC.
+      *
+       01  FILLER                          PIC X(40) VALUE
+            'FIM DA WORKING-STORAGE PSB9000        '.
+      ******************************************************************
+      *                    LINKAGE SECTION                             *
+      ******************************************************************
+       COPY VIAL0005.
+      ******************************************************************
+      *                  PROCEDURE DIVISION                            *
+      ******************************************************************
+           EXEC SQL INCLUDE VIAP0014 END-EXEC.
+      ******************************************************************
+      *    PROCESSO                                                    *
+      ******************************************************************
+       0000-MAINLINE.
+
+           PERFORM 1000-INICIO-PROGRAMA
+              THRU 1099-INICIO-PROGRAMA-EXIT.
+
+           PERFORM 2000-PROC-PROGRAMA
+              THRU 2099-PROC-PROGRAMA-EXIT.
+
+           PERFORM 3000-FIM-PROGRAMA
+              THRU 3099-FIM-PROGRAMA-EXIT.
+
+       0099-MAINLINE-EXIT.
+           GOBACK.
+      ******************************************************************
+      *                  1000-INICIO-PROGRAMA                          *
+      ******************************************************************
+       1000-INICIO-PROGRAMA.
+      *
+           MOVE '1000-INICIO-PROGRAMA'  TO WS-PARAGRAPH-NAME
+      *
+           SET  VIAW0012-SEM-ERROS TO TRUE.
+           SET  VIAL0002-SEM-ERROS TO TRUE.
+           MOVE ZEROES             TO VIAL0100-RCODE
+           MOVE ZEROES             TO WS-TOTAL-READ
+           MOVE ZEROES             TO WS-TOTAL-REMOVE
+           MOVE ZEROES             TO WS-TOTAL-KEEP
+
+           IF VIAW0012-SEM-ERROS
+              PERFORM AQCP0100-REG-INICIO
+                 THRU AQCP0100-REG-INICIO-EXIT
+           END-IF.
+
+           IF VIAW0012-SEM-ERROS
+              PERFORM AQCP0100-OBT-DADOS-ARQ
+                 THRU AQCP0100-OBT-DADOS-ARQ-EXIT
+           END-IF.
+      *
+      * OPEN FICHEIRO DE OUTPUT (REMOVE)
+           OPEN EXTEND FPS-REM-FILE
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF NOT FS-OK
+              SET  VIAW0030-FILE-ERROR    TO TRUE
+              MOVE WS-PROGNAME         TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME      TO VIAW0030-PARAGRAPH-NAME
+              MOVE CON-FPSRFCH            TO VIAW0030-FILE-NAME
+              MOVE VIAW0011-FSTATUS       TO VIAW0030-FILE-STATUS
+              MOVE SPACES                 TO VIAW0030-FILE-KEY
+              MOVE 'ERRO NO OPEN DO'      TO VIAW0030-DESC1
+              MOVE 'FICHEIRO DE OUTPUT'
+                                          TO VIAW0030-DESC2
+
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       1099-INICIO-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+      *                  2000-PROC-PROGRAMA                            *
+      ******************************************************************
+       2000-PROC-PROGRAMA.
+      *
+           IF VIAW0012-SEM-ERROS
+              PERFORM 2100-OPEN
+                 THRU 2199-OPEN-EXIT
+           END-IF.
+
+           IF VIAW0012-SEM-ERROS
+              PERFORM 2200-FETCH
+                 THRU 2299-FETCH-EXIT
+
+              IF VIAW0012-SEM-ERROS
+                 IF DB2-OK
+                    PERFORM 2300-CONTINUA
+                       THRU 2399-CONTINUA-EXIT
+                 END-IF
+              END-IF
+
+              PERFORM 2900-CLOSE
+                 THRU 2999-CLOSE-EXIT
+           END-IF.
+      *
+       2099-PROC-PROGRAMA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *                     2100-OPEN
+      *--------------------------------------------------------------
+       2100-OPEN.
+      *
+           MOVE '2100-OPEN'       TO WS-PARAGRAPH-NAME
+      *
+           MOVE WS-CON-TABLE-CRITERIA-ID
+             TO VIAL0055-TABLE-CRITERIA-ID
+
+           PERFORM VIAP0055-CRIT-EXPURGO
+              THRU VIAP0055-CRIT-EXPURGO-EXIT.
+
+           IF VIAL0002-SEM-ERROS
+
+              MOVE VIAL0055-REMOVE-DAYS TO WS-REMOVE-DAYS
+
+              PERFORM 2110-CALCULA-DATA
+                 THRU 2110-CALCULA-DATA-EXIT
+
+              EXEC SQL
+                   OPEN CURVCT01
+              END-EXEC
+
+              MOVE CON-PSFICHEIR TO VIAW0012-TABLE-NAME
+
+              PERFORM 9020-DB2CHECK
+                 THRU 9029-DB2CHECK-EXIT
+           ELSE
+              SET  VIAW0030-DB2-ERROR       TO TRUE
+              SET  VIAL0002-ABEND-DB2       TO TRUE
+              MOVE 'VIAR0060'               TO VIAW0030-PGMNAME
+              MOVE 'VIAP0055-CRIT-EXPURGO'  TO VIAW0030-PARAGRAPH-NAME
+              MOVE VIAL0002-TABLE-NAME      TO VIAW0030-TABLE-NAME
+              MOVE VIAL0002-SQLCODE         TO VIAW0030-SQLCODE
+              MOVE WS-CON-TABLE-CRITERIA-ID TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NA OBTENCAO DO'
+                                            TO VIAW0030-DESC1
+              MOVE 'CRITERIO DE EXPURGO'
+                                            TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+
+       2199-OPEN-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2110-CALCULA-DATAS
+      *--------------------------------------------------------------
+       2110-CALCULA-DATA.
+      *
+           MOVE '2110-CALCULA-DATA.'      TO WS-PARAGRAPH-NAME
+      *
+           INITIALIZE ETCL1000-AREA-COMUNICACAO.
+           MOVE AQCW0100-AT-DTOP            TO WS-DAT-INPUT1
+           MOVE WS-DAT-INPUT1               TO ETCL1000-DAT-INPUT1
+           SET  ETCL1000-SUBTRAI-PRAZO      TO TRUE
+           MOVE VIAL0055-REMOVE-DAYS        TO ETCL1000-PRZ-D.
+
+           IF VIAL0055-REMOVE-DAYS GREATER THAN 367
+             SET ETCL1000-SUBTRAI-PRAZO TO TRUE
+             COMPUTE WS-PRAZO-MESES = VIAL0055-REMOVE-DAYS / 30
+             IF WS-PRAZO-MESES GREATER THAN 99
+               COMPUTE WS-PRAZO-ANOS  = WS-PRAZO-MESES / 12
+               MOVE 'N'                         TO WS-COD-PRZ-CD
+               MOVE WS-PRAZO-ANOS               TO WS-COD-PRZ-QT
+               MOVE WS-COD-PRZ                  TO ETCL1000-COD-PRZ
+               MOVE ZEROES                      TO ETCL1000-PRZ-D
+             ELSE
+               MOVE 'M'                         TO WS-COD-PRZ-CD
+               MOVE WS-PRAZO-MESES              TO WS-COD-PRZ-QT
+               MOVE WS-COD-PRZ                  TO ETCL1000-COD-PRZ
+               MOVE ZEROES                      TO ETCL1000-PRZ-D
+             END-IF
+           ELSE
+             SET ETCL1000-SUBTRAI-PRAZO TO TRUE
+             MOVE 'D'                         TO WS-COD-PRZ-CD
+             MOVE SPACES                      TO ETCL1000-COD-PRZ
+             MOVE VIAL0055-REMOVE-DAYS        TO ETCL1000-PRZ-D
+           END-IF.
+
+           PERFORM ETCP1000-ROTINA-DATAS
+              THRU ETCP1000-EXIT.
+
+           IF CALCULO-EFECTUADO
+              MOVE ETCL1000-DAT-RES     TO WS-DAT-RES
+              MOVE WS-DAT-RES           TO PSFICHEIR-FCDCAR
+           ELSE
+              MOVE ZEROES               TO PSFICHEIR-FCDCAR
+              SET  VIAW0030-DB2-ERROR   TO TRUE
+              SET  VIAW0012-ABEND-DB2   TO TRUE
+              MOVE WS-PROGNAME          TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME    TO VIAW0030-PARAGRAPH-NAME
+              MOVE 'ETR01000'           TO VIAW0030-TABLE-NAME
+              MOVE ZEROES               TO VIAW0030-SQLCODE
+              MOVE SPACES               TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NO CÁLCULO DO DIA '
+                                        TO VIAW0030-DESC1
+              MOVE 'ANTERIOR  '
+                                        TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+           END-IF.
+      *
+       2110-CALCULA-DATA-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2200-FETCH
+      *--------------------------------------------------------------
+       2200-FETCH.
+      *
+           MOVE '2200-FETCH'      TO WS-PARAGRAPH-NAME
+      *
+           EXEC SQL
+                 FETCH CURVCT01
+                 INTO  :PSFICHEIR-FCNCLI
+                     , :PSFICHEIR-FCDINT
+                     , :PSFICHEIR-FCNFIC
+                     , :PSFICHEIR-FCNREG
+                     , :PSFICHEIR-FCNOMEF
+                     , :PSFICHEIR-FCFORM
+                     , :PSFICHEIR-FCREG
+                     , :PSFICHEIR-FCSITU
+                     , :PSFICHEIR-FCOGER
+                     , :PSFICHEIR-FCAGEN
+                     , :PSFICHEIR-FCDCAR
+                     , :PSFICHEIR-FCDPRO
+                     , :PSFICHEIR-FCSITR
+                     , :PSFICHEIR-FCUSRINT
+                     , :PSFICHEIR-FCUSRCNF
+                     , :PSFICHEIR-FCINDBYP
+                     , :PSFICHEIR-FCCANAL
+                     , :PSFICHEIR-FCNCLIB
+                     , :PSFICHEIR-FCNATRB
+                     , :PSFICHEIR-FCNSEQB
+                     , :PSFICHEIR-FCDINTB
+                     , :PSFICHEIR-FCREFORDB
+                     , :PSFICHEIR-FCMONTB
+                     , :PSFICHEIR-FCTREGB
+                     , :PSFICHEIR-FCNCLIC
+                     , :PSFICHEIR-FCNATRC
+                     , :PSFICHEIR-FCNSEQC
+                     , :PSFICHEIR-FCDINTC
+                     , :PSFICHEIR-FCREFORDC
+                     , :PSFICHEIR-FCMONTC
+                     , :PSFICHEIR-FCTREGC
+                     , :PSFICHEIR-CUSERID
+                     , :PSFICHEIR-HTIMEEST
+           END-EXEC
+
+           MOVE CON-PSFICHEIR TO VIAW0012-TABLE-NAME.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT DB2-OK
+           AND NOT DB2-NOTFND
+              SET  VIAW0030-DB2-ERROR   TO TRUE
+              SET  VIAW0012-ABEND-DB2   TO TRUE
+              MOVE WS-PROGNAME       TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME    TO VIAW0030-PARAGRAPH-NAME
+              MOVE VIAW0012-TABLE-NAME  TO VIAW0030-TABLE-NAME
+              MOVE VIAW0012-SQLCODE     TO VIAW0030-SQLCODE
+              MOVE SPACES               TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NO FETCH DO CURSOR DA' TO VIAW0030-DESC1
+              MOVE 'TABELA DE FICHEIROS       ' TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       2299-FETCH-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                       2300-CONTINUA
+      *--------------------------------------------------------------
+       2300-CONTINUA.
+
+           PERFORM 2400-TRATA-REGISTO
+              THRU 2499-TRATA-OCCURS-EXIT
+             UNTIL NOT DB2-OK
+                OR NOT VIAW0012-SEM-ERROS.
+
+       2399-CONTINUA-EXIT.
+           EXIT.
+
+      *--------------------------------------------------------------
+      *            2400-TRATA-REGISTO
+      *--------------------------------------------------------------
+       2400-TRATA-REGISTO.
+      *
+           ADD +1  TO WS-TOTAL-READ
+
+           ADD +1  TO WS-TOTAL-REMOVE
+           PERFORM 2500-WRITE-REM-FILE
+              THRU 2599-WRITE-REM-FILE-EXIT
+           PERFORM 2700-DELETE-RECORD
+              THRU 2700-DELETE-RECORD-EXIT
+      *
+           PERFORM 2200-FETCH
+              THRU 2299-FETCH-EXIT.
+      *
+       2499-TRATA-OCCURS-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *                  2500-WRITE-REM-FILE                           *
+      ******************************************************************
+       2500-WRITE-REM-FILE.
+      *
+            MOVE '2500-WRITE-REM-FILE'  TO WS-PARAGRAPH-NAME
+      *
+           INITIALIZE RFFICHEIR
+              REPLACING NUMERIC BY ZEROES
+                   ALPHANUMERIC BY SPACES.
+      *
+           MOVE PSFICHEIR-FCNCLI          TO PSFICHREM-FCNCLI
+           MOVE PSFICHEIR-FCDINT          TO PSFICHREM-FCDINT
+           MOVE PSFICHEIR-FCNFIC          TO PSFICHREM-FCNFIC
+           MOVE PSFICHEIR-FCNREG          TO PSFICHREM-FCNREG
+           MOVE PSFICHEIR-FCNOMEF         TO PSFICHREM-FCNOMEF
+           MOVE PSFICHEIR-FCFORM          TO PSFICHREM-FCFORM
+           MOVE PSFICHEIR-FCREG           TO PSFICHREM-FCREG
+           MOVE PSFICHEIR-FCSITU          TO PSFICHREM-FCSITU
+           MOVE PSFICHEIR-FCOGER          TO PSFICHREM-FCOGER
+           MOVE PSFICHEIR-FCAGEN          TO PSFICHREM-FCAGEN
+           MOVE PSFICHEIR-FCDCAR          TO PSFICHREM-FCDCAR
+           MOVE PSFICHEIR-FCDPRO          TO PSFICHREM-FCDPRO
+           MOVE PSFICHEIR-FCSITR          TO PSFICHREM-FCSITR
+           MOVE PSFICHEIR-FCUSRINT        TO PSFICHREM-FCUSRINT
+           MOVE PSFICHEIR-FCUSRCNF        TO PSFICHREM-FCUSRCNF
+           MOVE PSFICHEIR-FCINDBYP        TO PSFICHREM-FCINDBYP
+           MOVE PSFICHEIR-FCCANAL         TO PSFICHREM-FCCANAL
+           MOVE PSFICHEIR-FCNCLIB         TO PSFICHREM-FCNCLIB
+           MOVE PSFICHEIR-FCNATRB         TO PSFICHREM-FCNATRB
+           MOVE PSFICHEIR-FCNSEQB         TO PSFICHREM-FCNSEQB
+           MOVE PSFICHEIR-FCDINTB         TO PSFICHREM-FCDINTB
+           MOVE PSFICHEIR-FCREFORDB       TO PSFICHREM-FCREFORDB
+           MOVE PSFICHEIR-FCMONTB         TO PSFICHREM-FCMONTB
+           MOVE PSFICHEIR-FCTREGB         TO PSFICHREM-FCTREGB
+           MOVE PSFICHEIR-FCNCLIC         TO PSFICHREM-FCNCLIC
+           MOVE PSFICHEIR-FCNATRC         TO PSFICHREM-FCNATRC
+           MOVE PSFICHEIR-FCNSEQC         TO PSFICHREM-FCNSEQC
+           MOVE PSFICHEIR-FCDINTC         TO PSFICHREM-FCDINTC
+           MOVE PSFICHEIR-FCREFORDC       TO PSFICHREM-FCREFORDC
+           MOVE PSFICHEIR-FCMONTC         TO PSFICHREM-FCMONTC
+           MOVE PSFICHEIR-FCTREGC         TO PSFICHREM-FCTREGC
+           MOVE PSFICHEIR-CUSERID         TO PSFICHREM-CUSERID
+           MOVE PSFICHEIR-HTIMEEST        TO PSFICHREM-HTIMEEST
+      *
+           WRITE PSFICHEIR-REM.
+
+           PERFORM 9030-FSCHECK
+              THRU 9039-FSCHECK-EXIT.
+
+           IF  NOT FS-OK
+              SET  VIAW0030-FILE-ERROR    TO TRUE
+              MOVE WS-PROGNAME         TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME      TO VIAW0030-PARAGRAPH-NAME
+              MOVE CON-FPSRFCH            TO VIAW0030-FILE-NAME
+              MOVE VIAW0011-FSTATUS       TO VIAW0030-FILE-STATUS
+              MOVE SPACES                 TO VIAW0030-FILE-KEY
+              MOVE 'ERRO NA ESCRITA DO'   TO VIAW0030-DESC1
+              MOVE 'FICHEIRO DE OUTPUT'
+                                          TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       2599-WRITE-REM-FILE-EXIT.
+           EXIT.
+      ******************************************************************
+      *                  2700-DELETE-RECORD                            *
+      ******************************************************************
+       2700-DELETE-RECORD.
+      *
+           EXEC SQL
+             DELETE FROM PSFICHEIR
+              WHERE CURRENT OF CURVCT01
+           END-EXEC.
+
+           PERFORM 9020-DB2CHECK
+              THRU 9029-DB2CHECK-EXIT.
+
+           IF NOT DB2-OK
+           AND NOT DB2-NOTFND
+              SET  VIAW0030-DB2-ERROR   TO TRUE
+              SET  VIAW0012-ABEND-DB2   TO TRUE
+              MOVE WS-PROGNAME       TO VIAW0030-PGMNAME
+              MOVE WS-PARAGRAPH-NAME    TO VIAW0030-PARAGRAPH-NAME
+              MOVE VIAW0012-TABLE-NAME  TO VIAW0030-TABLE-NAME
+              MOVE VIAW0012-SQLCODE     TO VIAW0030-SQLCODE
+              MOVE SPACES               TO VIAW0030-ACCESS-KEY
+              MOVE 'ERRO NA ELIMINAÇÃO '
+                                    TO VIAW0030-DESC1
+              MOVE 'DO REGISTO       '
+                                    TO VIAW0030-DESC2
+              PERFORM VIAP0030-ESCREVE-SPOOL
+                 THRU VIAP0030-ESCREVE-SPOOL-EXIT
+              PERFORM 9990-ABEND
+                 THRU 9999-ABEND-EXIT
+           END-IF.
+      *
+       2700-DELETE-RECORD-EXIT.
+           EXIT.
+      *--------------------------------------------------------------
+      *                     2900-CLOSE
+      *--------------------------------------------------------------
+       2900-CLOSE.
+
+           EXEC SQL
+               CLOSE CURVCT01
+           END-EXEC.
+
+       2999-CLOSE-EXIT.
+           EXIT.
+
+      ******************************************************************
+      *               3000-FIM-PROGRAMA                                *
+      ******************************************************************
+       3000-FIM-PROGRAMA.
+      *
+           IF VIAW0012-SEM-ERROS
+              EXEC SQL COMMIT   END-EXEC
+           ELSE
+              EXEC SQL ROLLBACK END-EXEC
+           END-IF
+
+           CLOSE FPS-REM-FILE.
+
+           MOVE '3000-FIM-PROGRAMA'         TO VIAL0015-CALLER-ID
+           MOVE '*** TOTAL LIDOS     : '    TO VIAL0015-CAMPO-NM(1)
+           MOVE WS-TOTAL-READ               TO VIAL0015-CAMPO-VLR(1)
+           MOVE '*** TOTAL REMOVIDOS : '    TO VIAL0015-CAMPO-NM(2)
+           MOVE WS-TOTAL-REMOVE             TO VIAL0015-CAMPO-VLR(2)
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT
+
+           IF VIAW0012-SEM-ERROS
+             PERFORM AQCP0100-REG-FIM
+                THRU AQCP0100-REG-FIM-EXIT
+           END-IF.
+      *
+       3099-FIM-PROGRAMA-EXIT.
+           EXIT.
+      ******************************************************************
+      *                      PROCEDURES                                *
+      ******************************************************************
+              EXEC SQL INCLUDE VIAP9999 END-EXEC.
+       COPY VIAP0055.
+       COPY VIAP0012.
+       COPY VIAP0011.
+       COPY VIAP0030.
+       COPY VIAP0015.
+       COPY AQCP0109.
+       COPY ETCP1000.
