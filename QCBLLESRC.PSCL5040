@@ -1,0 +1,103 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                       *
+      *  MÓDULO:           MÓDULO DE VALIDAÇÃO DE CONTAS               *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         PSM5040                                     *
+      *  CRIACAO:          2012.02.02                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      * 20190624 * PLIMA  * 20190624 * Acrescentado SLDDISP            *
+      ******************************************************************
+       01 PSCL5040-DATA.
+          05 PSCL5040-STD-BANKA.
+      *         NOME DO PROGRAMA CALLER
+             10 PSCL5040-PGMC              PIC  X(10).
+      *         CODIGO DA TRANSACCAO
+             10 PSCL5040-TTR               PIC  X(05).
+      *         JOBNAME DO CALLER (ESTACAO)
+             10 PSCL5040-JOBNC             PIC  X(10).
+      *         UTILIZADOR DO CALLER
+             10 PSCL5040-USERC             PIC  X(10).
+      *         PROGRAM QUEUE DO CALLER
+             10 PSCL5040-PGMQC             PIC  X(10).
+      *         RETURN CODE
+             10 PSCL5040-RCODE             PIC S9(01) COMP-3.
+                88 PSCL5040-SEM-ERROS                 VALUE 0, 1.
+                88 PSCL5040-COM-ERROS                 VALUE 2, 3.
+                88 PSCL5040-RCODE-OK                  VALUE 0.
+                88 PSCL5040-RCODE-INF                 VALUE 1.
+                88 PSCL5040-RCODE-VAL                 VALUE 2.
+                88 PSCL5040-RCODE-APL                 VALUE 3.
+             10 PSCL5040-CODERR-GRAVE      PIC  X(07).
+             10 PSCL5040-AT-CBAN           PIC S9(04) COMP-3.
+             10 PSCL5040-AT-BALM           PIC S9(04) COMP-3.
+             10 PSCL5040-AT-DTOP           PIC S9(08) COMP-3.
+             10 PSCL5040-AT-CMOE           PIC  X(03).
+             10 PSCL5040-AT-DEBUG          PIC  X(01).
+      *         EXECUTAR TRANSACTION RECOVERY
+             10 PSCL5040-ESTR              PIC  X(01).
+                88 PSCL5040-ESTR-NOCOMMIT             VALUE '0'.
+                88 PSCL5040-ESTR-COMMIT               VALUE '1'.
+      *         APLICACAO DA TRANSACCAO
+             10 PSCL5040-APTR              PIC  X(01).
+                88 PSCL5040-APTR-APLICA               VALUE 'A'.
+                88 PSCL5040-APTR-VALIDA               VALUE 'V'.
+      *         VALIDACAO AO CLIENTE
+             10 PSCL5040-HCLI              PIC  X(01).
+                88 PSCL5040-HCLI-NV                   VALUE '0'.
+                88 PSCL5040-HCLI-VB                   VALUE '1'.
+                88 PSCL5040-HCLI-VM                   VALUE '2'.
+                88 PSCL5040-HCLI-VC                   VALUE '3'.
+                88 PSCL5040-HCLI-RC                   VALUE 'R'.
+      *         VERIFICA NIVEL DE CONFIDENCIALIDADE E RESTRICOES
+             10 PSCL5040-VNCR              PIC  X(01).
+                88 PSCL5040-VNCR-S                    VALUE 'S'.
+                88 PSCL5040-VNCR-N                    VALUE 'N'.
+          05 PSCL5040-DADOS.
+             10 PSCL5040-NIB.
+                15 PSCL5040-NIB-BANCO      PIC X(04).
+                15 PSCL5040-NIB-BALCAO     PIC X(04).
+                15 PSCL5040-NIB-CNTA       PIC X(11).
+                15 PSCL5040-NIB-CKDG       PIC X(02).
+      *      10 PSCL5040-CNTA              PIC S9(11)      COMP-3.
+             10 PSCL5040-CONTA             PIC S9(14).
+             10 FILLER REDEFINES PSCL5040-CONTA.
+                15 PSCL5040-CONTA-NCLI     PIC S9(09).
+                15 PSCL5040-CONTA-NATR     PIC S9(02).
+                15 PSCL5040-CONTA-NSEQ     PIC S9(03).
+      *         INDICADOR DE ERRO DO CAMPO CONTA
+             10 PSCL5040-CNTA-ST.
+                15 PSCL5040-ICE01          PIC  X(01).
+                   88 PSCL5040-ICE01-N                VALUE '0'.
+                   88 PSCL5040-ICE01-S                VALUE '1'.
+                15 PSCL5040-CNTA-CAPLIC    PIC X(02).
+                15 PSCL5040-CNTA-MSG       PIC 9(04).
+             10 PSCL5040-SLDD              PIC S9(11)V9(2) COMP-3.
+             10 PSCL5040-MOED              PIC  X(03).
+             10 PSCL5040-SITU              PIC  X(01).
+             10 PSCL5040-BLOQ-TOT          PIC  X(01).
+             10 PSCL5040-BLOQ-CRE          PIC  X(01).
+             10 PSCL5040-BLOQ-DEB          PIC  X(01).
+             10 PSCL5040-NOM1T             PIC  X(40).
+             10 PSCL5040-BALM              PIC S9(04) COMP-3.
+             10 PSCL5040-TOPE              PIC S9(02) COMP-3.
+             10 PSCL5040-BLOQ-COPE-DEB     PIC  X(01).
+                88 PSCL5040-BLOQ-COPE-DEB-S          VALUE 'S'.
+                88 PSCL5040-BLOQ-COPE-DEB-N          VALUE ' '.
+             10 PSCL5040-BLOQ-COPE-CRED    PIC  X(01).
+                88 PSCL5040-BLOQ-COPE-CRED-S         VALUE 'S'.
+                88 PSCL5040-BLOQ-COPE-CRED-N         VALUE ' '.
+             10 PSCL5040-EXECUTOR          PIC  X(01).
+                88 PSCL5040-EXECUTOR-APL             VALUE 'A'.
+                88 PSCL5040-EXECUTOR-USER            VALUE 'U'.
+                88 PSCL5040-EXECUTOR-OUTRO           VALUE ' '.
+             10 PSCL5040-BYPASS            PIC  X(01).
+                88 PSCL5040-BYPASS-SIM               VALUE 'S'.
+                88 PSCL5040-BYPASS-NAO               VALUE 'N'.
+             10 PSCL5040-SLDDISP           PIC S9(11)V9(2) COMP-3.
+             10 FILLER                     PIC X(73) VALUE SPACES.

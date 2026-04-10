@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDPRECAR  DECLARACAO DA TABELA PSPRECARI               *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSPRECARI.
+           COPY DDS-ALL-FORMATS OF PSPRECARI PREFIX BY 'PSPRECARI-'.

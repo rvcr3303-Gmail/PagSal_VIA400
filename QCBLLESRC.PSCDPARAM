@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDPARAM   DECLARACAO DA TABELA PSPARAM                 *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSPARAM.
+           COPY DDS-ALL-FORMATS OF PSPARAM   PREFIX BY 'PSPARAM-'.

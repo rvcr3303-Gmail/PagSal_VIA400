@@ -1,0 +1,31 @@
+      ******************************************************************
+      * NOME:      ETCL0188                                            *
+      * DESCRICAO: CAMPOS USADOS PARA O MODULO ETR00188                *
+      *          :                                                     *
+      * CRIACAO:   22-07-2014                                          *
+      * AUTOR:     VIA CONSULTING                                      *
+      ******************************************************************
+       01  ETCL0188-ROTINA           PIC  X(10)  VALUE 'ETR00188'.
+      *
+       01  ETCL0188-DATA.
+           05 ETCL0188-CDTTR         PIC  X(05).
+              88 ETCL0188-CDTTR-CSNIB           VALUE 'CSNIB'.
+              88 ETCL0188-CDTTR-CSCNT           VALUE 'CSCNT'.
+           05 ETCL0188-CDRCOD        PIC S9(01) COMP-3.
+           05 ETCL0188-CDCONTA       PIC S9(14).
+           05 FILLER REDEFINES ETCL0188-CDCONTA.
+              10 ETCL0188-CDNCLI     PIC S9(09).
+              10 ETCL0188-CDNATR     PIC S9(02).
+              10 ETCL0188-CDNSEQ     PIC S9(03).
+           05 ETCL0188-CDICE1        PIC  X(01).
+           05 ETCL0188-CDNIB.
+              10 ETCL0188-CDNIB-BANCO   PIC X(04).
+              10 ETCL0188-CDNIB-BALCAO  PIC X(04).
+              10 ETCL0188-CDNIB-CONTA   PIC 9(11).
+              10 FILLER REDEFINES ETCL0188-CDNIB-CONTA.
+                 15 ETCL0188-CDNIB-NCLI PIC X(08).
+                 15 ETCL0188-CDNIB-NATR PIC X(02).
+                 15 ETCL0188-CDNIB-SEQ  PIC X(01).
+              10 ETCL0188-CDNIB-CDIG    PIC X(02).
+           05 ETCL0188-CDICE2        PIC  X(01).
+           05 FILLER                 PIC  X(250).

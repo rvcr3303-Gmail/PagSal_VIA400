@@ -1,0 +1,7 @@
+      ******************************************************************
+      * NOME:      PSCW5135                                            *
+      * DESCRICAO: MÓDULO CRÉDITO BENEFICIÁRIO                         *
+      ******************************************************************
+       01  PSCW5135-DATA.
+         05 PSCW5135-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5135-TTR-VAZIO      VALUE SPACES.

@@ -1,0 +1,13 @@
+      ******************************************************************
+      * NOME:      PSCW0050                                            *
+      * DESCRICAO: OBTENCAO DADOS STANDARD ARQUITECTURA BATCH          *
+      ******************************************************************
+       01  PSCW0050-DATA.
+         05 PSCW0050-AT-CBAN           PIC S9(04) COMP-3 VALUE ZEROES.
+         05 PSCW0050-AT-BALM           PIC S9(04) COMP-3 VALUE ZEROES.
+         05 PSCW0050-AT-DTOP           PIC S9(08) COMP-3 VALUE ZEROES.
+         05 PSCW0050-AT-CMOE           PIC  X(03) VALUE SPACES.
+         05 PSCW0050-AT-DEBUG          PIC  X(01) VALUE SPACES.
+         05 PSCW0050-AT-COMMIT         PIC  X(01) VALUE SPACES.
+            88 PSCW0050-AT-COMMIT-ACTIVO          VALUE 'S'.
+            88 PSCW0050-AT-COMMIT-INACTIVO        VALUE 'N'.

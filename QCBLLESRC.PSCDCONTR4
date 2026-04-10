@@ -1,0 +1,146 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDCONTRA  DECLARACAO DA TABELA PSCONTRAT               *
+      *                                                                *
+      ******************************************************************
+           EXEC SQL DECLARE PSCDCONTR4 TABLE
+           (                              CHAR(8)        NOT NULL
+               COCCLI                     DECIMAL(9)     NOT NULL
+             , CODESC                     CHAR(20)       NOT NULL
+             , CONCLIA                    DECIMAL(9)     NOT NULL
+             , CONATRA                    DECIMAL(2)     NOT NULL
+             , CONSEQA                    DECIMAL(3)     NOT NULL
+             , CONCLIB                    DECIMAL(9)     NOT NULL
+             , CONATRB                    DECIMAL(2)     NOT NULL
+             , CONSEQB                    DECIMAL(3)     NOT NULL
+             , CONCLIC                    DECIMAL(9)     NOT NULL
+             , CONATRC                    DECIMAL(2)     NOT NULL
+             , CONSEQC                    DECIMAL(3)     NOT NULL
+             , COCLICCC                   DECIMAL(9)     NOT NULL
+             , CONATCCC                   DECIMAL(2)     NOT NULL
+             , COSEQCCC                   DECIMAL(3)     NOT NULL
+             , CODABR                     DECIMAL(8)     NOT NULL
+             , COSITU                     CHAR(2)        NOT NULL
+             , COPREC                     CHAR(2)        NOT NULL
+             , COTMOV                     CHAR(1)        NOT NULL
+             , CONTRY                     DECIMAL(6)     NOT NULL
+             , COILCO                     CHAR(1)        NOT NULL
+             , CONOTOS                    CHAR(1)        NOT NULL
+             , CONOTBS                    CHAR(1)        NOT NULL
+             , COOGER                     CHAR(10)       NOT NULL
+             , COEMAIL                    CHAR(50)       NOT NULL
+             , CONOTOE                    CHAR(1)        NOT NULL
+             , CONOTBE                    CHAR(1)        NOT NULL
+             , COAGEN                     DECIMAL(6)     NOT NULL
+             , COASSA                     CHAR(1)        NOT NULL
+             , COASSB                     CHAR(1)        NOT NULL
+             , COASSC                     CHAR(1)        NOT NULL
+             , COCACE                     CHAR(1)        NOT NULL
+             , COCCONF                    CHAR(1)        NOT NULL
+             , COPASS                     CHAR(6)        NOT NULL
+             , COTELF                     CHAR(39)       NOT NULL
+             , CUSERID                    CHAR(10)       NOT NULL
+             , HTIMEEST                   TIMESTAMP      NOT NULL
+             , COIIPURG                   CHAR(1)        NOT NULL
+             , COIIMREG                   CHAR(1)        NOT NULL
+             , COIIEBORDO                 CHAR(1)        NOT NULL
+             , COIIEBORDB                 CHAR(1)        NOT NULL
+             , COTSERV                    CHAR(2)        NOT NULL
+             , COIIFORMT                  CHAR(1)        NOT NULL
+             , COCONTAA                   DECIMAL(14)    NOT NULL
+             , COCONTAB                   DECIMAL(14)    NOT NULL
+             , COCONTAC                   DECIMAL(14)    NOT NULL
+             , COCONTACCC                 DECIMAL(14)    NOT NULL
+             , IDESCRDEF                  CHAR(2)        NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+       01  REG-PSCONTRAT.
+      *    COPY DDS-ALL-FORMATS OF PSCONTRAT4 PREFIX BY 'PSCONTRAT-'.
+             05  PSCONTRAT4-RECORD PIC X(294).
+      *    I-O FORMAT:PSCONTRAT4 FROM FILE PSCONTRAT4 OF LIBRARY VIAOBJ
+      *                          FORMAT0001
+             05  PSCONTRAT4    REDEFINES PSCONTRAT4-RECORD.
+                 06 PSCONTRAT-COCCLI      PIC S9(9)         COMP-3.
+      *                  NÚMERO DE CONTRATO
+                 06 PSCONTRAT-CODESC      PIC X(20).
+      *                  DESCRIÇÃO PARA REF.
+                 06 PSCONTRAT-CONCLIA     PIC S9(9)         COMP-3.
+      *                  NÚMERO DE CLIENTE A
+                 06 PSCONTRAT-CONATRA     PIC S9(2)         COMP-3.
+      *                  NATUREZA A
+                 06 PSCONTRAT-CONSEQA     PIC S9(3)         COMP-3.
+      *                  SEQUÊNCIA A
+                 06 PSCONTRAT-CONCLIB     PIC S9(9)         COMP-3.
+      *                  NÚMERO DE CLIENTE B
+                 06 PSCONTRAT-CONATRB     PIC S9(2)         COMP-3.
+      *                  NATUREZA B
+                 06 PSCONTRAT-CONSEQB     PIC S9(3)         COMP-3.
+      *                  SEQUÊNCIA B
+                 06 PSCONTRAT-CONCLIC     PIC S9(9)         COMP-3.
+      *                  NÚMERO DE CLIENTE C
+                 06 PSCONTRAT-CONATRC     PIC S9(2)         COMP-3.
+      *                  NATUREZA C
+                 06 PSCONTRAT-CONSEQC     PIC S9(3)         COMP-3.
+      *                  SEQUÊNCIA C
+                 06 PSCONTRAT-COCLICCC    PIC S9(9)         COMP-3.
+      *                  CLIENTE C/C/C
+                 06 PSCONTRAT-CONATCCC    PIC S9(2)         COMP-3.
+      *                  NATUREZA C/C/C
+                 06 PSCONTRAT-COSEQCCC    PIC S9(3)         COMP-3.
+      *                  SEQUÊNCIA C/C/C
+                 06 PSCONTRAT-CODABR      PIC S9(8)         COMP-3.
+      *                  DATA DE ABERTURA
+                 06 PSCONTRAT-COSITU      PIC X(2).
+      *                  SITUAÇÃO
+                 06 PSCONTRAT-COPREC      PIC X(2).
+      *                  CÓD. PREÇÁRIO SAL.
+                 06 PSCONTRAT-COTMOV      PIC X(1).
+      *                  TIPO DE MOVIMENTAÇÃO
+                 06 PSCONTRAT-CONTRY      PIC S9(6)         COMP-3.
+      *                  NÚM.TENTATIVA
+                 06 PSCONTRAT-COILCO      PIC X(1).
+      *                  LIMITE DE CRÉDITO
+                 06 PSCONTRAT-CONOTOS     PIC X(1).
+      *                  NOTIF. ORDENANTE SMS
+                 06 PSCONTRAT-CONOTBS     PIC X(1).
+      *                  NOTIF. BENEF. SMS
+                 06 PSCONTRAT-COOGER      PIC X(10).
+      *                  ORGÃO DE GERÊNCIA
+                 06 PSCONTRAT-COEMAIL     PIC X(50).
+      *                  EMAIL
+                 06 PSCONTRAT-CONOTOE     PIC X(1).
+      *                  NOTIF. ORD. EMAIL
+                 06 PSCONTRAT-CONOTBE     PIC X(1).
+      *                  NOTIF. BENEF. EMAIL
+                 06 PSCONTRAT-COAGEN      PIC S9(4)         COMP-3.
+      *                  CÓDIGO DA AGÊNCIA
+                 06 PSCONTRAT-COASSA      PIC X(1).
+      *                  ASSINATURA A
+                 06 PSCONTRAT-COASSB      PIC X(1).
+      *                  ASSINATURA B
+                 06 PSCONTRAT-COASSC      PIC X(1).
+      *                  ASSINATURA C
+                 06 PSCONTRAT-COCACE      PIC X(1).
+      *                  ENVIO CHAVE ACESSO
+                 06 PSCONTRAT-COCCONF     PIC X(1).
+      *                  ENVIO CHAVE CONF.
+                 06 PSCONTRAT-COPASS      PIC X(6).
+      *                  PASSWORD PDF
+                 06 PSCONTRAT-COTELF      PIC X(39).
+      *                  TELEFONE
+                 06 PSCONTRAT-CUSERID     PIC X(10).
+      *                  UTILIZADOR ALTERAÇÃO
+                 06 PSCONTRAT-HTIMEEST    PIC X(26).
+      *                  TIMESTAMP ALTERAÇÃO
+                 06 PSCONTRAT-COIIPURG    PIC X(1).
+                 06 PSCONTRAT-COIIMREG    PIC X(1).
+                 06 PSCONTRAT-COIIEBORDO  PIC X(1).
+                 06 PSCONTRAT-COIIEBORDB  PIC X(1).
+                 06 PSCONTRAT-COTSERV     PIC X(2).
+                 06 PSCONTRAT-COIIFORMT   PIC X(1).
+                 06 PSCONTRAT-COCONTAA    PIC S9(14)        COMP-3.
+                 06 PSCONTRAT-COCONTAB    PIC S9(14)        COMP-3.
+                 06 PSCONTRAT-COCONTAC    PIC S9(14)        COMP-3.
+                 06 PSCONTRAT-COCONTACCC  PIC S9(14)        COMP-3.
+                 06 PSCONTRAT-IDESCRDEF   PIC X(2).
+

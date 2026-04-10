@@ -1,0 +1,33 @@
+           EXEC SQL DECLARE PSVT2001 TABLE
+           (
+               NCLI       DECIMAL(  9, 0) NOT NULL
+             , DINT       DECIMAL(  8, 0) NOT NULL
+             , NFIC       DECIMAL(  6, 0) NOT NULL
+             , NOCB       DECIMAL(  9, 0) NOT NULL
+             , MVAL       DECIMAL( 13, 2) NOT NULL
+             , DPRO       DECIMAL(  8, 0) NOT NULL
+             , IBAL       CHAR( 1 )       NOT NULL
+             , NOPR       DECIMAL(  9, 0) NOT NULL
+             , MVLR       DECIMAL( 13, 2) NOT NULL
+             , CUSERIDC   CHAR(20)
+             , HTIMESTC   TIMESTAMP
+             , CUSERID    CHAR(20)
+             , HTIMEST    TIMESTAMP
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSVT2001
+      ******************************************************************
+       01  DCLPSCD2001.
+           05 PSCD2001-NCLI                PIC S9(09)       COMP-3.
+           05 PSCD2001-DINT                PIC S9(08)       COMP-3.
+           05 PSCD2001-NFIC                PIC S9(06)       COMP-3.
+           05 PSCD2001-NOCB                PIC S9(09)       COMP-3.
+           05 PSCD2001-MVAL                PIC S9(13)V9(02) COMP-3.
+           05 PSCD2001-DPRO                PIC S9(08)       COMP-3.
+           05 PSCD2001-IBAL                PIC  X(01).
+           05 PSCD2001-NOPR                PIC S9(09)       COMP-3.
+           05 PSCD2001-MVLR                PIC S9(13)V9(02) COMP-3.
+           05 PSCD2001-CUSERIDC            PIC  X(20).
+           05 PSCD2001-HTIMESTC            PIC  X(26).
+           05 PSCD2001-CUSERID             PIC  X(20).
+           05 PSCD2001-HTIMEST             PIC  X(26).

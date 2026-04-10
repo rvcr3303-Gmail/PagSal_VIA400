@@ -1,0 +1,7 @@
+      ******************************************************************
+      * NOME:      PSCW5035                                            *
+      * DESCRICAO: TRATAMENTO DE RESPOSTAS DA ROTINA DE MOVIMENTACAO   *
+      ******************************************************************
+       01  PSCW5035-DATA.
+         05 PSCW5035-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5035-TTR-VAZIO      VALUE SPACES.

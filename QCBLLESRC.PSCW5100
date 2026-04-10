@@ -1,0 +1,8 @@
+      ******************************************************************
+      * NOME:      PSCW5100                                            *
+      * DESCRICAO: TRATAMENTO DE RESPOSTAS DO MODULO DE VALIDACAO      *
+      *            DO FICHEIRO                                         *
+      ******************************************************************
+       01  PSCW5100-DATA.
+         05 PSCW5100-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5100-TTR-VAZIO      VALUE SPACES.

@@ -1,0 +1,27 @@
+      *****************************************************************
+      * NOME:      SXCW0025                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADAS AO COPY PROCEDURE      *
+      *            SXCL0760                                           *
+      * CRICAO:    04-01-2011                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01  SXCL0760-DATA.
+           05 SXCL0760-VERSAO            PIC  X(03)      VALUE SPACES.
+              88 SXCL0760-V203                           VALUE '203'.
+              88 SXCL0760-V300                           VALUE '300'.
+              88 SXCL0760-VVAL                           VALUE '203'
+                                                               '300'.
+      *---
+           05 SXCL0760-DPGM              PIC  X(10)      VALUE SPACES.
+           05 SXCL0760-WDTTR             PIC  X(05)      VALUE SPACES.
+           05 SXCL0760-DJOBNC            PIC  X(10)      VALUE SPACES.
+           05 SXCL0760-DUSERC            PIC  X(10)      VALUE SPACES.
+           05 SXCL0760-DPGMQ             PIC  X(10)      VALUE SPACES.
+           05 SXCL0760-RCODE             PIC  9(01)      COMP-3.
+           05 SXCL0760-ESTR              PIC  X(01).
+           05 SXCL0760-APTR              PIC  X(01).
+           05 SXCL0760-PAPARM            PIC S9(05) COMP-3 VALUE ZEROS.
+           05 SXCL0760-PAVALV.
+              10 SXCL0760-ICOMMIT        PIC  X(01) VALUE SPACES.
+              10 FILLER                  PIC  X(44) VALUE SPACES.
+       01  SXCL0760-ROTINA               PIC  X(08) VALUE 'SXRM0760'.

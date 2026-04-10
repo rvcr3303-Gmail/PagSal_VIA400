@@ -1,0 +1,152 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                       *
+      *  MÓDULO:           INTEGRACAO COM TEI'S                        *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         PSM5060                                     *
+      *  CRIACAO:          2012.02.20                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 PSCL5061-DATA.
+          05 PSCL5061-STD-BANKA.
+      *         NOME DO PROGRAMA CALLER
+             10 PSCL5061-PGMC              PIC  X(10).
+      *         CODIGO DA TRANSACCAO
+             10 PSCL5061-TTR               PIC  X(05).
+      *         JOBNAME DO CALLER (ESTACAO)
+             10 PSCL5061-JOBNC             PIC  X(10).
+      *         UTILIZADOR DO CALLER
+             10 PSCL5061-USERC             PIC  X(10).
+      *         PROGRAM QUEUE DO CALLER
+             10 PSCL5061-PGMQC             PIC  X(10).
+      *         RETURN CODE
+             10 PSCL5061-RCODE             PIC S9(01) COMP-3.
+                88 PSCL5061-SEM-ERROS                 VALUE 0, 1.
+                88 PSCL5061-COM-ERROS                 VALUE 2, 3.
+                88 PSCL5061-RCODE-OK                  VALUE 0.
+                88 PSCL5061-RCODE-INF                 VALUE 1.
+                88 PSCL5061-RCODE-VAL                 VALUE 2.
+                88 PSCL5061-RCODE-APL                 VALUE 3.
+             10 PSCL5061-CODERR-GRAVE      PIC  X(07).
+             10 PSCL5061-AT-CBAN           PIC S9(04) COMP-3.
+             10 PSCL5061-AT-BALM           PIC S9(04) COMP-3.
+             10 PSCL5061-AT-DTOP           PIC S9(08) COMP-3.
+             10 PSCL5061-AT-CMOE           PIC  X(03).
+             10 PSCL5061-AT-DEBUG          PIC  X(01).
+      *         EXECUTAR TRANSACTION RECOVERY
+             10 PSCL5061-ESTR              PIC  X(01).
+                88 PSCL5061-ESTR-NOCOMMIT             VALUE '0'.
+                88 PSCL5061-ESTR-COMMIT               VALUE '1'.
+      *         APLICACAO DA TRANSACCAO
+             10 PSCL5061-APTR              PIC  X(01).
+                88 PSCL5061-APTR-APLICA               VALUE 'A'.
+                88 PSCL5061-APTR-VALIDA               VALUE 'V'.
+      *         EXECUTOR
+             10 PSCL5061-EXCT              PIC  X(01).
+                88 PSCL5061-EXCT-COMPEN               VALUE 'C'.
+                88 PSCL5061-EXCT-FRONTO               VALUE 'F'.
+                88 PSCL5061-EXCT-TRANSF               VALUE 'T'.
+      *         VALIDACAO AO CLIENTE
+             10 PSCL5061-HCLI              PIC  X(01).
+                88 PSCL5061-HCLI-NV                   VALUE '0'.
+                88 PSCL5061-HCLI-VB                   VALUE '1'.
+                88 PSCL5061-HCLI-VM                   VALUE '2'.
+                88 PSCL5061-HCLI-VC                   VALUE '3'.
+                88 PSCL5061-HCLI-RC                   VALUE 'R'.
+          05 PSCL5061-DADOS.
+             10 PSCL5061-NCLI              PIC S9(09) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO CLIENTE
+             10 PSCL5061-NCLI-ST.
+                15 PSCL5061-ICE01          PIC  X(01).
+                   88 PSCL5061-ICE01-N                VALUE '0'.
+                   88 PSCL5061-ICE01-S                VALUE '1'.
+                15 PSCL5061-NCLI-CAPLIC    PIC X(02).
+                15 PSCL5061-NCLI-MSG       PIC 9(04).
+             10 PSCL5061-DINT              PIC S9(08) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO DATA INTEGRACAO
+             10 PSCL5061-DINT-ST.
+                15 PSCL5061-ICE02          PIC  X(01).
+                   88 PSCL5061-ICE02-N                VALUE '0'.
+                   88 PSCL5061-ICE02-S                VALUE '1'.
+                15 PSCL5061-DINT-CAPLIC    PIC X(02).
+                15 PSCL5061-DINT-MSG       PIC 9(04).
+             10 PSCL5061-NFIC              PIC S9(06) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO NUMERO DE FICHEIRO
+             10 PSCL5061-NFIC-ST.
+                15 PSCL5061-ICE03          PIC  X(01).
+                   88 PSCL5061-ICE03-N                VALUE '0'.
+                   88 PSCL5061-ICE03-S                VALUE '1'.
+                15 PSCL5061-NFIC-CAPLIC    PIC X(02).
+                15 PSCL5061-NFIC-MSG       PIC 9(04).
+             10 PSCL5061-CONTA             PIC S9(14).
+             10 FILLER REDEFINES PSCL5061-CONTA.
+                15 PSCL5061-CONTA-NCLI     PIC S9(09).
+                15 PSCL5061-CONTA-NATR     PIC S9(02).
+                15 PSCL5061-CONTA-NSEQ     PIC S9(03).
+      *         INDICADOR DE ERRO DO CAMPO NUMERO DE SEQUENCIA DA CONTA
+             10 PSCL5061-NSEQ-ST.
+                15 PSCL5061-ICE04          PIC  X(01).
+                   88 PSCL5061-ICE04-N                VALUE '0'.
+                   88 PSCL5061-ICE04-S                VALUE '1'.
+                15 PSCL5061-NSEQ-CAPLIC    PIC X(02).
+                15 PSCL5061-NSEQ-MSG       PIC 9(04).
+             10 PSCL5061-MOED              PIC X(03).
+      *         INDICADOR DE ERRO DO CAMPO MOEDA
+             10 PSCL5061-MOED-ST.
+                15 PSCL5061-ICE05          PIC  X(01).
+                   88 PSCL5061-ICE05-N                VALUE '0'.
+                   88 PSCL5061-ICE05-S                VALUE '1'.
+                15 PSCL5061-MOED-CAPLIC    PIC X(02).
+                15 PSCL5061-MOED-MSG       PIC 9(04).
+             10 PSCL5061-REFORD            PIC X(20).
+      *         INDICADOR DE ERRO DO CAMPO REFERENCIA DO ORDENANTE
+             10 PSCL5061-REFORD-ST.
+                15 PSCL5061-ICE06          PIC  X(01).
+                   88 PSCL5061-ICE06-N                VALUE '0'.
+                   88 PSCL5061-ICE06-S                VALUE '1'.
+                15 PSCL5061-REFORD-CAPLIC  PIC X(02).
+                15 PSCL5061-REFORD-MSG     PIC 9(04).
+             10 PSCL5061-NOME              PIC X(20).
+      *         INDICADOR DE ERRO DO CAMPO NOME
+             10 PSCL5061-NOME-ST.
+                15 PSCL5061-ICE07          PIC  X(01).
+                   88 PSCL5061-ICE07-N                VALUE '0'.
+                   88 PSCL5061-ICE07-S                VALUE '1'.
+                15 PSCL5061-NOME-CAPLIC    PIC X(02).
+                15 PSCL5061-NOME-MSG       PIC 9(04).
+             10 PSCL5061-NOCB              PIC S9(10) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO NUMERO DE OPERACAO BANKA
+             10 PSCL5061-NOCB-ST.
+                15 PSCL5061-ICE08          PIC  X(01).
+                   88 PSCL5061-ICE08-N                VALUE '0'.
+                   88 PSCL5061-ICE08-S                VALUE '1'.
+                15 PSCL5061-NOCB-CAPLIC    PIC X(02).
+                15 PSCL5061-NOCB-MSG       PIC 9(04).
+             10 PSCL5061-BALM              PIC S9(04) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO BALCAO DE MOVIMENTO
+             10 PSCL5061-BALM-ST.
+                15 PSCL5061-ICE09          PIC  X(01).
+                   88 PSCL5061-ICE09-N                VALUE '0'.
+                   88 PSCL5061-ICE09-S                VALUE '1'.
+                15 PSCL5061-BALM-CAPLIC    PIC X(02).
+                15 PSCL5061-BALM-MSG       PIC 9(04).
+             10 PSCL5061-SITU              PIC X(02).
+             10 PSCL5061-NSTE              PIC S9(05) COMP-3.
+             10 PSCL5061-DVAL              PIC S9(08) COMP-3.
+             10 PSCL5061-TOPE              PIC S9(02) COMP-3.
+             10 PSCL5061-MONT              PIC S9(11)V9(2) COMP-3.
+             10 PSCL5061-CBAN              PIC S9(04) COMP-3.
+             10 PSCL5061-CBAL              PIC S9(04) COMP-3.
+             10 PSCL5061-CNTA              PIC S9(11) COMP-3.
+             10 PSCL5061-CDIG              PIC S9(02) COMP-3.
+             10 PSCL5061-REFTR             PIC  X(20).
+             10 PSCL5061-SITC              PIC  9(02).
+             10 PSCL5061-SITR              PIC  9(01).
+             10 PSCL5061-AUTR              PIC  9(10).
+             10 PSCL5061-DMOV              PIC  X(40).
+             10 PSCL5061-FILLER            PIC  X(10).

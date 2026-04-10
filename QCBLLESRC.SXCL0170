@@ -1,0 +1,195 @@
+      *****************************************************************
+      * NOME:      SXCL0170                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADA À ROTINA                *
+      *            CONSULTA DE ELEMENTOS DE CONTA D/O                 *
+      *            VERSÃO 2.03 (GB5400)                               *
+      *            VERSÃO 3.00 (GB5400)                               *
+      * CRIACAO:   02-06-2011                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *===============================================================*
+      * CALL SXCL0170-ROTINA USING SXCL0170-DATA                      *
+      *****************************************************************
+       01  SXCL0170-DATA.
+           05 SXCL0170-VERSAO            PIC  X(03)      VALUE SPACES.
+              88 SXCL0170-V203                           VALUE '203'.
+              88 SXCL0170-V300                           VALUE '300'.
+              88 SXCL0170-VVAL                           VALUE '203'
+                                                               '300'.
+           05 SXCL0170-PGMC           PIC  X(10).
+           05 SXCL0170-TTR            PIC  X(5).
+              88 SXCL0170-CNSMOV                         VALUE 'CS017'.
+           05 SXCL0170-JOBNC          PIC  X(10).
+           05 SXCL0170-USERC          PIC  X(10).
+           05 SXCL0170-PGMQC          PIC  X(10).
+           05 SXCL0170-RCODE          PIC S9(01) COMP-3.
+           05 SXCL0170-ESTR           PIC  X(01).
+      *       88 SXCL0170-SIMETR                         VALUE '1'.
+      *       88 SXCL0170-NAOETR                         VALUE '0'.
+              88 SXCL0170-ESTR-S                         VALUE '1'.
+              88 SXCL0170-ESTR-N                         VALUE '0'.
+           05 SXCL0170-APTR           PIC  X(01).
+      *       88 SXCL0170-APLITR                         VALUE 'A'.
+      *       88 SXCL0170-VALITR                         VALUE 'V'.
+              88 SXCL0170-APTR-APLC                      VALUE 'A'.
+              88 SXCL0170-APTR-VALD                      VALUE 'V'.
+           05 SXCL0170-HCLI           PIC  X(01).
+      *       88 SXCL0170-NVALCL                         VALUE '0'.
+      *       88 SXCL0170-VALBLO                         VALUE '1'.
+      *       88 SXCL0170-VALMEN                         VALUE '2'.
+      *       88 SXCL0170-VALCLI                         VALUE '3'.
+      *       88 SXCL0170-RELCLI                         VALUE 'R'.
+              88 SXCL0170-HCLI-NV                        VALUE '0'.
+              88 SXCL0170-HCLI-VB                        VALUE '1'.
+              88 SXCL0170-HCLI-VM                        VALUE '2'.
+              88 SXCL0170-HCLI-VC                        VALUE '3'.
+              88 SXCL0170-HCLI-RC                        VALUE 'R'.
+           05 SXCL0170-VNCR           PIC  X(01).
+      *       88 SXCL0170-SIMVNA                         VALUE 'S'.
+      *       88 SXCL0170-NAOVNA                         VALUE 'N'.
+              88 SXCL0170-VNCR-S                         VALUE 'S'.
+              88 SXCL0170-VNCR-N                         VALUE 'N'.
+           05 SXCL0170-PNOME          PIC  X(01).
+           05 SXCL0170-NCLI           PIC S9(09) COMP-3.
+           05 SXCL0170-PCNG           PIC  X(01).
+           05 SXCL0170-CONTA          PIC S9(14) COMP-3.
+           05 SXCL0170-ICE01          PIC  X(01).
+           05 SXCL0170-FLGCE.
+              10 FLGCE-O OCCURS 20 TIMES.
+                 15 SXCL0170-FLGCE-T  PIC  X(04).
+           05 SXCL0170-NOM1T          PIC  X(40).
+           05 SXCL0170-NUM1T          PIC S9(07) COMP-3.
+           05 SXCL0170-CFOTO          PIC  X(01).
+           05 SXCL0170-BAL     PIC S9(4) COMP-3.
+           05 SXCL0170-CDEVL     PIC X(1).
+           05 SXCL0170-UTR     PIC X(1).
+           05 SXCL0170-SLDD     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-SLDA     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-SLD     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-SLDV     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-DIADS     PIC S9(5) COMP-3.
+           05 SXCL0170-SALM     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-SALV     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-SALD     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-NDSM     PIC S9(3) COMP-3.
+           05 SXCL0170-LIMD     PIC S9(13)V9(2) COMP-3.
+           05 SXCL0170-DINLD     PIC S9(8) COMP-3.
+           05 SXCL0170-DLIM     PIC S9(8) COMP-3.
+           05 SXCL0170-TEXT     PIC X(1).
+           05 SXCL0170-PERE     PIC X(1).
+           05 SXCL0170-FIMPE     PIC X(1).
+           05 SXCL0170-NUMP     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-NUMV     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-RUMP     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-RUMV     PIC S9(18)V9(2) COMP-3.
+           05 SXCL0170-MVNE     PIC S9(3) COMP-3.
+           05 SXCL0170-UEXT     PIC S9(3) COMP-3.
+           05 SXCL0170-DEXT     PIC S9(8) COMP-3.
+           05 SXCL0170-SLAL     PIC X(1).
+           05 SXCL0170-TXCN     PIC X(1).
+           05 SXCL0170-TXDN     PIC X(1).
+           05 SXCL0170-DTAB     PIC S9(8) COMP-3.
+           05 SXCL0170-DUMV     PIC S9(8) COMP-3.
+           05 SXCL0170-DTMVC     PIC S9(8) COMP-3.
+PL0624*    05 SXCL0170-DTMDB    PIC S9(08) COMP-3.
+PL0624*    05 SXCL0170-DTMCR    PIC S9(08) COMP-3.
+           05 SXCL0170-DUALT     PIC S9(8) COMP-3.
+           05 SXCL0170-DDJR     PIC S9(8) COMP-3.
+           05 SXCL0170-DCJR     PIC S9(8) COMP-3.
+           05 SXCL0170-SITU     PIC X(1).
+           05 SXCL0170-DSIT     PIC S9(8) COMP-3.
+           05 SXCL0170-DNATR     PIC X(30).
+           05 SXCL0170-DTIC     PIC S9(8) COMP-3.
+           05 SXCL0170-DREX     PIC X(10).
+           05 SXCL0170-DEST     PIC X(15).
+           05 SXCL0170-DEEX     PIC X(20).
+           05 SXCL0170-CTDB     PIC S9(13)V9(2) COMP-3.
+           05 SXCL0170-CTCR     PIC S9(13)V9(2) COMP-3.
+           05 SXCL0170-CTPD     PIC S9(13)V9(2) COMP-3.
+           05 SXCL0170-ECJ     PIC X(1).
+           05 SXCL0170-MOED     PIC X(3).
+           05 SXCL0170-CNTJC     PIC S9(14) COMP-3.
+           05 SXCL0170-CNTJD     PIC S9(14) COMP-3.
+           05 SXCL0170-PIBAN     PIC X(4).
+           05 SXCL0170-NIB     PIC X(21).
+           05 SXCL0170-NCJC     PIC X(1).
+           05 SXCL0170-NCJD     PIC X(1).
+           05 SXCL0170-MCHM     PIC S9(3) COMP-3.
+           05 SXCL0170-DTUR     PIC S9(8) COMP-3.
+           05 SXCL0170-RCHM     PIC S9(5) COMP-3.
+           05 SXCL0170-SITP     PIC X(1).
+           05 SXCL0170-MSIT     PIC X(40).
+           05 SXCL0170-NRINC     PIC X(10).
+           05 SXCL0170-DNRIN     PIC X(40).
+           05 SXCL0170-CPRD     PIC X(10).
+           05 SXCL0170-CCPR     PIC X(10).
+           05 SXCL0170-CLCP     PIC X(5).
+           05 SXCL0170-DCLCP     PIC X(35).
+           05 SXCL0170-DESCL     PIC X(35).
+           05 SXCL0170-SMIN     PIC S9(13)V9(2) COMP-3.
+           05 SXCL0170-SLDA2     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-SLD2     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-MOED2     PIC X(3).
+           05 SXCL0170-SLDD2     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-CCAS     PIC X(10).
+           05 SXCL0170-USRS     PIC X(10).
+           05 SXCL0170-NOPRA     PIC S9(9) COMP-3.
+           05 SXCL0170-CNTIN     PIC X(1).
+           05 SXCL0170-CPOOL     PIC X(1).
+           05 SXCL0170-DCCCP     PIC S9(15)V9(2) COMP-3.
+           05 SXCL0170-RCNT .
+              10 RCNT-O OCCURS 24 TIMES.
+                 15 SXCL0170-RCNT-T  PIC S9(14).
+           05 SXCL0170-PERCB.
+              10 PERCB-O OCCURS 24 TIMES.
+                 15 SXCL0170-PERCB-T  PIC S9(03).
+           05 SXCL0170-TINT1     PIC X(1).
+           05 SXCL0170-CLII1     PIC S9(9) COMP-3.
+           05 SXCL0170-ERCL1     PIC X(6).
+           05 SXCL0170-TINT2     PIC X(1).
+           05 SXCL0170-CLII2     PIC S9(9) COMP-3.
+           05 SXCL0170-ERCL2     PIC X(6).
+           05 SXCL0170-TINT3     PIC X(1).
+           05 SXCL0170-CLII3     PIC S9(9) COMP-3.
+           05 SXCL0170-ERCL3     PIC X(6).
+BCI251*****************************************************************
+BCI251* OS CAMPOS SEGUINTES SÃO NECESSÁRIOS NA CHAMADA À API GB5400
+BCI251* E ESTÃO DEFINIDOS NA ÁREA DE COMUNICAÇÃO SXCWGBEC3 E SÃO USADOS
+BCI251* INICIALIZADOS COM ESPAÇÕES E ZEROS NA CHAMADA DA API
+BCI251* ---------------------------------------------------------------
+BCI251* PARA LIMITAR OS IMPACTOS DA ALTERAÇÃO DA ÁREA DE COMUNICAÇÃO E
+BCI251* UMA VEZ QUE ESTES ELEMENTOS NÃO ESTÃO A SER USADOS DE MOMENTO
+BCI251* ESTA ÁREA DE COMUNICAÇÃO NÃO É ALTERADA PARA EVITAR OS IMPACTOS
+BCI251* NOS PROGRAMAS CHAMADORES
+BCI251*****************************************************************
+BCI251*    05 SXCL0170-DRNRI     PIC S9(08) COMP-3.
+BCI251*    05 SXCL0170-NRCT      PIC  X(10).
+BCI251*    05 SXCL0170-DNRCT     PIC  X(40).
+BCI251*    05 SXCL0170-DRNRC     PIC S9(08) COMP-3.
+BCI251*    05 SXCL0170-ACTP      PIC  X(01).
+BCI251*    05 SXCL0170-TACTP     PIC S9(13)V9(02) COMP-3.
+BCI251*    05 SXCL0170-TINT4     PIC  X(01).
+BCI251*    05 SXCL0170-CLII4     PIC S9(09) COMP-3.
+BCI251*    05 SXCL0170-ERCL4     PIC  X(06).
+BCI251*    05 SXCL0170-TINT5     PIC  X(01).
+BCI251*    05 SXCL0170-CLII5     PIC S9(09) COMP-3.
+BCI251*    05 SXCL0170-ERCL5     PIC  X(6).
+BCI251*    05 SXCL0170-TINT6     PIC  X(1).
+BCI251*    05 SXCL0170-CLII6     PIC S9(9) COMP-3.
+BCI251*    05 SXCL0170-ERCL6     PIC  X(6).
+BCI251*    05 SXCL0170-CELE
+BCI251*       10 CELE-O OCCURS 300 TIMES.
+BCI251*          15 SXCL0170-CELE-T  PIC  X(06).
+BCI251*    05 SXCL0170-DELE
+BCI251*       10 DELE-O OCCURS 300 TIMES.
+BCI251*          15 SXCL0170-DELE-T  PIC  X(30).
+BCI251*    05 SXCL0170-VELE
+BCI251*       10 VELE-O OCCURS 300 TIMES.
+BCI251*          15 SXCL0170-VELE-T  PIC  X(40).
+BCI251*    05 SXCL0170-NELE
+BCI251*       10 NELE-O OCCURS 300 TIMES.
+BCI251*          15 SXCL0170-NELE-T  PIC S9(03).
+BCI251*    05 SXCL0170-PERG
+BCI251*       10 PERG-O OCCURS  24 TIMES.
+BCI251*          15 SXCL0170-PERG-T  PIC S9(03)V9(02).
+      *---
+       01  SXCL0170-ROTINA               PIC  X(08) VALUE 'SXRM0170'.

@@ -1,0 +1,115 @@
+      *****************************************************************
+      * NOME:      ETCL0251
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADA DAS ROTINAS DE
+      *            CATIVAÇÃO
+      *            VERSÃO 2.03 (GB5175)
+      *            VERSÃO 3.00 (GB5175)
+      * AUTOR:     VIA CONSULTING
+      *================================================================
+      * CALL ETCL0251-ROTINA USING ETCL0251-DATA
+      *****************************************************************
+       01  ETCL0251-DATA.
+          05 ETCL0251-VERSAO          PIC  X(03)    VALUE SPACES.
+            88 ETCL0251-V203                        VALUE '203'.
+            88 ETCL0251-V300                        VALUE '300'.
+            88 ETCL0251-VVAL                        VALUE '300'.
+      *---
+          05 ETCL0251-ENTRADA.
+            10 ETCL0251-PGMC         PIC  X(10).
+            10 ETCL0251-TTR          PIC  X(05).
+               88 ETCL0251-CHQ-OIC-ALT-VALOR        VALUE 'CTCAV'.
+               88 ETCL0251-CHQ-PROPR-DEP            VALUE 'CTCBD'.
+               88 ETCL0251-CHQ-DOC-LOP              VALUE 'CTCHQ'.
+               88 ETCL0251-CAT-OUTROS-DOC           VALUE 'CTDOC'.
+               88 ETCL0251-CAT-SLD-CONTA            VALUE 'CTSLD'.
+               88 ETCL0251-CAT-VLR-AUT-CARTAO       VALUE 'CTVAC'.
+               88 ETCL0251-CAT-DOC-CHQ-ESTRAN       VALUE 'CTVCE'.
+               88 ETCL0251-CAT-DEP-ATM              VALUE 'CTVDA'.
+               88 ETCL0251-CAT-PAPELACO             VALUE 'CTVIP'.
+               88 ETCL0251-CAT-MERC-CAPITAIS        VALUE 'CTVMC'.
+               88 ETCL0251-CAT-TOT-VAL-DOC          VALUE 'CTVTV'.
+               88 ETCL0251-CAT-CHQ-OIC-FRONT        VALUE 'CT001'.
+               88 ETCL0251-CAT-C-BYPASS             VALUE 'CT004'.
+               88 ETCL0251-CAT-CAT-CRED-PENDT       VALUE 'CT005'.
+               88 ETCL0251-CAT-TOT-VLR-DOC          VALUE 'CT006'.
+               88 ETCL0251-INS-MCTV                 VALUE 'CT012'.
+               88 ETCL0251-ELIM-INS-ENV             VALUE 'CT013'.
+            10 ETCL0251-JOBNC        PIC  X(10).
+            10 ETCL0251-USERC        PIC  X(10).
+            10 ETCL0251-PGMQC        PIC  X(10).
+            10 ETCL0251-RCODE        PIC S9(01)V    COMP-3.
+               88 ETCL0251-RCODE-OK                 VALUE 0.
+               88 ETCL0251-RCODE-INF                VALUE 1.
+               88 ETCL0251-RCODE-VAL                VALUE 2.
+               88 ETCL0251-RCODE-APL                VALUE 3.
+               88 ETCL0251-RCODE-ERR                VALUE 2 3.
+            10 ETCL0251-ESTR         PIC  X(01).
+               88 ETCL0251-ESTR-NEXE                VALUE '0'.
+               88 ETCL0251-ESTR-EXE                 VALUE '1'.
+            10 ETCL0251-APTR         PIC  X(01).
+               88 ETCL0251-APTR-APL                 VALUE 'A'.
+               88 ETCL0251-APTR-VAL                 VALUE 'V'.
+            10 ETCL0251-HCLI         PIC  X(01).
+               88 ETCL0251-HCLI-NVAL                      VALUE '0'.
+               88 ETCL0251-HCLI-BMSG                      VALUE '1'.
+               88 ETCL0251-HCLI-VMSG                      VALUE '2'.
+               88 ETCL0251-HCLI-VAL                       VALUE '3'.
+               88 ETCL0251-HCLI-REL                       VALUE 'R'.
+      *---
+            10 ETCL0251-BALM         PIC  S9(04)V    COMP-3.
+            10 ETCL0251-CONTA        PIC  S9(14)V    COMP-3.
+            10 ETCL0251-ICE02        PIC  X(01).
+               88 ETCL0251-ICE02-OK                  VALUE '0'.
+               88 ETCL0251-ICE02-ER                  VALUE '1'.
+            10 ETCL0251-MOEST        PIC  X(03).
+            10 ETCL0251-COPE         PIC  S9(03)V    COMP-3.
+            10 ETCL0251-ICE03        PIC  X(01).
+               88 ETCL0251-ICE03-OK                  VALUE '0'.
+               88 ETCL0251-ICE03-ER                  VALUE '1'.
+            10 ETCL0251-NDOC         PIC  S9(09)V    COMP-3.
+            10 ETCL0251-ICE04        PIC  X(01).
+               88 ETCL0251-ICE04-OK                  VALUE '0'.
+               88 ETCL0251-ICE04-ER                  VALUE '1'.
+            10 ETCL0251-CKDG         PIC  S9(02)V    COMP-3.
+            10 ETCL0251-ICE12        PIC  X(01).
+               88 ETCL0251-ICE12-OK                  VALUE '0'.
+               88 ETCL0251-ICE12-ER                  VALUE '1'.
+            10 ETCL0251-VLRT         PIC  S9(13)V99  COMP-3.
+            10 ETCL0251-ICE05        PIC  X(01).
+               88 ETCL0251-ICE05-OK                  VALUE '0'.
+               88 ETCL0251-ICE05-ER                  VALUE '1'.
+            10 ETCL0251-MOET         PIC  X(03).
+            10 ETCL0251-ICE13        PIC  X(01).
+               88 ETCL0251-ICE13-OK                  VALUE '0'.
+               88 ETCL0251-ICE13-ER                  VALUE '1'.
+            10 ETCL0251-DVC          PIC  S9(08)V    COMP-3.
+            10 ETCL0251-ICE06        PIC  X(01).
+               88 ETCL0251-ICE06-OK                  VALUE '0'.
+               88 ETCL0251-ICE06-ER                  VALUE '1'.
+            10 ETCL0251-LOPT         PIC  X(40).
+            10 ETCL0251-ICE15        PIC  X(01).
+               88 ETCL0251-ICE15-OK                  VALUE '0'.
+               88 ETCL0251-ICE15-ER                  VALUE '1'.
+            10 ETCL0251-AUTR         PIC  S9(10)V    COMP-3.
+            10 ETCL0251-ICE09        PIC  X(01).
+               88 ETCL0251-ICE09-OK                  VALUE '0'.
+               88 ETCL0251-ICE09-ER                  VALUE '1'.
+            10 ETCL0251-NAUTI        PIC  S9(02)V    COMP-3.
+            10 ETCL0251-NCX          PIC  S9(02)V    COMP-3.
+            10 ETCL0251-REFA         PIC  S9(14)V    COMP-3.
+            10 ETCL0251-PRCP         PIC  S9(03)V    COMP-3.
+            10 ETCL0251-ICE14        PIC  X(01).
+               88 ETCL0251-ICE14-OK                  VALUE '0'.
+               88 ETCL0251-ICE14-ER                  VALUE '1'.
+            10 ETCL0251-NOPR         PIC  S9(09)V    COMP-3.
+            10 ETCL0251-REFOR        PIC  X(20).
+            10 ETCL0251-CHEV         PIC  X(01).
+            10 ETCL0251-AAUT         PIC  X(01).
+            10 ETCL0251-TRDF         PIC  X(948).
+            10 ETCL0251-OBS          PIC  X(40).
+            10 ETCL0251-HOVC         PIC S9(06)V     COMP-3.
+            10 ETCL0251-ICE16        PIC  X(01).
+               88 ETCL0251-ICE16-OK                  VALUE '0'.
+               88 ETCL0251-ICE16-ER                  VALUE '1'.
+      *---
+       01  ETCL0251-ROTINA             PIC  X(08)     VALUE 'ETR00251'.

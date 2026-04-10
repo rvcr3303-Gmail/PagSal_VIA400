@@ -1,0 +1,116 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                       *
+      *  MÓDULO:           MÓDULO GERAÇÃO DE REGISTO DE NOTAS E AVISOS *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         PSM5090                                     *
+      *  CRIACAO:          2012.04.02                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 PSCL5090-DATA.
+          05 PSCL5090-STD-BANKA.
+      *         NOME DO PROGRAMA CALLER
+             10 PSCL5090-PGMC              PIC  X(10).
+      *         CODIGO DA TRANSACCAO
+             10 PSCL5090-TTR               PIC  X(05).
+      *         JOBNAME DO CALLER (ESTACAO)
+             10 PSCL5090-JOBNC             PIC  X(10).
+      *         UTILIZADOR DO CALLER
+             10 PSCL5090-USERC             PIC  X(10).
+      *         PROGRAM QUEUE DO CALLER
+             10 PSCL5090-PGMQC             PIC  X(10).
+      *         RETURN CODE
+             10 PSCL5090-RCODE             PIC S9(01) COMP-3.
+                88 PSCL5090-SEM-ERROS                 VALUE 0, 1.
+                88 PSCL5090-COM-ERROS                 VALUE 2, 3.
+                88 PSCL5090-RCODE-OK                  VALUE 0.
+                88 PSCL5090-RCODE-INF                 VALUE 1.
+                88 PSCL5090-RCODE-VAL                 VALUE 2.
+                88 PSCL5090-RCODE-APL                 VALUE 3.
+             10 PSCL5090-CODERR-GRAVE      PIC  X(07).
+             10 PSCL5090-AT-CBAN           PIC S9(04) COMP-3.
+             10 PSCL5090-AT-BALM           PIC S9(04) COMP-3.
+             10 PSCL5090-AT-DTOP           PIC S9(08) COMP-3.
+             10 PSCL5090-AT-CMOE           PIC  X(03).
+             10 PSCL5090-AT-DEBUG          PIC  X(01).
+      *         EXECUTAR TRANSACTION RECOVERY
+             10 PSCL5090-ESTR              PIC  X(01).
+                88 PSCL5090-ESTR-NOCOMMIT             VALUE '0'.
+                88 PSCL5090-ESTR-COMMIT               VALUE '1'.
+      *         APLICACAO DA TRANSACCAO
+             10 PSCL5090-APTR              PIC  X(01).
+                88 PSCL5090-APTR-APLICA               VALUE 'A'.
+                88 PSCL5090-APTR-VALIDA               VALUE 'V'.
+      *         VALIDACAO AO CLIENTE
+             10 PSCL5090-HCLI              PIC  X(01).
+                88 PSCL5090-HCLI-NV                   VALUE '0'.
+                88 PSCL5090-HCLI-VB                   VALUE '1'.
+                88 PSCL5090-HCLI-VM                   VALUE '2'.
+                88 PSCL5090-HCLI-VC                   VALUE '3'.
+                88 PSCL5090-HCLI-RC                   VALUE 'R'.
+      *         VERIFICA NIVEL DE CONFIDENCIALIDADE E RESTRICOES
+             10 PSCL5090-VNCR              PIC  X(01).
+                88 PSCL5090-VNCR-S                    VALUE 'S'.
+                88 PSCL5090-VNCR-N                    VALUE 'N'.
+          05 PSCL5090-DADOS.
+             10 PSCL5090-NCLI              PIC S9(09) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO CLIENTE
+             10 PSCL5090-NCLI-ST.
+                15 PSCL5090-ICE01          PIC  X(01).
+                   88 PSCL5090-ICE01-N                VALUE '0'.
+                   88 PSCL5090-ICE01-S                VALUE '1'.
+                15 PSCL5090-NCLI-CAPLIC    PIC  X(02).
+                15 PSCL5090-NCLI-MSG       PIC  9(04).
+             10 PSCL5090-DINT              PIC S9(08) COMP-3.
+      *         DATA INTEGRACAO
+             10 PSCL5090-DINT-ST.
+                15 PSCL5090-ICE02          PIC  X(01).
+                   88 PSCL5090-ICE02-N                VALUE '0'.
+                   88 PSCL5090-ICE02-S                VALUE '1'.
+                15 PSCL5090-DINT-CAPLIC    PIC  X(02).
+                15 PSCL5090-DINT-MSG       PIC  9(04).
+             10 PSCL5090-NFIC              PIC S9(06) COMP-3.
+      *         NUMERO FICHEIRO
+             10 PSCL5090-NFIC-ST.
+                15 PSCL5090-ICE03          PIC  X(01).
+                   88 PSCL5090-ICE03-N                VALUE '0'.
+                   88 PSCL5090-ICE03-S                VALUE '1'.
+                15 PSCL5090-NFIC-CAPLIC    PIC  X(02).
+                15 PSCL5090-NFIC-MSG       PIC  9(04).
+             10 PSCL5090-TEMP              PIC  X(10).
+      *         TEMPLATE
+             10 PSCL5090-TEMP-ST.
+                15 PSCL5090-ICE04          PIC  X(01).
+                   88 PSCL5090-ICE04-N                VALUE '0'.
+                   88 PSCL5090-ICE04-S                VALUE '1'.
+                15 PSCL5090-TEMP-CAPLIC    PIC  X(02).
+                15 PSCL5090-TEMP-MSG       PIC  9(04).
+             10 PSCL5090-NREG              PIC S9(14) COMP-3.
+      *         NUMERO REGISTO
+             10 PSCL5090-OGER              PIC  X(10).
+      *         ORGAO GESTOR
+             10 PSCL5090-OGER-ST.
+                15 PSCL5090-ICE05          PIC  X(01).
+                   88 PSCL5090-ICE05-N                VALUE '0'.
+                   88 PSCL5090-ICE05-S                VALUE '1'.
+                15 PSCL5090-OGER-CAPLIC    PIC  X(02).
+                15 PSCL5090-OGER-MSG       PIC  9(04).
+             10 PSCL5090-AGEN              PIC S9(04) COMP-3.
+             10 PSCL5090-REF               PIC  X(10).
+             10 PSCL5090-TREG              PIC S9(01) COMP-3.
+             10 PSCL5090-TOPE              PIC S9(02) COMP-3.
+             10 PSCL5090-SITC              PIC S9(02) COMP-3.
+             10 PSCL5090-SITR              PIC S9(01) COMP-3.
+             10 PSCL5090-CBAN              PIC S9(04) COMP-3.
+             10 PSCL5090-CBAL              PIC S9(04) COMP-3.
+             10 PSCL5090-CNTA              PIC S9(11) COMP-3.
+             10 PSCL5090-CDIG              PIC S9(02) COMP-3.
+             10 PSCL5090-MONT              PIC S9(11)V9(2) COMP-3.
+             10 PSCL5090-NOME              PIC  X(20).
+             10 PSCL5090-REFTR             PIC  X(20).
+             10 PSCL5090-DVAL              PIC S9(08) COMP-3.

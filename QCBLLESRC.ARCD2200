@@ -1,0 +1,24 @@
+           EXEC SQL DECLARE ARVT2200_PARAM TABLE
+           (
+               CPARAM CHAR(10) NOT NULL
+             , CAPLIC CHAR(2) NOT NULL
+             , GDESC CHAR(40) NOT NULL
+             , GVALOR1 CHAR(50) NOT NULL
+             , GVALOR2 CHAR(50) NOT NULL
+             , GVALOR3 CHAR(50) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ARVT2200_PARAM
+      ******************************************************************
+       01  DCLARCD2200.
+            05 ARCD2200-CPARAM PIC X(10).
+            05 ARCD2200-CAPLIC PIC X(02).
+            05 ARCD2200-GDESC PIC X(40).
+            05 ARCD2200-GVALOR1 PIC X(50).
+            05 ARCD2200-GVALOR2 PIC X(50).
+            05 ARCD2200-GVALOR3 PIC X(50).
+            05 ARCD2200-CUSERID PIC X(20).
+            05 ARCD2200-HTIMEST PIC X(26).
+

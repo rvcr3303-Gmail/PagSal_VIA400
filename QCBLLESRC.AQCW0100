@@ -1,0 +1,104 @@
+      ******************************************************************
+      * NOME:      AQCW0100                                            *
+      * DESCRICAO: OBTENCAO DADOS STANDARD ARQUITECTURA BATCH          *
+      ******************************************************************
+       01  AQCW0100-DATA.
+         05 AQCW0100-AT-CBAN           PIC S9(04) COMP-3 VALUE ZEROES.
+         05 AQCW0100-AT-BALM           PIC S9(04) COMP-3 VALUE ZEROES.
+         05 AQCW0100-AT-DTOP           PIC S9(08) COMP-3 VALUE ZEROES.
+         05 AQCW0100-AT-CMOE           PIC  X(03) VALUE SPACES.
+         05 AQCW0100-AT-DEBUG          PIC  X(01) VALUE SPACES.
+            88 AQCW0100-AT-DEBUG-SIM              VALUE 'S'.
+            88 AQCW0100-AT-DEBUG-NAO              VALUE 'N'.
+         05 AQCW0100-AT-COMMIT         PIC  X(01) VALUE SPACES.
+            88 AQCW0100-AT-COMMIT-ACTIVO          VALUE 'S'.
+            88 AQCW0100-AT-COMMIT-INACTIVO        VALUE 'N'.
+         05 AQCW0100-MSGID              PIC  X(07)  VALUE SPACES.
+         05 AQCW0100-ERROR-DATA.
+            10 AQCW0100-NM-ENTIDADE1    PIC  X(33).
+            10 FILLER                   PIC  X(01) VALUE '*'.
+            10 AQCW0100-SQLCODE1        PIC  ZZZZZZZZZ-.
+            10 FILLER                   PIC  X(01) VALUE '*'.
+            10 AQCW0100-FILE-STATUS1    PIC  X(05).
+         05 AQCW0100-BALMOV             PIC  X(10).
+         05 AQCW0100-CAPLIC             PIC  X(02).
+         05 AQCW0100-AT-VERSAO-SYS     PIC  X(03) VALUE SPACES.
+            88 AQCW0100-AT-VERSAO-203             VALUE '203'.
+            88 AQCW0100-AT-VERSAO-300             VALUE '300'.
+         05 AQCW0100-CPAIS             PIC  X(02) VALUE SPACES.
+         05 AQCW0100-IND-ERROS         PIC  X(02) VALUE SPACES.
+         05 AQCW0100-NR-ERRO           PIC S9(04) COMP-3 VALUE ZEROES.
+         05 AQCW0100-AT-ETRB           PIC S9(04) COMP-3 VALUE ZEROES.
+         05 AQCW0100-AMBIENTE          PIC  X(01) VALUE SPACES.
+            88 AQCW0100-AMB-DEV         VALUE 'D'.
+            88 AQCW0100-AMB-TEST        VALUE 'T'.
+            88 AQCW0100-AMB-QUAL        VALUE 'Q'.
+            88 AQCW0100-AMB-PROD        VALUE 'P'.
+         05 AQCW0100-PGMNAME-GRP.
+             10 AQCW0100-PGMNAME             PIC  X(29).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-PARAGRAPH-NAME-GRP.
+             10 AQCW0100-PARAGRAPH           PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-TIPERR-GRP.
+             10 AQCW0100-TIPERR              PIC  X(33).
+                88 AQCW0100-DB2-ERROR        VALUE 'DB2'.
+                88 AQCW0100-FILE-ERROR       VALUE 'FICHEIRO'.
+                88 AQCW0100-EXEC-ERROR       VALUE 'EXECUCAO'.
+             10 FILLER                       PIC  X(03) VALUE '***'.
+      *  05 AQCW0100-TABLE-NAME-GRP.
+      *      10 AQCW0100-TABLE-NAME          PIC  X(33).
+      *      10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-SQLCODE-GRP.
+             10 AQCW0100-SQLCODE             PIC  ZZZZZZZZZ-.
+             10 FILLER                       PIC  X(23) VALUE SPACES.
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-ACCESS-KEY-GRP.
+             10 AQCW0100-ACCESS-KEY          PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-ENTIDADE-GRP.
+             10 AQCW0100-NM-ENTIDADE         PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-FILE-STATUS-GRP.
+             10 AQCW0100-FILE-STATUS         PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-FILE-KEY.
+             10 AQCW0100-FILE-KEY1           PIC  X(33).
+             10 AQCW0100-FILE-KEY2           PIC  X(33).
+             10 AQCW0100-FILE-KEY3           PIC  X(33).
+             10 AQCW0100-FILE-KEY4           PIC  X(33).
+             10 AQCW0100-FILE-KEY5           PIC  X(33).
+         05 AQCW0100-DESC1-GRP.
+             10 AQCW0100-DESC1               PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-DESC2-GRP.
+             10 AQCW0100-DESC2               PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-DESC3-GRP.
+             10 AQCW0100-DESC3               PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-DESC4-GRP.
+             10 AQCW0100-DESC4               PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-DESC5-GRP.
+             10 AQCW0100-DESC5               PIC  X(33).
+             10 FILLER                       PIC  X(03) VALUE '***'.
+         05 AQCW0100-AUXVAR1.
+             10 AQCW0100-VAR1                PIC  X(20).
+         05 AQCW0100-AUXVAR2.
+             10 AQCW0100-VAR2                PIC  X(20).
+         05 AQCW0100-AUXVAR3.
+             10 AQCW0100-VAR3                PIC  X(20).
+      ********
+         05 AQCW0100-G-HEADER.
+             10 AQCW0100-HEADER          PIC X(80) OCCURS 20.
+         05 AQCW0100-G-DETALHE.
+             10 AQCW0100-DETALHE         PIC X(80) OCCURS 20.
+         05 AQCW0100-G-FOOTER.
+             10 AQCW0100-FOOTER          PIC X(80) OCCURS 20.
+      ********
+       01 AQCW0100-AUXILIARES.
+         05 AQCW0100-INDICE             PIC 9(02).
+             88 AQCW0100-INDICE-INI                VALUE 01.
+             88 AQCW0100-INDICE-MAX                VALUE 20.
+         05 AQCW0100-ZSEQPROC              PIC S9(09) COMP-3.

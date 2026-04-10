@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDCONTRA  DECLARACAO DA TABELA PSCONTRAT               *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSCONTRAT.
+           COPY DDS-ALL-FORMATS OF PSCONTRAT2 PREFIX BY 'PSCONTRAT-'.

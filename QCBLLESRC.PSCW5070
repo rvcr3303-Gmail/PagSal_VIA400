@@ -1,0 +1,7 @@
+      ******************************************************************
+      * NOME:      PSCW5070                                            *
+      * DESCRICAO: TRATAMENTO DE RESPOSTAS DA ROTINA DE CONTAS CORRENTE*
+      ******************************************************************
+       01  PSCW5070-DATA.
+         05 PSCW5070-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5070-TTR-VAZIO      VALUE SPACES.

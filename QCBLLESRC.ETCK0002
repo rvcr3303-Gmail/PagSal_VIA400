@@ -1,0 +1,107 @@
+      *****************************************************************
+      * NOME:      ETCK0002                                           *
+      * DESCRICAO: CONSTANTES DO SISTEMA                              *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+       01  ETCK0002-CONSTANTES.
+
+      * SIGLA APLICACIONAL
+           05 ETCK0002-APL-ET            PIC  X(02) VALUE 'ET'.
+           05 ETCK0002-APL-AT            PIC  X(02) VALUE 'AT'.
+           05 ETCK0002-APL-BM            PIC  X(02) VALUE 'BM'.
+      * VALORES PARA MASCARA DE TABELAS GERAIS - ANO
+           05 ETCK0002-MASC-ANO          PIC  X(01) VALUE 'A'.
+      * VALORES PARA MASCARA DE TABELAS GERAIS - MES
+           05 ETCK0002-MASC-MES          PIC  X(01) VALUE 'M'.
+      * VALORES PARA MASCARA DE TABELAS GERAIS - DIA
+           05 ETCK0002-MASC-DIA          PIC  X(01) VALUE 'D'.
+      * VALORES PARA MASCARA DE TABELAS GERAIS - NUMERICO
+           05 ETCK0002-MASC-NUMERO       PIC  X(01) VALUE '9'.
+      * VALORES PARA MASCARA DE TABELAS GERAIS - ALFANUMERICO
+           05 ETCK0002-MASC-ALFANUM      PIC  X(01) VALUE 'X'.
+      * VALORES PARA MASCARA DE TABELAS GERAIS - ESPACO
+           05 ETCK0002-MASC-SPACES       PIC  X(01) VALUE ' '.
+      * VALORES PERMITIDOS PARA MASCARA DE DATAS
+           05 ETCK0002-MASC-DATA-1       PIC  X(08) VALUE 'AAAAMMDD'.
+           05 ETCK0002-MASC-DATA-2       PIC  X(08) VALUE 'DDMMAAAA'.
+           05 ETCK0002-MASC-DATA-3       PIC  X(08) VALUE 'MMDDAAAA'.
+      * DATAS
+           05 ETCK0002-DATA-MIN          PIC  9(08) VALUE 00010101.
+           05 ETCK0002-DATA-MAX          PIC  9(08) VALUE 99991231.
+      * VALORES DAS OPCOES DAS TRANSACCOES
+           05 ETCK0002-TRATAR            PIC  X(01) VALUE '1'.
+           05 ETCK0002-ALTERAR           PIC  X(01) VALUE '2'.
+           05 ETCK0002-ELIMINAR          PIC  X(01) VALUE '4'.
+           05 ETCK0002-VISUALIZAR        PIC  X(01) VALUE '5'.
+           05 ETCK0002-OPC-6             PIC  X(01) VALUE '6'.
+           05 ETCK0002-OPC-7             PIC  X(01) VALUE '7'.
+           05 ETCK0002-OPC-8             PIC  X(01) VALUE '8'.
+           05 ETCK0002-OPC-9             PIC  X(01) VALUE '9'.
+      * ETCK0002-COMUM-API.
+           05 ETCK0002-RCODE              PIC  9(01) VALUE ZEROES.
+              88 ETCK0002-SEM-ERROS       VALUE 0, 1.
+              88 ETCK0002-ABEND           VALUE 3.
+              88 ETCK0002-RCODE-OK        VALUE 0.
+              88 ETCK0002-RCODE-INF       VALUE 1.
+              88 ETCK0002-RCODE-VAL       VALUE 2.
+              88 ETCK0002-RCODE-APL       VALUE 3.
+           05 ETCK0002-ESTR-NEXE       PIC  X(01) VALUE '0'.
+           05 ETCK0002-ESTR-EXE        PIC  X(01) VALUE '1'.
+           05 ETCK0002-APTR-APL        PIC  X(01) VALUE 'A'.
+           05 ETCK0002-APTR-VAL        PIC  X(01) VALUE 'V'.
+           05 ETCK0002-HCLI-NVALIDA    PIC  X(01) VALUE '0'.
+           05 ETCK0002-HCLI-BLO-MSG    PIC  X(01) VALUE '1'.
+           05 ETCK0002-HCLI-NBLO-MSG   PIC  X(01) VALUE '2'.
+           05 ETCK0002-HCLI-NBLO-NMSG  PIC  X(01) VALUE '3'.
+           05 ETCK0002-HCLI-RELEASE    PIC  X(01) VALUE 'R'.
+           05 ETCK0002-VNCR-SIM        PIC  X(01) VALUE 'S'.
+           05 ETCK0002-VNCR-NAO        PIC  X(01) VALUE 'N'.
+      * VALORES PARA INDICADORES DE ERRO DOS CAMPOS  (ICE)
+           05 ETCK0002-ICE-OK          PIC  X(01) VALUE '0'.
+           05 ETCK0002-ICE-ERR         PIC  X(01) VALUE '1'.
+           05 ETCK0002-ICE-ERRO        PIC  X(01) VALUE '1'.
+      * VALORES PARA EXECUTOR
+           05 ETCK0002-EXC-APLIC         PIC  X(01) VALUE 'A'.
+           05 ETCK0002-EXC-COMP          PIC  X(01) VALUE 'C'.
+           05 ETCK0002-EXC-CAIXAFO       PIC  X(01) VALUE 'F'.
+           05 ETCK0002-EXC-TRANSF        PIC  X(01) VALUE 'T'.
+           05 ETCK0002-EXC-UTILIZ        PIC  X(01) VALUE 'U'.
+      *- SITUACAO DOS REGISTOS
+           05 ETCK0002-ATIVO             PIC  X(01) VALUE 'A'.
+           05 ETCK0002-INATIVO           PIC  X(01) VALUE 'I'.
+           05 ETCK0002-EM-VIGOR          PIC  X(01) VALUE 'V'.
+           05 ETCK0002-HISTORICO         PIC  X(01) VALUE 'H'.
+      *- TIPO DE OPERACAO DEBITO CREDITO
+           05 ETCK0002-DEBITO            PIC  X(01) VALUE 'D'.
+           05 ETCK0002-CREDITO           PIC  X(01) VALUE 'C'.
+      *-
+      *- VALORES PARA TIPO DE TABELA
+           05 ETCK0002-TIPTAB-APLI       PIC  X(01) VALUE '1'.
+           05 ETCK0002-TIPTAB-CONV       PIC  X(01) VALUE '2'.
+      *- ERROS - INFORMAÇÃO ADICIONAL
+           05 ETCK0002-1000              PIC  X(20) VALUE
+                                         '1000-INICIO-PROGRAMA'.
+           05 ETCK0002-1100              PIC  X(20) VALUE
+                                         '1100-PROC-INICIAL   '.
+           05 ETCK0002-2000              PIC  X(20) VALUE
+                                         '2000-PROC-PROGRAMA  '.
+
+           05 ETCK0002-LITERAIS.
+
+      * HEADER KEYER KEY
+              10 ETCK0002-HEAD-KEY       PIC  X(30)
+                       VALUE 'CHAVE DO PARAMETRO            '.
+              10 ETCK0002-MASC-FMT       PIC  X(30)
+                       VALUE 'MASCARA DE FORMATACAO  . . . .'.
+              10 ETCK0002-HEAD-DET       PIC  X(30)
+                       VALUE 'PARAMETROS                    '.
+              10 ETCK0002-NOME-FLD       PIC  X(30)
+                       VALUE 'DESCRITIVO . . . . . . . . . .'.
+              10 ETCK0002-APLICACAO      PIC  X(09)
+                       VALUE 'APLICAÇÃO'.
+              10 ETCK0002-MANDATORIO     PIC  X(01)
+                       VALUE 'M'.
+      * VALORES PARA CLASSES DE PRODUTOS
+           05 ETCK0002-CLCP-DO           PIC  X(02) VALUE 'DO'.
+      * VALORES EVENTOS
+           05 ETCK0002-TEI-MULT          PIC  X(10) VALUE 'TEIE_MULT'.

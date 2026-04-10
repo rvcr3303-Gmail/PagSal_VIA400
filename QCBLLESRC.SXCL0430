@@ -1,0 +1,30 @@
+      *****************************************************************
+      * NOME:      SXCL0430                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADA DAS ROTINAS DE          *
+      *            CONSULTA DE MOEDA NACIONAL                         *
+      *            VERSÃO 2.03 ($PPAEMP)                              *
+      *            VERSÃO 3.00 ($PPAEMP)                              *
+      * CRICAO:    06-10-2011                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *===============================================================*
+      * CALL 'SXRM0430' USING SXCL0430-DATA                           *
+      *****************************************************************
+       01  SXCL0430-DATA.
+           05 SXCL0430-VERSAO           PIC  X(03) VALUE SPACES.
+              88 SXCL0430-V203                     VALUE '203'.
+              88 SXCL0430-V300                     VALUE '300'.
+              88 SXCL0430-VVAL                     VALUE '203' '300'.
+      *
+           05 SXCL0430-ENTRADA.
+              10 SXCL0430-PGMQC         PIC  X(10).
+              10 SXCL0430-RCODE         PIC S9(01) COMP-3.
+                 88 SXCL0430-RCODE-OK              VALUE 0.
+                 88 SXCL0430-RCODE-INF             VALUE 1.
+                 88 SXCL0430-RCODE-VAL             VALUE 2.
+                 88 SXCL0430-RCODE-APL             VALUE 3.
+                 88 SXCL0430-RCODE-ERR             VALUE 2 3.
+      *
+           05 SXCL0430-SAIDA.
+              10 SXCL0430-D2MOEO        PIC  X(03).
+      *
+       01  SXCL0430-ROTINA              PIC  X(08) VALUE 'SXRM0430'.

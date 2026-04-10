@@ -1,0 +1,90 @@
+      *****************************************************************
+      * NOME:      SXCL0450                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADA DAS ROTINAS DE          *
+      *            CALCULO DE CAMBIOS COM DATA DE COTAÇÃO             *
+      *            VERSÃO 2.03 (FG1075)                               *
+      *            VERSÃO 3.00 (      )                               *
+      * CRICAO:    17-10-2011                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *===============================================================*
+      * CALL SXCL0450-ROTINA USING SXCL0450-DATA                      *
+      *****************************************************************
+       01  SXCL0450-DATA.
+           05 SXCL0450-VERSAO           PIC  X(03) VALUE SPACES.
+              88 SXCL0450-V203                     VALUE '203'.
+              88 SXCL0450-V300                     VALUE '300'.
+              88 SXCL0450-VVAL                     VALUE '203' '300'.
+      *---
+           05 SXCL0450-ENTRADA.
+      *       10 SXCL0450-PGMC         PIC  X(10).
+      *       10 SXCL0450-RCODE        PIC S9(01)      COMP-3.
+      *          88 SXCL0450-RCODE-OK                  VALUE 0.
+      *          88 SXCL0450-RCODE-INF                 VALUE 1.
+      *          88 SXCL0450-RCODE-VAL                 VALUE 2.
+      *          88 SXCL0450-RCODE-APL                 VALUE 3.
+      *          88 SXCL0450-RCODE-ERR                 VALUE 2 3.
+      *       10 SXCL0450-APLI         PIC  X(02).
+      *---
+      *       10 SXCL0450-WDATC        PIC S9(08)      COMP-3.
+      *       10 SXCL0450-WAHORA       PIC S9(06)      COMP-3.
+      *       10 SXCL0450-WMCON        PIC  X(05).
+      *       10 SXCL0450-TPCONV       PIC  X(05).
+      *       10 SXCL0450-WMOEO        PIC  X(03).
+      *       10 SXCL0450-WVLRO        PIC S9(15)V99   COMP-3.
+      *       10 SXCL0450-WMOED        PIC  X(03).
+      *       10 SXCL0450-WVLRC        PIC S9(15)V99   COMP-3.
+      *       10 SXCL0450-WTARR2       PIC  X(02).
+      *       10 SXCL0450-WCAMBI       PIC S9(08)V9(9) COMP-3.
+      *       10 SXCL0450-WVLRI        PIC S9(15)V99   COMP-3.
+      *       10 SXCL0450-WMOEDI       PIC  X(03).
+      *       10 SXCL0450-WCAMBF       PIC S9(08)V9(9) COMP-3.
+R300          10 SXCL0450-ENTRADA-DS.
+                 15 SXCL0450-PGMC         PIC  X(10).
+                 15 SXCL0450-TTR          PIC  X(05).
+                 15 SXCL0450-JOBNC        PIC  X(10).
+                 15 SXCL0450-USERC        PIC  X(10).
+                 15 SXCL0450-PGMQC        PIC  X(10).
+                 15 SXCL0450-RCODE        PIC S9(01)      COMP-3.
+                    88 SXCL0450-RCODE-OK                  VALUE 0.
+                    88 SXCL0450-RCODE-INF                 VALUE 1.
+                    88 SXCL0450-RCODE-VAL                 VALUE 2.
+                    88 SXCL0450-RCODE-APL                 VALUE 3.
+                    88 SXCL0450-RCODE-ERR                 VALUE 2 3.
+                 15 SXCL0450-ESTR         PIC  X(01).
+                    88 SXCL0450-ESTR-NEXE                 VALUE '0'.
+                    88 SXCL0450-ESTR-EXE                  VALUE '1'.
+                 15 SXCL0450-APTR         PIC  X(01).
+                    88 SXCL0450-APTR-APL                  VALUE 'A'.
+                    88 SXCL0450-APTR-VAL                  VALUE 'V'.
+      *---
+R300             15 SXCL0450-APLI         PIC  X(02).
+R300             15 SXCL0450-WVLRO         PIC S9(15)V99   COMP-3.
+      *       10 SXCL0450-WVLRO        PIC S9(15)V99   COMP-3.
+R300             15 SXCL0450-ICE1         PIC  X(01).
+R300             15 SXCL0450-WMOEO         PIC  X(03).
+      *       10 SXCL0450-WMOEO        PIC  X(03).
+R300             15 SXCL0450-ICE2         PIC  X(01).
+R300             15 SXCL0450-WMCON         PIC  X(05).
+      *       10 SXCL0450-WMCON        PIC  X(05).
+R300             15 SXCL0450-ICE3         PIC  X(01).
+R300             15 SXCL0450-WMOED         PIC  X(03).
+      *       10 SXCL0450-WMOED        PIC  X(03).
+R300             15 SXCL0450-ICE4         PIC  X(01).
+R300             15 SXCL0450-WCAMBI        PIC S9(08)V9(9) COMP-3.
+      *       10 SXCL0450-WCAMBI       PIC S9(08)V9(9) COMP-3.
+R300             15 SXCL0450-WVLRI         PIC S9(15)V99   COMP-3.
+      *       10 SXCL0450-WVLRI        PIC S9(15)V99   COMP-3.
+R300             15 SXCL0450-WCAMBF        PIC S9(08)V9(9) COMP-3.
+      *       10 SXCL0450-WCAMBF       PIC S9(08)V9(9) COMP-3.
+R300             15 SXCL0450-WVLRC         PIC S9(15)V99   COMP-3.
+BCI747           15 SXCL0450-DATC          PIC S9(08)      COMP-3.
+BCI747           15 SXCL0450-ICE05         PIC  X(01).
+BCI747           15 SXCL0450-HORA          PIC  X(06).
+BCI747           15 SXCL0450-ICE06         PIC  X(01).
+      *       10 SXCL0450-WVLRC        PIC S9(15)V99   COMP-3.
+      *---
+              10 SXCL0450-WDATC        PIC S9(08)      COMP-3.
+              10 SXCL0450-WTARR2       PIC  X(02).
+              10 SXCL0450-WMOEDI       PIC  X(03).
+      *---
+       01  SXCL0450-ROTINA             PIC  X(08)   VALUE 'SXRM0450'.

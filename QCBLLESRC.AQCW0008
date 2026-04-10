@@ -1,0 +1,29 @@
+      *****************************************************************
+      * NOME:      AQCW0008                                           *
+      * DESCRICAO: CONVERSAO DE CONTA BANKA DE FORMATO R2.03 PARA     *
+      *            R3.00 E VICE VERSA                                 *
+      * CRICAO:    28-12-2011                                         *
+      * AUTOR:     DIOGO ARCO                                         *
+      *===============================================================*
+      *****************************************************************
+      *    AQCW0008 - TRANFORMA CONTAS BANKA PARA V203                *
+      *****************************************************************
+       01  AQCW0008-DATA.
+           05 AQCW0008-CONTA23              PIC  9(14) VALUE ZEROES.
+           05 FILLER REDEFINES AQCW0008-CONTA23.
+              10 AQCW0008-NCLI23            PIC  9(09) VALUE ZEROES.
+              10 AQCW0008-NATR23            PIC  9(02) VALUE ZEROES.
+              10 AQCW0008-NSEQ23            PIC  9(03) VALUE ZEROES.
+           05 FILLER REDEFINES AQCW0008-CONTA23.
+              10 AQCW0008-NCLI.
+                 15 AQCW0008-NCLI-FILLER    PIC  9(01) VALUE ZEROES.
+                 15 AQCW0008-NCLI8          PIC  9(08) VALUE ZEROES.
+              10 AQCW0008-NATR              PIC  9(02) VALUE ZEROES.
+              10 AQCW0008-NSEQ.
+                 15 AQCW0008-NSEQ-FILLER    PIC  9(02) VALUE ZEROES.
+                 15 AQCW0008-NSEQ1          PIC  9(01) VALUE ZEROES.
+           05 AQCW0008-CONTA11              PIC  9(11).
+           05 FILLER REDEFINES AQCW0008-CONTA11.
+              10 AQCW0008-NCLI11            PIC  9(08) VALUE ZEROES.
+              10 AQCW0008-NATR11            PIC  9(02) VALUE ZEROES.
+              10 AQCW0008-NSEQ11            PIC  9(01) VALUE ZEROES.

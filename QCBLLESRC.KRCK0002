@@ -1,0 +1,39 @@
+      ******************************************************************
+      *                                                                *
+      *       KRCK0002   CONSTANTES GERAIS APLICACAO CATALOGO/PERCARIO *
+      *                                                                *
+      ******************************************************************
+       01  KRCK0002-CONSTANTES.
+           05 KRCK0002-CAPLIC              PIC X(02) VALUE 'KR'.
+           05 KRCK0002-STATUS-ACTIVO       PIC X(01) VALUE '1'.
+      *
+           05 KRCK0002-CTIPPRO-BANKA       PIC X(01) VALUE 'B'.
+           05 KRCK0002-CTIPSPRO-BANKA      PIC X(01) VALUE 'B'.
+           05 KRCK0002-CTIPPRO-MANUAL      PIC X(01) VALUE 'M'.
+           05 KRCK0002-IINDEXA-ABSOLUTO    PIC X(01) VALUE 'A'.
+           05 KRCK0002-IINDEXA-INDEXADO    PIC X(01) VALUE 'I'.
+           05 KRCK0002-CTIPENC-COMISSAO    PIC X(01) VALUE 'C'.
+           05 KRCK0002-CTIPENC-DESPESA     PIC X(01) VALUE 'D'.
+           05 KRCK0002-CTIPENC-PRINCIPAL   PIC X(01) VALUE 'P'.
+           05 KRCK0002-CTIPENC-IMPOSTO     PIC X(01) VALUE 'I'.
+           05 KRCK0002-CTIPENC-SELO        PIC X(01) VALUE 'S'.
+           05 KRCK0002-CTIPENC-PAG-VOUC    PIC X(01) VALUE 'V'.
+           05 KRCK0002-SIM                 PIC X(01) VALUE 'S'.
+           05 KRCK0002-NAO                 PIC X(01) VALUE 'N'.
+      *
+           05 KRCK0002-CTICOPE-DEBITO      PIC X(01) VALUE 'D'.
+      *
+           05 KRCK0002-CEVEN-CONS-MOVIM    PIC X(10) VALUE 'CONS_MOVIM'.
+           05 KRCK0002-CEVEN-CONS-SALDO    PIC X(10) VALUE 'CONS_SALDO'.
+           05 KRCK0002-CEVEN-ACUM-PTS      PIC X(10) VALUE 'ACUM_PTS'.
+           05 KRCK0002-CEVEN-EXP-PTS       PIC X(10) VALUE 'EXP_PTS'.
+           05 KRCK0002-CEVEN-SALARIO       PIC X(10) VALUE 'RECEB_SAL'.
+           05 KRCK0002-CEVEN-SELO          PIC X(10) VALUE 'IMP_SELO'.
+           05 KRCK0002-TAB-KRVT0101        PIC X(08) VALUE 'KRVT0101'.
+           05 KRCK0002-TAB-KRVT0201        PIC X(08) VALUE 'KRVT0201'.
+           05 KRCK0002-TAB-KRVT0301        PIC X(08) VALUE 'KRVT0301'.
+           05 KRCK0002-TAB-KRVT0401        PIC X(08) VALUE 'KRVT0401'.
+      * MODOS DE COBRANCA
+           05 KRCK0002-MOD-PV              PIC X(02) VALUE 'PV'.
+           05 KRCK0002-MOD-VF              PIC X(02) VALUE 'VF'.
+           05 KRCK0002-MOD-VI              PIC X(02) VALUE 'VI'.

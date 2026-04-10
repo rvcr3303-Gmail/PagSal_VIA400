@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDMENSAG  DECLARACAO DA TABELA PSMENSAG                *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSMENSAG.
+           COPY DDS-ALL-FORMATS OF PSMENSAG  PREFIX BY 'PSMENSAG-'.

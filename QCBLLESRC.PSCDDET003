@@ -1,0 +1,72 @@
+           EXEC SQL DECLARE PSDETALHE3 TABLE
+           (
+               DTNCLI  DECIMAL(09) NOT NULL
+             , DTDINT  DECIMAL(08) NOT NULL
+             , DTNFIC  DECIMAL(06) NOT NULL
+             , DTNREG  DECIMAL(14) NOT NULL
+             , DTREF   CHAR(10) NOT NULL
+             , DTTREG  DECIMAL(01) NOT NULL
+             , DTTOPE  DECIMAL(02) NOT NULL
+             , DTSITC  DECIMAL(02) NOT NULL
+             , DTSITR  DECIMAL(01) NOT NULL
+             , DTCBAN  DECIMAL(04) NOT NULL
+             , DTCBAL  DECIMAL(04) NOT NULL
+             , DTCNTA  DECIMAL(11) NOT NULL
+             , DTCDIG  DECIMAL(02) NOT NULL
+             , DTMONT  DECIMAL(13,2) NOT NULL
+             , DTNOME   CHAR(20) NOT NULL
+             , DTREFTR  CHAR(20) NOT NULL
+             , DTDVAL   DECIMAL(08) NOT NULL
+             , DTNTRY   DECIMAL(06) NOT NULL
+             , DTNOCB   DECIMAL(09) NOT NULL
+             , DTSITU   CHAR(02) NOT NULL
+             , DTMAIL   CHAR(50) NOT NULL
+             , DTTEMP   CHAR(10) NOT NULL
+             , CUSERID  CHAR(10) NOT NULL
+             , HTIMEEST CHAR(26) NOT NULL
+             , DTMTCANC  CHAR(02) NOT NULL
+             , DTDESCCA  CHAR(50) NOT NULL
+             , DTRALT    CHAR(01) NOT NULL
+             , DTIEBORD  CHAR(01) NOT NULL
+             , DTNOMEB   CHAR(80) NOT NULL
+             , DTDDEB    CHAR(40) NOT NULL
+             , DTDCRED  CHAR(40) NOT NULL
+             , DTNSTE   DECIMAL(09) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSDETALHE3
+      ******************************************************************
+       01  DCLPSDETALHE3.
+          02 RDETALHE.
+            05 PSDETALHE-DTNCLI  PIC S9(09) COMP-3.
+            05 PSDETALHE-DTDINT  PIC S9(08) COMP-3.
+            05 PSDETALHE-DTNFIC  PIC S9(06) COMP-3.
+            05 PSDETALHE-DTNREG  PIC S9(14) COMP-3.
+            05 PSDETALHE-DTREF   PIC X(10).
+            05 PSDETALHE-DTTREG  PIC S9(01) COMP-3.
+            05 PSDETALHE-DTTOPE  PIC S9(02) COMP-3.
+            05 PSDETALHE-DTSITC  PIC S9(02) COMP-3.
+            05 PSDETALHE-DTSITR  PIC S9(01) COMP-3.
+            05 PSDETALHE-DTCBAN  PIC S9(04) COMP-3.
+            05 PSDETALHE-DTCBAL  PIC S9(04) COMP-3.
+            05 PSDETALHE-DTCNTA  PIC S9(11) COMP-3.
+            05 PSDETALHE-DTCDIG  PIC S9(02) COMP-3.
+            05 PSDETALHE-DTMONT    PIC S9(13)V99 COMP-3.
+            05 PSDETALHE-DTNOME    PIC X(20).
+            05 PSDETALHE-DTREFTR   PIC X(20).
+            05 PSDETALHE-DTDVAL    PIC S9(08) COMP-3.
+            05 PSDETALHE-DTNTRY    PIC S9(06) COMP-3.
+            05 PSDETALHE-DTNOCB    PIC S9(09) COMP-3.
+            05 PSDETALHE-DTSITU    PIC X(02).
+            05 PSDETALHE-DTMAIL    PIC X(50).
+            05 PSDETALHE-DTTEMP    PIC X(10).
+            05 PSDETALHE-CUSERID   PIC X(10).
+            05 PSDETALHE-HTIMEEST  PIC X(26).
+            05 PSDETALHE-DTMTCANC  PIC X(02).
+            05 PSDETALHE-DTDESCCA  PIC X(50).
+            05 PSDETALHE-DTRALT    PIC X(01).
+            05 PSDETALHE-DTIEBORD  PIC X(01).
+            05 PSDETALHE-DTNOMEB   PIC X(80).
+            05 PSDETALHE-DTDDEB    PIC X(40).
+            05 PSDETALHE-DTDCRED   PIC X(40).
+            05 PSDETALHE-DTNSTE    PIC S9(09) COMP-3.

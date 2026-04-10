@@ -1,0 +1,66 @@
+      *****************************************************************
+      * NOME:      SXCL0675                                           *
+      * DESCRICAO: GESTÃO DE FICHEIROS RECEBIDOS E ENVIADOS 407141235 *
+      *            VERSÃO 2.03 (BB5015)                               *
+      *            VERSÃO 3.00 (BB5015)                               *
+      * CRICAO:    06-03-2012                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+      * CALL SXCL0675-ROTINA USING SXCL0002-COMMAREA                  *
+      *                          , SXCL0675-COMMAREA                  *
+      *****************************************************************
+       01  SXCL0675-ROTINA              PIC  X(10) VALUE 'SXRM0675'.
+      *
+       01  SXCL0675-COMMAREA.
+           05 SXCL0675-VERSAO           PIC  X(03) VALUE SPACES.
+              88 SXCL0675-V203                     VALUE '203'.
+              88 SXCL0675-V300                     VALUE '300'.
+              88 SXCL0675-VVAL                     VALUE '203' '300'.
+           03 SXCL0675-DATA.
+              05 SXCL0675-NBBLFPGMC     PIC X(10).
+              05 SXCL0675-NBBLFTTR      PIC X(05).
+              05 SXCL0675-NBBLFJOBNC    PIC X(10).
+              05 SXCL0675-NBBLFUSERC    PIC X(10).
+              05 SXCL0675-NBBLFPGMQC    PIC X(10).
+              05 SXCL0675-NBBLFRCODE    PIC S9(01) COMP-3.
+                 88 SXCL0675-RCODE-OK              VALUE 0.
+                 88 SXCL0675-RCODE-INF             VALUE 1.
+                 88 SXCL0675-RCODE-VAL             VALUE 2.
+                 88 SXCL0675-RCODE-APL             VALUE 3.
+                 88 SXCL0675-SEM-ERROS             VALUE 0, 1.
+                 88 SXCL0675-COM-ERROS             VALUE 2, 3.
+              05 SXCL0675-NBBLFESTR     PIC X(01).
+                 88 SXCL0675-ESTR-NEXE             VALUE '0'.
+                 88 SXCL0675-ESTR-EXEC             VALUE '1'.
+              05 SXCL0675-NBBLFAPTR     PIC X(01).
+                 88 SXCL0675-APTR-VAL              VALUE 'V'.
+                 88 SXCL0675-APTR-APL              VALUE 'A'.
+BCI242        05 SXCL0675-NBBLNVCR      PIC  X(01).
+BCI242           88 SXCL0675-NBBLNVCR-VAL          VALUE 'S'.
+BCI242           88 SXCL0675-NBBLNVCR-NVAL         VALUE 'N'.
+              05 SXCL0675-NBBLFNORD     PIC S9(07) COMP-3.
+              05 SXCL0675-NBBLFNOMO     PIC  X(120).
+              05 SXCL0675-NBBLFNOMD     PIC  X(120).
+              05 SXCL0675-NBBLFICE01    PIC  X(01).
+              05 SXCL0675-NBBLFFILD     PIC  X(10).
+              05 SXCL0675-NBBLFLIBD     PIC  X(10).
+              05 SXCL0675-NBBLFICE02    PIC  X(01).
+              05 SXCL0675-NBBLFTRFF     PIC  X(01).
+              05 SXCL0675-NBBLFICE03    PIC  X(01).
+              05 SXCL0675-NBBLFSITF     PIC  X(01).
+              05 SXCL0675-NBBLFICE04    PIC  X(01).
+              05 SXCL0675-NBBLFOBSS     PIC  X(40).
+              05 SXCL0675-NBBLFNCAD     PIC S9(07) COMP-3.
+              05 SXCL0675-NBBLFICE05    PIC  X(01).
+              05 SXCL0675-NBBLFTIPO     PIC  X(03).
+              05 SXCL0675-NBBLFICE06    PIC  X(01).
+              05 SXCL0675-NBBLFDESC     PIC  X(40).
+              05 SXCL0675-NBBLFICE07    PIC  X(01).
+              05 SXCL0675-NBBLFFRES     PIC  X(01).
+              05 SXCL0675-NBBLFICE08    PIC  X(01).
+              05 SXCL0675-NBBLFNOTE     PIC  X(01).
+              05 SXCL0675-NBBLFICE09    PIC  X(01).
+              05 SXCL0675-NBBLFEMAIL    PIC  X(80).
+              05 SXCL0675-NBBLFICE10    PIC  X(01).
+BCI242        05 SXCL0675-NBBLFAGEND    PIC  X(01).
+BCI242        05 SXCL0675-NBBLFICE11    PIC  X(01).

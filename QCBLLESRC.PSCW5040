@@ -1,0 +1,15 @@
+      ******************************************************************
+      * NOME:      PSCW5040                                            *
+      * DESCRICAO: TRATAMENTO DE RESPOSTAS DA ROTINA DE VALIDACAO DE   *
+      *            CONTA                                               *
+      ******************************************************************
+       01  PSCW5040-DATA.
+         05 PSCW5040-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5040-TTR-EXECUTA    VALUE 'VALID'.
+            88 PSCW5040-TTR-VALIDA     VALUE 'EXEC'.
+         05 PSCW5040-SITC              PIC S9(04) COMP-3 VALUE ZEROES.
+         05 PSCW5040-TIPO-MOV          PIC  X(01) VALUE SPACES.
+            88 PSCW5040-DEBITO         VALUE 'D'.
+            88 PSCW5040-CREDITO        VALUE 'C'.
+         05 PSCW5040-MSGID             PIC  X(07) VALUE SPACES.
+         05 PSCW5040-TEMPLATE          PIC  X(10) VALUE SPACES.

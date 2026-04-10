@@ -1,0 +1,98 @@
+      *****************************************************************
+      * NOME:      ETCL9127                                           *
+      * DESCRICAO: CAMPOS DA ROTINA VALIDACAO DE CONTAS CCB           *
+      *            VERSAO 2.03 (GBCCO)                                *
+      *            VERSAO 3.00 (GBCCO)                                *
+      * CRIACAO:   30-07-2013                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *===============================================================*
+      * CALL ETCL9127-ROTINA USING ETCL0002-COMMAREA                  *
+      *                          , ETCL9127-DATA                      *
+      *****************************************************************
+       01  ETCL9127-ROTINA              PIC  X(10)  VALUE 'ETR90127'.
+       01  ETCL9127-DATA.
+           05 ETCL9127-VERSAO           PIC  X(03) VALUE SPACES.
+              88 ETCL9127-V203                     VALUE '203'.
+              88 ETCL9127-V300                     VALUE '300'.
+              88 ETCL9127-VVAL                     VALUE '203' '300'.
+      *---
+           05 ETCL9127-ENTRADA.
+              10 ETCL9127-PGMC          PIC  X(10).
+              10 ETCL9127-TTR           PIC  X(05).
+              10 ETCL9127-JOBNC         PIC  X(10).
+              10 ETCL9127-USERC         PIC  X(10).
+              10 ETCL9127-PGMQC         PIC  X(10).
+              10 ETCL9127-RCODE         PIC S9(01) COMP-3.
+                 88 ETCL9127-SEM-ERROS             VALUE 0 1.
+                 88 ETCL9127-RCODE-OK              VALUE 0.
+                 88 ETCL9127-RCODE-INF             VALUE 1.
+                 88 ETCL9127-RCODE-VAL             VALUE 2.
+                 88 ETCL9127-RCODE-APL             VALUE 3.
+                 88 ETCL9127-RCODE-ERR             VALUE 2 3.
+              10 ETCL9127-ESTR          PIC  X(01).
+                 88 ETCL9127-ESTR-NEXE             VALUE '0'.
+                 88 ETCL9127-ESTR-EXE              VALUE '1'.
+              10 ETCL9127-APTR          PIC  X(01).
+                 88 ETCL9127-APTR-APL              VALUE 'A'.
+                 88 ETCL9127-APTR-VAL              VALUE 'V'.
+              10 ETCL9127-EXCT          PIC  X(01).
+                 88 ETCL9127-EXCT-COMPEN           VALUE 'C'.
+                 88 ETCL9127-EXCT-FRONTO           VALUE 'F'.
+                 88 ETCL9127-EXCT-TRANSF           VALUE 'T'.
+              10 ETCL9127-HCLI          PIC  X(01).
+                 88 ETCL9127-HCLI-NV               VALUE '0'.
+                 88 ETCL9127-HCLI-VB               VALUE '1'.
+                 88 ETCL9127-HCLI-VM               VALUE '2'.
+                 88 ETCL9127-HCLI-VC               VALUE '3'.
+                 88 ETCL9127-HCLI-RC               VALUE 'R'.
+      * CAMPOS TABELA
+              10 ETCL9127-CSBALC        PIC S9(04).
+              10 ETCL9127-CSCCB         PIC  X(13).
+              10 ETCL9127-CSBAL         PIC S9(04).
+              10 ETCL9127-CSNCLI        PIC S9(09).
+      * OS CAMPOS SEGUINTES SÃO RETIRADOS DA V2.03
+      *       10 ETCL9127-CSNATR        PIC S9(02).
+      *       10 ETCL9127-CSNSEQ        PIC S9(03).
+      * O CAMPO SEGUINTE É VÁLIDO APENAS NA V3.00
+              10 ETCL9127-GBCSCONTA     PIC S9(14).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDOS EM AMBAS AS VERSÕES
+              10 ETCL9127-CSSLD         PIC S9(15)V99.
+              10 ETCL9127-CSMCX         PIC  X(01).
+              10 ETCL9127-CSMTRF        PIC  X(01).
+              10 ETCL9127-CSLMOV        PIC  X(03).
+              10 ETCL9127-CSIBLC        PIC  X(01).
+      * OS CAMPOS SEGUINTES SÃO APENAS VÁLIDOS NA V2.03
+              10 ETCL9127-CSTSLD        PIC  X(01).
+              10 ETCL9127-CSSLAL        PIC  X(01).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDOS EM AMBAS AS VERSÕES
+              10 ETCL9127-CSSLDA        PIC  X(01).
+              10 ETCL9127-CSMVCC        PIC  X(01).
+              10 ETCL9127-CSOBS         PIC  X(40).
+              10 ETCL9127-CSDTAB        PIC S9(08).
+              10 ETCL9127-CSSITU        PIC  X(01).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDOS APENAS NA V3.00
+              10 ETCL9127-GBCSDUALT     PIC S9(08).
+              10 ETCL9127-GBCSDUMV      PIC S9(08).
+              10 ETCL9127-GBCSCNTIND    PIC  X(01).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDOS EM AMBAS AS VERSÕES
+              10 ETCL9127-CSMOED        PIC  X(03).
+              10 ETCL9127-CSCRMV        PIC  X(01).
+              10 ETCL9127-CSRACE        PIC  X(01).
+              10 ETCL9127-CSCGRP        PIC  X(02).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDS APENAS NA V3.00
+              10 ETCL9127-GBCSEXTP      PIC  X(01).
+              10 ETCL9127-GBCSDCON      PIC  X(01).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDOS EM AMBAS AS VERSÕES
+              10 ETCL9127-CSMSIT        PIC  X(40).
+              10 ETCL9127-CSCPRD        PIC  X(10).
+              10 ETCL9127-CSCCPR        PIC  X(10).
+              10 ETCL9127-CSCLCP        PIC  X(05).
+              10 ETCL9127-CSCCAS        PIC  X(10).
+              10 ETCL9127-CSUSRS        PIC  X(10).
+      * OS CAMPOS SEGUINTES SÃO VÁLIDOS APENAS NA V3.00
+              10 ETCL9127-GBCSNOPRAP    PIC S9(9)
+              10 ETCL9127-GBCSPIBAN     PIC  X(4).
+              10 ETCL9127-GBCSNIB       PIC  X(21).
+      * NOTA: O CAMPO SEGUINTE NA TABELA GBCCO É DO TIPO VARCHAR
+              10 ETCL9127-GBCSBUFFER    PIC  X(100).
+      *---

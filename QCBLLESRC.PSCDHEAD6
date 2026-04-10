@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDHEADER  DECLARACAO DA TABELA PSHEADER                *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSHEADER.
+           COPY DDS-ALL-FORMATS OF PSHEADER6 PREFIX BY 'PSHEADER-'.

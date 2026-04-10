@@ -1,0 +1,33 @@
+           EXEC SQL DECLARE PSVT2101 TABLE
+           (
+               CUTILIZA   CHAR(10)        NOT NULL
+             , DPEDIDO    CHAR(10)        NOT NULL
+             , HPEDIDO    CHAR(8)         NOT NULL
+             , NCLIENTE   DECIMAL(9,0)    NOT NULL
+             , NREGISTOS  DECIMAL(9,0)    NOT NULL
+             , MVALOR     DECIMAL(15,2)   NOT NULL
+             , CUSERID    CHAR(20)        NOT NULL
+             , HTIMEST    TIMESTAMP       NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      *  COBOL DECLARATION FOR TABLE PSVT2101
+      *  ::: PST21
+      *  ::: Log WS Fich Duplicados
+      ******************************************************************
+       01  DCLPSCD2101.
+      * ...Codigo de utilizador
+           05 PSCD2101-CUTILIZA             PIC  X(10).
+      * ...Data do pedido
+           05 PSCD2101-DPEDIDO              PIC  X(10).
+      * ...Hora do pedido
+           05 PSCD2101-HPEDIDO              PIC  X(08).
+      * ...Numero de cliente
+           05 PSCD2101-NCLIENTE             PIC S9(09)        COMP-3.
+      * ...Total de registos ficheiro
+           05 PSCD2101-NREGISTOS            PIC S9(09)        COMP-3.
+      * ...Montante total ficheiros
+           05 PSCD2101-MVALOR               PIC S9(13)V9(2)   COMP-3.
+      * ...Last User ID
+           05 PSCD2101-CUSERID              PIC  X(20).
+      * ...Last TimeStamp
+           05 PSCD2101-HTIMEST              PIC  X(26).

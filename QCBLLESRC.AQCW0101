@@ -1,0 +1,9 @@
+      ******************************************************************
+      * NOME:      AQCW0101                                            *
+      * DESCRICAO: OBTENCAO DADOS STANDARD ARQUITECTURA BATCH          *
+      ******************************************************************
+      *************** ARQUITECTURA BATCH ******************************
+           COPY VIAL0015.
+           COPY ETCL0050.
+           COPY AQCW0100.
+           COPY ARCL2205.

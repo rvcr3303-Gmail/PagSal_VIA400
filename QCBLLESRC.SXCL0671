@@ -1,0 +1,125 @@
+      *****************************************************************
+      * NOME:      SXCL0671                                           *
+      * DESCRICAO: CONSULTA FICHEIROS RECEBIDOS E ENVIADOS  407141235 *
+      *            VERSÃO 2.03 (BB5020)                               *
+      *            VERSÃO 3.00 (BB5020)                               *
+      * CRICAO:    05-03-2012                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+      * CALL SXCL0671-ROTINA USING SXCL0002-COMMAREA                  *
+      *                          , SXCL0671-COMMAREA                  *
+      *****************************************************************
+       01  SXCL0671-ROTINA              PIC  X(10) VALUE 'SXRM0671'.
+      *
+       01  SXCL0671-COMMAREA.
+           05 SXCL0671-VERSAO           PIC  X(03) VALUE SPACES.
+              88 SXCL0671-V203                     VALUE '203'.
+              88 SXCL0671-V300                     VALUE '300'.
+              88 SXCL0671-VVAL                     VALUE '203' '300'.
+           05 SXCL0671-ENTRADA.
+              10 SXCL0671-PGMC          PIC  X(10).
+              10 SXCL0671-TTR           PIC  X(05).
+                 88 SXCL0671-CONS-CONTRATO         VALUE 'CONSC'.
+                 88 SXCL0671-CONS-FICHEIRO         VALUE 'CONSF'.
+              10 SXCL0671-JOBNC         PIC  X(10).
+              10 SXCL0671-USERC         PIC  X(10).
+              10 SXCL0671-PGMQC         PIC  X(10).
+              10 SXCL0671-RCODE         PIC S9(01) COMP-3.
+                 88 SXCL0671-RCODE-OK              VALUE 0.
+                 88 SXCL0671-RCODE-INF             VALUE 1.
+                 88 SXCL0671-RCODE-VAL             VALUE 2.
+                 88 SXCL0671-RCODE-APL             VALUE 3.
+                 88 SXCL0671-SEM-ERROS             VALUE 0, 1.
+                 88 SXCL0671-COM-ERROS             VALUE 2, 3.
+              10 SXCL0671-ESTR          PIC  X(01).
+                 88 SXCL0671-ESTR-NEXE             VALUE '0'.
+                 88 SXCL0671-ESTR-EXEC             VALUE '1'.
+              10 SXCL0671-APTR          PIC  X(01).
+                 88 SXCL0671-APTR-VAL              VALUE 'V'.
+                 88 SXCL0671-APTR-APL              VALUE 'A'.
+      *
+      * VARIÁVEIS PARA POSICIONAMENTO
+              10 SXCL0671-NORDP         PIC S9(07) COMP-3.
+              10 SXCL0671-DTPRP         PIC S9(08) COMP-3.
+              10 SXCL0671-SITFP         PIC  X(01).
+      * VARIÁVEIS PARA SELECÇÃO
+              10 SXCL0671-SELST         PIC  X(01).
+              10 SXCL0671-EVRCS         PIC  X(01).
+              10 SXCL0671-NCADS         PIC S9(07) COMP-3.
+              10 SXCL0671-TIPOC         PIC  X(01).
+              10 SXCL0671-INCP          PIC  X(01).
+              10 SXCL0671-PPAG          PIC  X(01).
+              10 SXCL0671-NREG          PIC S9(02) COMP-3.
+              10 SXCL0671-STTR          PIC  X(01).
+                 88 SXCL0671-STTR-FIM   VALUE '3'.
+      *
+              10 SXCL0671-NORD.
+                 15 SXCL0671-WNORD      OCCURS 10   PIC 9(07).
+              10 SXCL0671-NORDA.
+                 15 SXCL0671-WNORDA     OCCURS 10   PIC 9(09).
+              10 SXCL0671-DATA.
+                 15 SXCL0671-WDATA      OCCURS 10   PIC 9(08).
+              10 SXCL0671-HORA.
+                 15 SXCL0671-WHORA      OCCURS 10   PIC 9(06).
+              10 SXCL0671-CODU.
+                 15 SXCL0671-WCODU      OCCURS 10   PIC  X(10).
+              10 SXCL0671-NCAD.
+                 15 SXCL0671-WNCAD      OCCURS 10   PIC 9(07).
+              10 SXCL0671-TIPO.
+                 15 SXCL0671-WTIPO      OCCURS 10   PIC  X(03).
+              10 SXCL0671-EVRC.
+                 15 SXCL0671-WEVRC      OCCURS 10   PIC  X(01).
+              10 SXCL0671-ORIG.
+                 15 SXCL0671-WORIG      OCCURS 10   PIC  X(10).
+              10 SXCL0671-OPED.
+                 15 SXCL0671-WOPED      OCCURS 10   PIC  X(01).
+              10 SXCL0671-DEST.
+                 15 SXCL0671-WDEST      OCCURS 10   PIC  X(10).
+              10 SXCL0671-DESC.
+                 15 SXCL0671-WDESC      OCCURS 10   PIC  X(40).
+              10 SXCL0671-NOMO.
+                 15 SXCL0671-WNOMO      OCCURS 10   PIC  X(120).
+              10 SXCL0671-NOMD.
+                 15 SXCL0671-WNOMD      OCCURS 10   PIC  X(120).
+              10 SXCL0671-DTPR.
+                 15 SXCL0671-WDTPR      OCCURS 10   PIC 9(08).
+              10 SXCL0671-HRPR.
+                 15 SXCL0671-WHRPR      OCCURS 10   PIC 9(06).
+              10 SXCL0671-INST.
+                 15 SXCL0671-WINST      OCCURS 10   PIC  X(500).
+              10 SXCL0671-SITF.
+                 15 SXCL0671-WSITF      OCCURS 10   PIC  X(01).
+              10 SXCL0671-DSIT.
+                 15 SXCL0671-WDSIT      OCCURS 10   PIC  X(30).
+              10 SXCL0671-NORR.
+                 15 SXCL0671-WNORR      OCCURS 10   PIC 9(07).
+              10 SXCL0671-EMP.
+                 15 SXCL0671-WEMP       OCCURS 10   PIC  X(10).
+              10 SXCL0671-SQAP.
+                 15 SXCL0671-WSQAP      OCCURS 10   PIC 9(03).
+              10 SXCL0671-TOTV.
+                 15 SXCL0671-WTOTV      OCCURS 10   PIC 9(15)V99.
+              10 SXCL0671-MOED.
+                 15 SXCL0671-WMOED      OCCURS 10   PIC X(03).
+              10 SXCL0671-TOTR.
+                 15 SXCL0671-WTOTR      OCCURS 10   PIC 9(06).
+              10 SXCL0671-CONTA.
+                 15 SXCL0671-WCONTA     OCCURS 10   PIC 9(11).
+              10 SXCL0671-NCLIO.
+                 15 SXCL0671-WNCLIO     OCCURS 10   PIC 9(09).
+              10 SXCL0671-NATRO.
+                 15 SXCL0671-WNATRO     OCCURS 10   PIC 9(02).
+              10 SXCL0671-NSEQO.
+                 15 SXCL0671-WNSEQO     OCCURS 10   PIC 9(03).
+              10 SXCL0671-DBCR.
+                 15 SXCL0671-WDBCR      OCCURS 10   PIC X(01).
+              10 SXCL0671-NOTE.
+                 15 SXCL0671-WNOTE      OCCURS 10   PIC X(01).
+              10 SXCL0671-EMAIL
+                 15 SXCL0671-WEMAIL     OCCURS 10   PIC X(80).
+              10 SXCL0671-EMAIA.
+                 15 SXCL0671-WEMAIA     OCCURS 10   PIC X(80).
+           05 SXCL0671-CAMPOS-ADICIONAIS.
+              10 SXCL0671-CONTA14.
+                 15 SXCL0671-WCONTA14   OCCURS 10   PIC 9(14).
+              10 FILLER                             PIC X(250).

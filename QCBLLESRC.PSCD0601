@@ -1,0 +1,27 @@
+           EXEC SQL DECLARE PSVT0601 TABLE
+           (
+               CDNOMECAD  CHAR(03)       NOT NULL
+             , CDNUMSTEP  DECIMAL( 6, 0) NOT NULL
+             , CDPGMSTEP  CHAR(10)       NOT NULL
+             , CDACTSTEP  CHAR(01)       NOT NULL
+             , CUSERID    CHAR(20)
+             , HTIMEST    TIMESTAMP
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSVT0601
+      ******************************************************************
+       01  DCLPSCD0601.
+      * Nome da Cadeia
+           05 PSCD0601-CDNOMECAD           PIC  X(03).
+      * Num Ordem Step
+           05 PSCD0601-CDNUMSTEP           PIC S9(06)    COMP-3.
+      * Programa do Step
+           05 PSCD0601-CDPGMSTEP           PIC  X(10).
+      * Step Activo?
+           05 PSCD0601-CDACTSTEP           PIC  X(01).
+
+      * Ultima Alteracao
+      * ...Utilizador Alteracao
+           05 PSCD0601-CUSERID             PIC  X(20).
+      * ...Timestamp Alteracao
+           05 PSCD0601-HTIMEST             PIC  X(26).

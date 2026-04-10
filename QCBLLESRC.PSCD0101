@@ -1,0 +1,189 @@
+           EXEC SQL DECLARE PSVT0101 TABLE
+           (
+               CLNCLI     DECIMAL( 9, 0) NOT NULL
+             , CLDINT     DECIMAL( 8, 0) NOT NULL
+             , CLNFIC     DECIMAL( 6, 0) NOT NULL
+
+             , CLNSTP     DECIMAL( 6, 0) NOT NULL
+             , CLSTEP     CHAR(10)       NOT NULL
+             , CLERRL     DECIMAL( 4, 0) NOT NULL
+
+             , CLNCAD     CHAR(03)       NOT NULL
+             , CLLIMT     DECIMAL( 6, 0) NOT NULL
+
+             , CLCNTA     DECIMAL(14, 0) NOT NULL
+             , CLSLDD     DECIMAL(17, 2) NOT NULL
+             , CLMINT     DECIMAL(15, 2) NOT NULL
+             , CLMEXT     DECIMAL(15, 2) NOT NULL
+             , CLQINT     DECIMAL( 6, 0) NOT NULL
+             , CLQEXT     DECIMAL( 6, 0) NOT NULL
+             , CLMIDS     DECIMAL(15, 2) NOT NULL
+             , CLMICM     DECIMAL(15, 2) NOT NULL
+             , CLMIIS     DECIMAL(15, 2) NOT NULL
+             , CLMEDS     DECIMAL(15, 2) NOT NULL
+             , CLMECM     DECIMAL(15, 2) NOT NULL
+             , CLMEIS     DECIMAL(15, 2) NOT NULL
+             , CLIURG     DECIMAL( 1, 0) NOT NULL
+             , CLIBYP     CHAR(01)       NOT NULL
+             , CLUSRC     CHAR(10)       NOT NULL
+             , CLAUTC     DECIMAL(10, 0) NOT NULL
+             , CLCOPE     DECIMAL( 3, 0) NOT NULL
+             , CLMCA1     DECIMAL(17, 2) NOT NULL
+             , CLNDC1     DECIMAL( 9, 0) NOT NULL
+             , CLMCA2     DECIMAL(17, 2) NOT NULL
+             , CLNDC2     DECIMAL( 9, 0) NOT NULL
+             , CLMCA3     DECIMAL(17, 2) NOT NULL
+             , CLNDC3     DECIMAL( 9, 0) NOT NULL
+             , CLMEXI     DECIMAL(17, 2) NOT NULL
+             , CLQEXI     DECIMAL( 6, 0) NOT NULL
+             , CLMCMS     DECIMAL(17, 2) NOT NULL
+             , CLCCMS     DECIMAL( 6, 0) NOT NULL
+             , CLDCMS     CHAR(40)       NOT NULL
+             , CLMISS     DECIMAL(17, 2) NOT NULL
+             , CLCISS     DECIMAL( 6, 0) NOT NULL
+             , CLDISS     CHAR(40)       NOT NULL
+             , CLBHDR     CHAR(61)       NOT NULL
+             , CLMTEI     DECIMAL(17, 2) NOT NULL
+             , CLMEXE     DECIMAL(17, 2) NOT NULL
+             , CLQEXE     DECIMAL( 6, 0) NOT NULL
+             , CLNOCB     DECIMAL(10, 0) NOT NULL
+             , CLMFIC     DECIMAL(17, 2) NOT NULL
+             , CLMURG     DECIMAL(17, 2) NOT NULL
+             , CLMCMI     DECIMAL(17, 2) NOT NULL
+             , CLMCME     DECIMAL(17, 2) NOT NULL
+             , CLSUSP     DECIMAL( 1, 0) NOT NULL
+             , CUSERID    CHAR(20)
+             , HTIMEST    TIMESTAMP
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSVT0101
+      ******************************************************************
+       01  DCLPSCD0101.
+
+      * ID Ficheiro
+      * ...Nr Cliente
+           05 PSCD0101-CLNCLI              PIC S9(09)    COMP-3.
+      * ...Integracao
+           05 PSCD0101-CLDINT              PIC S9(08)    COMP-3.
+      * ...Nr Ficheiro
+           05 PSCD0101-CLNFIC              PIC S9(06)    COMP-3.
+
+      * Estado
+      * ...Ultimo Numero Step
+           05 PSCD0101-CLNSTP              PIC S9(06)    COMP-3.
+      * ...Ultimo Step
+           05 PSCD0101-CLSTEP              PIC  X(10).
+      * ...Ultimo Erro
+           05 PSCD0101-CLERRL              PIC S9(04)    COMP-3.
+
+      * Processamento
+      * ...Nome da Cadeia
+           05 PSCD0101-CLNCAD              PIC  X(03).
+      * ...Limite de Transferencias por COMMIT
+           05 PSCD0101-CLLIMT              PIC S9(06)    COMP-3.
+
+      * Conta Ordenante
+      * ...Num Conta
+           05 PSCD0101-CLCNTA              PIC S9(14)    COMP-3.
+      * ...Saldo Disponivel
+           05 PSCD0101-CLSLDD              PIC S9(15)V99 COMP-3.
+
+      * Montantes a Transferir
+      * ...Montante Internos
+           05 PSCD0101-CLMINT              PIC S9(13)V99 COMP-3.
+      * ...Montante Externos
+           05 PSCD0101-CLMEXT              PIC S9(13)V99 COMP-3.
+      * ...Quantidade Internos
+           05 PSCD0101-CLQINT              PIC S9(06)    COMP-3.
+      * ...Quantidade Externos
+           05 PSCD0101-CLQEXT              PIC S9(06)    COMP-3.
+
+      * Despesas e Comissoes Previstas
+      * ...Montante Despesas Internos
+           05 PSCD0101-CLMIDS              PIC S9(13)V99 COMP-3.
+      * ...Montante Comissões Internos
+           05 PSCD0101-CLMICM              PIC S9(13)V99 COMP-3.
+      * ...Montante Imposto Selo Internos
+           05 PSCD0101-CLMIIS              PIC S9(13)V99 COMP-3.
+      * ...Montante Despesas Externos
+           05 PSCD0101-CLMEDS              PIC S9(13)V99 COMP-3.
+      * ...Montante Comissões Externos
+           05 PSCD0101-CLMECM              PIC S9(13)V99 COMP-3.
+      * ...Montante Imposto Selo Externos
+           05 PSCD0101-CLMEIS              PIC S9(13)V99 COMP-3.
+      * ...Isencao de Taxas de Urgencia
+           05 PSCD0101-CLIURG              PIC S9(01)    COMP-3.
+
+      * Saldo e CCC
+      * ...Indicador Bypass
+           05 PSCD0101-CLIBYP              PIC  X(01).
+
+      * Cativacao
+      * ...Utilizador Cativacao
+           05 PSCD0101-CLUSRC              PIC  X(10).
+      * ...Autorizacao Cativacao
+           05 PSCD0101-CLAUTC              PIC S9(10)    COMP-3.
+      * ...Cod Operacao
+           05 PSCD0101-CLCOPE              PIC S9(03)    COMP-3.
+      * ...Montante Cativacao Int + Ext + Comissoes
+           05 PSCD0101-CLMCA1              PIC S9(15)V99 COMP-3.
+      * ...Num Doc Cativacao Int + Ext + Comissoes
+           05 PSCD0101-CLNDC1              PIC S9(09)    COMP-3.
+      * ...Montante Cativacao Ext + Comissoes
+           05 PSCD0101-CLMCA2        PIC S9(15)V99 COMP-3.
+      * ...Num Doc Cativacao Ext + Comissoes
+           05 PSCD0101-CLNDC2              PIC S9(09)    COMP-3.
+      * ...Montante Cativacao Comissoes
+           05 PSCD0101-CLMCA3  PIC S9(15)V99 COMP-3.
+      * ...Num Doc Cativacao Comissoes
+           05 PSCD0101-CLNDC3              PIC S9(09)    COMP-3.
+
+      * Credito Beneficiarios Int
+      * ...Montante Executadas Int
+           05 PSCD0101-CLMEXI              PIC S9(15)V99 COMP-3.
+      * ...Quantidade Executadas Int
+           05 PSCD0101-CLQEXI              PIC S9(06)    COMP-3.
+      * ...Montante Comissoes Sal
+           05 PSCD0101-CLMCMS              PIC S9(15)V99 COMP-3.
+      * ...Cod Operacao Comissoes Sal
+           05 PSCD0101-CLCCMS              PIC S9(06)    COMP-3.
+      * ...Descricao Comissoes Sal
+           05 PSCD0101-CLDCMS              PIC  X(40).
+      * ...Montante Impostos Selo Sal
+           05 PSCD0101-CLMISS              PIC S9(15)V99 COMP-3.
+      * ...Cod Operacao Impostos Selo Sal
+           05 PSCD0101-CLCISS              PIC S9(06)    COMP-3.
+      * ...Descricao Impostos Selo Sal
+           05 PSCD0101-CLDISS              PIC  X(40).
+
+      * Credito Beneficiarios Ext (TEI)
+      * ...Beneficiario Header TEI
+           05 PSCD0101-CLBHDR              PIC  X(61).
+      * ...Montante TEIs Por Processar
+           05 PSCD0101-CLMTEI              PIC S9(15)V99 COMP-3.
+      * ...Montante Executadas Ext
+           05 PSCD0101-CLMEXE              PIC S9(15)V99 COMP-3.
+      * ...Quantidade Executadas Ext
+           05 PSCD0101-CLQEXE              PIC S9(06)    COMP-3.
+      * ...Num Oper Contabil Ext
+           05 PSCD0101-CLNOCB              PIC S9(10)    COMP-3.
+
+      * Comissoes Tratamento e Executadas
+      * ...Tratamento Ficheiro
+           05 PSCD0101-CLMFIC              PIC S9(15)V99 COMP-3.
+      * ...Tratamento Urgente
+           05 PSCD0101-CLMURG              PIC S9(15)V99 COMP-3.
+      * ...Comissoes Executadas Int
+           05 PSCD0101-CLMCMI              PIC S9(15)V99 COMP-3.
+      * ...Comissoes Executadas Ext
+           05 PSCD0101-CLMCME              PIC S9(15)V99 COMP-3.
+
+      * Processamento
+      * ...Processamento Suspenso
+           05 PSCD0101-CLSUSP              PIC S9(15)V99 COMP-3.
+
+      * Ultima Alteracao
+      * ...Utilizador Alteracao
+           05 PSCD0101-CUSERID             PIC  X(20).
+      * ...Timestamp Alteracao
+           05 PSCD0101-HTIMEST             PIC  X(26).

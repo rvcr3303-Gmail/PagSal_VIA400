@@ -1,0 +1,66 @@
+      ******************************************************************
+      *                                                                *
+      *    Ficheiro : PSCWPS2                                          *
+      *    Descrição: Copybook formato do ficheiro PS2                 *
+      *    Tamanho  : 340 byes                                         *
+      *                                                                *
+      ******************************************************************
+       01  PSCWPS2.
+           05  PSCWPS2-REFERENCIA           PIC  X(03).
+               88  PSCWPS2-REF-PS2                       VALUE 'PS2'.
+           05  PSCWPS2-TIPO-REGISTO         PIC  9(01).
+               88  PSCWPS2-REG-HEADER                    VALUE 1.
+               88  PSCWPS2-REG-DETALHE                   VALUE 2.
+               88  PSCWPS2-REG-TRAILER                   VALUE 9.
+           05  PSCWPS2-TIPO-OPERACAO        PIC  9(02).
+               88  PSCWPS2-ORDENADOS                     VALUE 80.
+           05  PSCWPS2-SITUACAO-CONTA       PIC  9(02).
+           05  PSCWPS2-SITUACAO-REGISTO     PIC  9(01).
+           05  PSCWPS2-REGISTO              PIC  X(331).
+           05  PSCWPS2-HEADER     REDEFINES PSCWPS2-REGISTO.
+               10  PSCWPS2-ORD-NIB.
+                   15 PSCWPS2-ORD-BANCO     PIC  9(04).
+                   15 PSCWPS2-ORD-BALCAO    PIC  9(04).
+                   15 PSCWPS2-ORD-CONTA     PIC  9(11).
+                   15 REDEFINES PSCWPS2-ORD-CONTA.
+                      20 PSCWPS2-ORD-NCLI   PIC  9(08).
+                      20 PSCWPS2-ORD-NATR   PIC  9(02).
+                      20 PSCWPS2-ORD-NSEQ   PIC  9(01).
+                   15 PSCWPS2-ORD-DIGITO    PIC  9(02).
+               10  PSCWPS2-CODIGO-MOEDA     PIC  X(03).
+               10  PSCWPS2-DATA-PROCESSO    PIC  9(08).
+               10  PSCWPS2-ORD-REFERENCIA   PIC  X(20).
+               10  PSCWPS2-FILLER1          PIC  X(19).
+               10  PSCWPS2-ORD-MAIL         PIC  X(50).
+               10  PSCWPS2-ORD-NOME-NOVO    PIC  X(80).
+               10  PSCWPS2-ORD-DESC-DEB     PIC  X(40).
+               10  PSCWPS2-ORD-DESC-CRED    PIC  X(40).
+               10  PSCWPS2-FILLER2          PIC  X(39).
+               10  FILLER REDEFINES PSCWPS2-FILLER2.
+                 15 PSCWPS2-ORD-CTA-ORIG     PIC  X(21).
+                 15 PSCWPS2-R-FILLER2        PIC  X(18).
+           05  PSCWPS2-DETAIL     REDEFINES PSCWPS2-REGISTO.
+               10  PSCWPS2-BEN-NIB.
+                   15 PSCWPS2-BEN-BANCO     PIC  9(04).
+                   15 PSCWPS2-BEN-BALCAO    PIC  9(04).
+                   15 PSCWPS2-BEN-CONTA     PIC  9(11).
+                   15 REDEFINES PSCWPS2-BEN-CONTA.
+                      20 PSCWPS2-BEN-NCLI   PIC  9(08).
+                      20 PSCWPS2-BEN-NATR   PIC  9(02).
+                      20 PSCWPS2-BEN-NSEQ   PIC  9(01).
+                   15 PSCWPS2-BEN-DIGITO    PIC  9(02).
+               10  PSCWPS2-VALOR            PIC  9(11)V99.
+               10  PSCWPS2-BEN-NOME         PIC  X(20).
+               10  PSCWPS2-BEN-REFERENCIA   PIC  X(15).
+               10  PSCWPS2-FILLER3          PIC  X(02).
+               10  PSCWPS2-BEN-MAIL         PIC  X(50).
+               10  PSCWPS2-BEN-NOME-NOVO    PIC  X(80).
+               10  PSCWPS2-BEN-DESC-DEB     PIC  X(40).
+               10  PSCWPS2-BEN-DESC-CRED    PIC  X(40).
+               10  PSCWPS2-CONTA            PIC  X(21).
+               10  PSCWPS2-FILLER4          PIC  X(29).
+           05  PSCWPS2-TRAILER    REDEFINES PSCWPS2-REGISTO.
+               10  PSCWPS2-FILLER5          PIC  X(06).
+               10  PSCWPS2-TOTAL-REGISTOS   PIC  9(14).
+               10  PSCWPS2-TOTAL-VALORES    PIC  9(11)V99.
+               10  PSCWPS2-FILLER6          PIC  X(298).

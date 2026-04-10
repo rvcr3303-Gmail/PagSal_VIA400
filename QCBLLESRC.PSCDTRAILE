@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDTRAILE  DECLARACAO DA TABELA PSTRAILER               *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSTRAILER.
+           COPY DDS-ALL-FORMATS OF PSTRAILER PREFIX BY 'PSTRAILER-'.

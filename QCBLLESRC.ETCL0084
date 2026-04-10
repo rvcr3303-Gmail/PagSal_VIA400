@@ -1,0 +1,90 @@
+      ******************************************************************
+      * NOME:      ETCL0084                                            *
+      * DESCRICAO: CAMPOS USADOS PARA CONSULTA DE OPERAÇOES CATALOGADAS*
+      *            VERSÃO 2.03 (GB6554)                                *
+      *            VERSÃO 3.00 (GB6554DS)                              *
+      * CRICAO:    24-10-2011                                          *
+      * AUTOR:     VIA CONSULTING                                      *
+      *================================================================*
+      * CALL ETCL0084-ROTINA USING ETCL0002-COMMAREA                   *
+      *                           ,ETCL0084-DATA                       *
+      ******************************************************************
+       01  ETCL0084-DATA.
+           05 ETCL0084-VERSAO
+                                        PIC  X(03)  VALUE SPACES.
+              88 ETCL0084-V203                      VALUE '203'.
+              88 ETCL0084-V300                      VALUE '300'.
+              88 ETCL0084-VVAL                      VALUE '203' '300'.
+      *---
+           05 ETCL0084-ENTRADA.
+              10 ETCL0084-PGMC          PIC  X(10).
+              10 ETCL0084-TTR           PIC  X(05).
+              10 ETCL0084-JOBNC         PIC  X(10).
+              10 ETCL0084-USERC         PIC  X(10).
+              10 ETCL0084-PGMQC         PIC  X(10).
+              10 ETCL0084-RCODE         PIC S9(01)  COMP-3.
+                 88 ETCL0084-RCODE-OK               VALUE 0.
+                 88 ETCL0084-RCODE-INF              VALUE 1.
+                 88 ETCL0084-RCODE-VAL              VALUE 2.
+                 88 ETCL0084-RCODE-APL              VALUE 3.
+                 88 ETCL0084-RCODE-ERR              VALUE 2 3.
+              10 ETCL0084-ESTR          PIC  X(01).
+                 88 ETCL0084-ESTR-NEXE              VALUE '0'.
+                 88 ETCL0084-ESTR-EXE               VALUE '1'.
+              10 ETCL0084-APTR          PIC  X(01).
+                 88 ETCL0084-APTR-APL               VALUE 'A'.
+                 88 ETCL0084-APTR-VAL               VALUE 'V'.
+      *--- Campos de paginação
+           05 ETCL0084-PAGINACAO.
+              10 ETCL0084-NOME          PIC  X(10).
+              10 ETCL0084-SEQ           PIC S9(02).
+      *--- Campos de retorno (40 linhas)
+           05 ETCL0084-OUTPUT.
+              10 ETCL0084-OPERACOES     OCCURS 40 TIMES .
+                 15 ETCL0084-SEQMV      PIC S9(02).
+                 15 ETCL0084-DESC       PIC  X(40).
+                 15 ETCL0084-FASE       PIC  X(01).
+                 15 ETCL0084-CONTA      PIC  9(14).
+                 15 REDEFINES ETCL0084-CONTA.
+                    20 ETCL0084-NCLI    PIC  9(09).
+                    20 ETCL0084-NATR    PIC  9(02).
+                    20 ETCL0084-NSEQ    PIC  9(03).
+                 15 ETCL0084-BALC       PIC  X(04).
+                 15 ETCL0084-CCB        PIC  X(13).
+                 15 ETCL0084-PACNT      PIC  X(03).
+                 15 ETCL0084-VALOR      PIC S9(13)V9(2).
+                 15 ETCL0084-MOEDA      PIC  X(03).
+                 15 ETCL0084-PAVLR      PIC  X(09).
+                 15 ETCL0084-NOMVLR     PIC  X(25).
+                 15 ETCL0084-TTXR       PIC  X(10).
+                 15 ETCL0084-PSPD       PIC  X(02).
+                 15 ETCL0084-SPD        PIC S9(03)V9(5).
+                 15 ETCL0084-VLRR       PIC  X(10).
+                 15 ETCL0084-PSPV       PIC  X(02).
+                 15 ETCL0084-SPDV       PIC S9(03).
+                 15 ETCL0084-BLZMIN     PIC S9(13)V9(2).
+                 15 ETCL0084-BLZMAX     PIC S9(13)V9(2).
+                 15 ETCL0084-COPE       PIC S9(03).
+                 15 ETCL0084-PADOC      PIC  X(03).
+                 15 ETCL0084-PADATV     PIC  X(03).
+                 15 ETCL0084-PACNTR     PIC  X(03).
+                 15 ETCL0084-DMOV       PIC  X(40).
+                 15 ETCL0084-PADMOV     PIC  X(03).
+                 15 ETCL0084-NOMMOV     PIC  X(25).
+                 15 ETCL0084-OBSERV     PIC  X(30).
+                 15 ETCL0084-PAOBS      PIC  X(01).
+                 15 ETCL0084-NOMOBS     PIC  X(25).
+                 15 ETCL0084-DSVAR1     PIC  X(25).
+                 15 ETCL0084-DSVAR2     PIC  X(25).
+                 15 ETCL0084-CAVAR1     PIC  X(03).
+                 15 ETCL0084-CAVAR2     PIC  X(03).
+                 15 ETCL0084-CNOTA      PIC S9(05).
+                 15 ETCL0084-EXCBYP     PIC  X(01).
+                 15 ETCL0084-VERPLF     PIC  X(01).
+                 15 ETCL0084-TISENC     PIC  X(05).
+                 15 ETCL0084-CNDSEQ     PIC S9(02).
+                 15 ETCL0084-BUFFER     PIC  X(200).
+           05 ETCL0084-OCCURS           PIC  9(02).
+              88 ETCL0084-MAX-OCCURS                VALUE 20.
+      *---
+       01  ETCL0084-ROTINA              PIC  X(08)  VALUE 'ETR00084'.

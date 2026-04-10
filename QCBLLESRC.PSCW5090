@@ -1,0 +1,8 @@
+      ******************************************************************
+      * NOME:      PSCW5090                                            *
+      * DESCRICAO: TRATAMENTO DE RESPOSTAS DA ROTINA DE CRIACAO DE     *
+      *            AVISOS                                              *
+      ******************************************************************
+       01  PSCW5090-DATA.
+         05 PSCW5090-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5090-TTR-VAZIO      VALUE SPACES.

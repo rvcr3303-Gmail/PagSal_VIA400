@@ -1,0 +1,112 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                       *
+      *  MÓDULO:           MÓDULO DE CÁLCULO DE DESPESAS E COMISSÕES   *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         PSM5035                                     *
+      *  CRIACAO:          2012.02.02                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 PSCL5035-DATA.
+          05 PSCL5035-STD-BANKA.
+      *         NOME DO PROGRAMA CALLER
+             10 PSCL5035-PGMC              PIC  X(10).
+      *         CODIGO DA TRANSACCAO
+             10 PSCL5035-TTR               PIC  X(05).
+      *         JOBNAME DO CALLER (ESTACAO)
+             10 PSCL5035-JOBNC             PIC  X(10).
+      *         UTILIZADOR DO CALLER
+             10 PSCL5035-USERC             PIC  X(10).
+      *         PROGRAM QUEUE DO CALLER
+             10 PSCL5035-PGMQC             PIC  X(10).
+      *         RETURN CODE
+             10 PSCL5035-RCODE             PIC S9(01) COMP-3.
+                88 PSCL5035-SEM-ERROS                 VALUE 0, 1.
+                88 PSCL5035-COM-ERROS                 VALUE 2, 3.
+                88 PSCL5035-RCODE-OK                  VALUE 0.
+                88 PSCL5035-RCODE-INF                 VALUE 1.
+                88 PSCL5035-RCODE-VAL                 VALUE 2.
+                88 PSCL5035-RCODE-APL                 VALUE 3.
+             10 PSCL5035-CODERR-GRAVE      PIC  X(07).
+             10 PSCL5035-AT-CBAN           PIC S9(04) COMP-3.
+             10 PSCL5035-AT-BALM           PIC S9(04) COMP-3.
+             10 PSCL5035-AT-DTOP           PIC S9(08) COMP-3.
+             10 PSCL5035-AT-CMOE           PIC  X(03).
+             10 PSCL5035-AT-DEBUG          PIC  X(01).
+      *         EXECUTAR TRANSACTION RECOVERY
+             10 PSCL5035-ESTR              PIC  X(01).
+                88 PSCL5035-ESTR-NOCOMMIT             VALUE '0'.
+                88 PSCL5035-ESTR-COMMIT               VALUE '1'.
+      *         APLICACAO DA TRANSACCAO
+             10 PSCL5035-APTR              PIC  X(01).
+                88 PSCL5035-APTR-APLICA               VALUE 'A'.
+                88 PSCL5035-APTR-VALIDA               VALUE 'V'.
+      *         VERIFICA NIVEL DE CONFIDENCIALIDADE E RESTRICOES
+             10 PSCL5035-VNCR              PIC  X(01).
+                88 PSCL5035-VNCR-S                    VALUE 'S'.
+                88 PSCL5035-VNCR-N                    VALUE 'N'.
+          05 PSCL5035-DADOS.
+             10 PSCL5035-NCLI              PIC S9(09) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO CLIENTE
+             10 PSCL5035-NCLI-ST.
+                15 PSCL5035-ICE01          PIC  X(01).
+                   88 PSCL5035-ICE01-N                VALUE '0'.
+                   88 PSCL5035-ICE01-S                VALUE '1'.
+                15 PSCL5035-NCLI-CAPLIC    PIC X(02).
+                15 PSCL5035-NCLI-MSG       PIC 9(04).
+             10 PSCL5035-DINT              PIC S9(08) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO DATA INTEGRACAO
+             10 PSCL5035-DINT-ST.
+                15 PSCL5035-ICE02          PIC  X(01).
+                   88 PSCL5035-ICE02-N                VALUE '0'.
+                   88 PSCL5035-ICE02-S                VALUE '1'.
+                15 PSCL5035-DINT-CAPLIC    PIC X(02).
+                15 PSCL5035-DINT-MSG       PIC 9(04).
+             10 PSCL5035-NFIC              PIC S9(06) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO NUMERO DE FICHEIRO
+             10 PSCL5035-NFIC-ST.
+                15 PSCL5035-ICE03          PIC  X(01).
+                   88 PSCL5035-ICE03-N                VALUE '0'.
+                   88 PSCL5035-ICE03-S                VALUE '1'.
+                15 PSCL5035-NFIC-CAPLIC    PIC X(02).
+                15 PSCL5035-NFIC-MSG       PIC 9(04).
+             10 PSCL5035-MOED              PIC  X(03).
+      *         INDICADOR DE ERRO DO CAMPO MOEDA
+             10 PSCL5035-MOED-ST.
+                15 PSCL5035-ICE04          PIC  X(01).
+                   88 PSCL5035-ICE04-N                VALUE '0'.
+                   88 PSCL5035-ICE04-S                VALUE '1'.
+                15 PSCL5035-MOED-CAPLIC    PIC X(02).
+                15 PSCL5035-MOED-MSG       PIC 9(04).
+             10 PSCL5035-CANAL             PIC  X(10).
+      *         INDICADOR DE ERRO DO CAMPO CANAL
+             10 PSCL5035-CANAL-ST.
+                15 PSCL5035-ICE05          PIC  X(01).
+                   88 PSCL5035-ICE05-N                VALUE '0'.
+                   88 PSCL5035-ICE05-S                VALUE '1'.
+                15 PSCL5035-CANAL-CAPLIC    PIC X(02).
+                15 PSCL5035-CANAL-MSG       PIC 9(04).
+             10 PSCL5035-CNTA              PIC S9(11)      COMP-3.
+             10 PSCL503X-SLDD              PIC S9(11)V9(2) COMP-3.
+             10 PSCL503X-SITU              PIC  X(01).
+             10 PSCL503X-BLOQ              PIC  X(01).
+             10 PSCL503X-NOM1T             PIC  X(40).
+             10 PSCL5035-SEQMV             PIC  X(200).
+             10 PSCL5035-PACNT             PIC  X(300).
+             10 PSCL5035-BALC              PIC  X(400).
+             10 PSCL5035-CCB               PIC  X(1300).
+             10 PSCL5035-COPER             PIC  X(300).
+             10 PSCL5035-QOPER             PIC  X(600).
+             10 PSCL5035-VPERC             PIC  X(400).
+             10 PSCL5035-VALOR             PIC  X(1500).
+             10 PSCL5035-DESCR             PIC  X(4000).
+             10 PSCL5035-TOTAL             PIC S9(13)V99   COMP-3.
+             10 PSCL5035-TSERV             PIC  X(02).
+                88 PSCL5035-TSERV-SALARIOS       VALUE '80' '08' '69'.
+                88 PSCL5035-TSERV-FORNEC         VALUE '09'.
+             10 PSCL5035-FILLER            PIC  X(80).

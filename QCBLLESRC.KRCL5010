@@ -1,0 +1,23 @@
+      *****************************************************************
+      * NOME:       KRCL5010
+      * DESCRICAO:  AREA DE LIGAÇÃO MODULO KRM50010
+      * CRIACAO:    10-09-2013
+      * AUTOR:      VIA CONSULTING
+      *****************************************************************
+       01  KRCL5010-DATA.
+      *
+           05 KRCL5010-ENTRADA.
+              10 KRCL5010-CEVENTO       PIC  X(10).
+              10 KRCL5010-CMOEDA        PIC  X(03).
+              10 KRCL5010-CTIPENC       PIC  X(02).
+      *
+           05 KRCL5010-NUM-OCCURS       PIC  9(05).
+              88 KRCL5010-MAX-OCCURS                VALUE 20.
+           05 KRCL5005-SAIDA OCCURS 20 TIMES.
+              10 KRCL5010-CBALCONT      PIC  9(04).
+              10 KRCL5010-NCNTCONT      PIC  X(13).
+              10 KRCL5010-COPERACAO     PIC  9(03).
+              10 KRCL5010-IDEBCRED      PIC  X(01).
+              10 KRCL5010-GDESCRICAO    PIC  X(40).
+      *
+       01  KRCL5010-ROTINA              PIC  X(10) VALUE 'KRM50010'.

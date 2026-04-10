@@ -1,0 +1,70 @@
+      *****************************************************************
+      * NOME:      ETCL9220                                           *
+      * DESCRICAO: OBTENÇÃO DE DADOS DA TABELA BBLOGF                 *
+      *            VERSÃO 2.03 (BBLOGF)                               *
+      *            VERSÃO 3.00 (BBLOGF)                               *
+      * CRICAO:    06-03-2012                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *===============================================================*
+      * CALL ETCL9220-ROTINA USING ETCL9220-DATA                      *
+      *****************************************************************
+       01  ETCL9220-DATA.
+           05 ETCL9220-VERSAO           PIC  X(03) VALUE SPACES.
+              88 ETCL9220-V203                     VALUE '203'.
+              88 ETCL9220-V300                     VALUE '300'.
+              88 ETCL9220-VVAL                     VALUE '203' '300'.
+      *---
+           05 ETCL9220-ENTRADA.
+              10 ETCL9220-PGMC          PIC  X(10).
+              10 ETCL9220-TTR           PIC  X(05).
+                 88 ETCL9220-TTR-CNORD   VALUE 'CNORD'.
+                 88 ETCL9220-TTR-FNAME   VALUE 'FNAME'.
+              10 ETCL9220-JOBNC         PIC  X(10).
+              10 ETCL9220-USERC         PIC  X(10).
+              10 ETCL9220-PGMQC         PIC  X(10).
+              10 ETCL9220-RCODE         PIC S9(01) COMP-3.
+                 88 ETCL9220-RCODE-OK              VALUE 0.
+                 88 ETCL9220-RCODE-INF             VALUE 1.
+                 88 ETCL9220-RCODE-VAL             VALUE 2.
+                 88 ETCL9220-RCODE-APL             VALUE 3.
+              10 ETCL9220-ESTR          PIC  X(01).
+              10 ETCL9220-APTR          PIC  X(01).
+              10 ETCL9220-EXCT          PIC  X(01).
+              10 ETCL9220-HCLI          PIC  X(01).
+      * CAMPOS TABELA
+              10 ETCL9220-BBLFNORD      PIC S9(07).
+              10 ETCL9220-BBLFDATA      PIC S9(08).
+              10 ETCL9220-BBLFHORA      PIC S9(06).
+              10 ETCL9220-BBLFCODU      PIC  X(10).
+              10 ETCL9220-BBLFNCAD      PIC S9(07).
+              10 ETCL9220-BBLFTIPO      PIC  X(03).
+              10 ETCL9220-BBLFEVRC      PIC  X(01).
+              10 ETCL9220-BBLFORIG      PIC  X(10).
+              10 ETCL9220-BBLFDEST      PIC  X(10).
+              10 ETCL9220-BBLFNOMO      PIC  X(40).
+              10 ETCL9220-BBLFNOMD      PIC  X(40).
+              10 ETCL9220-BBLFDESC      PIC  X(40).
+              10 ETCL9220-BBLFDTPR      PIC S9(08).
+              10 ETCL9220-BBLFINST      PIC  X(500).
+              10 ETCL9220-BBLFSITF      PIC  X(01).
+              10 ETCL9220-BBLFNORR      PIC S9(07).
+              10 ETCL9220-BBLFEMP       PIC  X(10).
+              10 ETCL9220-BBLFSQAP      PIC S9(03).
+              10 ETCL9220-BBLFSITU      PIC  X(01).
+              10 ETCL9220-BBLFUSCR      PIC  X(10).
+              10 ETCL9220-BBLFTIPU      PIC  X(01).
+              10 ETCL9220-BBLFDTCR      PIC S9(08).
+              10 ETCL9220-BBLFHOCR      PIC S9(06).
+              10 ETCL9220-BBLFUSDE      PIC  X(10).
+              10 ETCL9220-BBLFDTDE      PIC S9(08).
+              10 ETCL9220-BBLFHODE      PIC S9(06).
+              10 ETCL9220-BBLFBUFFER    PIC  X(200).
+      *---
+              10 ETCL9220-BBLFNLOG      PIC S9(09).
+              10 ETCL9220-BBLFTOTV      PIC S9(15)V99.
+              10 ETCL9220-BBLFMOED      PIC  X(03).
+              10 ETCL9220-BBLFTOTR      PIC S9(06).
+              10 ETCL9220-BBLFCONTA     PIC S9(14).
+              10 ETCL9220-BBLFDBCR      PIC  X(01).
+      *---
+       01  ETCL9220-ROTINA             PIC  X(08)      VALUE 'ETR90220'.

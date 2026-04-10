@@ -1,0 +1,27 @@
+      ******************************************************************
+      *                                                               **
+      *  APLICAÇÃO:        INTERFACE SISTEMAS EXTERNOS                **
+      *  PROGRAMA:         ETCP0188                                   **
+      *  AUTOR:            VIA CONSULTING                             **
+      *  DESCRIÇÃO:        EFECTUA OS SEGUINTES PROCESSAMENTOS:       **
+      *                            -  OBTEM CONTA A PARTIR DO NIB     **
+      ******************************************************************
+       CALL-ETR00188.
+      *
+           IF ETCL0002-VERSAO-V203
+              MOVE 'ETR00188'     TO ETCL0188-ROTINA
+           ELSE
+              MOVE 'ETR00188'     TO ETCL0188-ROTINA
+           END-IF.
+
+           CALL ETCL0188-ROTINA USING ETCL0002-COMMAREA
+                                      ETCL0188-DATA
+             ON EXCEPTION
+                SET  ETCL0002-ERROS-ARQ   TO TRUE
+                MOVE VIAK0001-PROG-NOTFND TO ETCL0002-NR-ERRO
+                MOVE VIAK0002-APLIC-AT    TO ETCL0002-CAPLIC-ERRO
+                MOVE ETCL0188-ROTINA      TO ETCL0002-CPROGRAM
+           END-CALL.
+      *
+       CALL-ETR00188-EXIT.
+           EXIT.

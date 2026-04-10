@@ -1,0 +1,8 @@
+      ******************************************************************
+      * NOME:      PSCW5110                                            *
+      * DESCRICAO: TRATAMENTO DE RESPOSTAS DO MODULO DE INTRODUCAO     *
+      *            DO FICHEIRO                                         *
+      ******************************************************************
+       01  PSCW5110-DATA.
+         05 PSCW5110-TTR               PIC  X(05) VALUE SPACES.
+            88 PSCW5110-TTR-VAZIO      VALUE SPACES.

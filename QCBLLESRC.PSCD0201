@@ -1,0 +1,7 @@
+      *****************************************************************
+      *                                                               *
+      *  PSVT0201 DECLARACAO DA TABELA DE HEADERS DE BORDEREAUXS      *
+      *                                                               *
+      *****************************************************************
+       01  REG-PSVT0201.
+           COPY DDS-ALL-FORMATS OF PSVT0202 PREFIX BY 'PSCD0201-'.

@@ -1,0 +1,366 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCK0003   Constantes de erros para o Banka (MSGQ)       *
+      *                                                                *
+      ******************************************************************
+       01  PSCK0003-CONSTANTES.
+      * PS00001-Erro no número de cliente
+           05 PSCK0003-ERR-NCLI              PIC  X(07) VALUE 'PS00001'.
+      * PS00002-Erro na data de integração
+           05 PSCK0003-ERR-DINT              PIC  X(07) VALUE 'PS00002'.
+      * PS00003-Erro no número de ficheiro
+           05 PSCK0003-ERR-NFIC              PIC  X(07) VALUE 'PS00003'.
+      * PS00004-Erro no número de registo
+           05 PSCK0003-ERR-NREG              PIC  X(07) VALUE 'PS00004'.
+      * PS00005-Erro na abertura da tabela de ficheiros
+           05 PSCK0003-OPEN-PSFICHEIR        PIC  X(07) VALUE 'PS00005'.
+      * PS00006-Erro na leitura da tabela de ficheiros
+           05 PSCK0003-FETCH-PSFICHEIR       PIC  X(07) VALUE 'PS00006'.
+      * PS00007-Erro no estado da mensagem
+           05 PSCK0003-ERR-CEST              PIC  X(07) VALUE 'PS00007'.
+      * PS00008-Tipo de registo inválido
+           05 PSCK0003-ERR-TREG              PIC  X(07) VALUE 'PS00008'.
+      * PS00009-Tipo de operação
+           05 PSCK0003-ERR-TOPE              PIC  X(07) VALUE 'PS00009'.
+      * PS00010-Situação da conta inválida
+           05 PSCK0003-ERR-SITU              PIC  X(07) VALUE 'PS00010'.
+      * PS00011-Situação de tratamento inválida
+           05 PSCK0003-ERR-SITR              PIC  X(07) VALUE 'PS00011'.
+      * PS00012-Erro na leitura da tabela de Header
+           05 PSCK0003-SELECT-PSHEADER       PIC  X(07) VALUE 'PS00012'.
+      * PS00013-Erro na leitura da tabela de histórico de mensagens
+           05 PSCK0003-SELECT-PSHMENSAG      PIC  X(07) VALUE 'PS00013'.
+      * PS00014-Erro na inserção na tabela de histórico de mensagens
+           05 PSCK0003-INSERT-PSHMENSAG      PIC  X(07) VALUE 'PS00014'.
+      * PS00015-Erro na eliminação na tabela de mensagens
+           05 PSCK0003-DELETE-PSMENSAG       PIC  X(07) VALUE 'PS00015'.
+      * PS00016-Erro na inserção na tabela de mensagens
+           05 PSCK0003-INSERT-PSMENSAG       PIC  X(07) VALUE 'PS00016'.
+      * PS00017-Erro na abertura do cursor da tabela de Headers
+           05 PSCK0003-OPEN-PSHEADER         PIC  X(07) VALUE 'PS00017'.
+      * PS00018-Erro na leitura do cursor da tabela de Headers
+           05 PSCK0003-FETCH-PSHEADER        PIC  X(07) VALUE 'PS00018'.
+      * PS00019-Erro na abertura do cursor da tabela de Detalhes
+           05 PSCK0003-OPEN-PSDETALHE        PIC  X(07) VALUE 'PS00019'.
+      * PS00020-Erro na leitura do cursor da tabela de Detalhes
+           05 PSCK0003-FETCH-PSDETALHE       PIC  X(07) VALUE 'PS00020'.
+      * PS00021-Erro no fecho do cursor da tabela de Detalhes
+           05 PSCK0003-CLOSE-PSDETALHE       PIC  X(07) VALUE 'PS00021'.
+      * PS00022-Formato do ficheiro inválido
+           05 PSCK0003-FORMATO-INVALIDO      PIC  X(07) VALUE 'PS00022'.
+      * PS00023-Erro na referência do ficheiro PS2
+           05 PSCK0003-ERR-REF-FIC-PS2       PIC  X(07) VALUE 'PS00023'.
+      * PS00024-Erro no código de tipo de operação
+           05 PSCK0003-ERR-TIP-OPE           PIC  X(07) VALUE 'PS00024'.
+      * PS00025-Erro no código situação da conta
+           05 PSCK0003-ERR-SIT-CONTA         PIC  X(07) VALUE 'PS00025'.
+      * PS00026-Erro no código situação do registo
+           05 PSCK0003-ERR-SIT-REG           PIC  X(07) VALUE 'PS00026'.
+      * PS00027-Erro no tipo de registo
+           05 PSCK0003-ERR-TIP-REG           PIC  X(07) VALUE 'PS00027'.
+      * PS00028-Banco do ordenante inválido
+           05 PSCK0003-ERR-BANCO-ORD         PIC  X(07) VALUE 'PS00028'.
+      * PS00029-Balcão do ordenante inválido
+           05 PSCK0003-ERR-BALCAO-ORD        PIC  X(07) VALUE 'PS00029'.
+      * PS00030-Número de conta do ordenante inválido
+           05 PSCK0003-ERR-CONTA-ORD         PIC  X(07) VALUE 'PS00030'.
+      * PS00031-NIB do ordenante inválido
+           05 PSCK0003-ERR-NIB-ORD           PIC  X(07) VALUE 'PS00031'.
+      * PS00032-Código de moeda inválido
+           05 PSCK0003-ERR-COD-MOEDA         PIC  X(07) VALUE 'PS00032'.
+      * PS00033-Data de processamento inválida
+           05 PSCK0003-ERR-DATA-PROC         PIC  X(07) VALUE 'PS00033'.
+      * PS00034-Número de conta do beneficiário inválido
+           05 PSCK0003-ERR-CONTA-BEN         PIC  X(07) VALUE 'PS00034'.
+      * PS00035-NIB do beneficiário inválido
+           05 PSCK0003-ERR-NIB-BEN           PIC  X(07) VALUE 'PS00035'.
+      * PS00036-Montante da transferência inválido
+           05 PSCK0003-ERR-MONT-TRANSF       PIC  X(07) VALUE 'PS00036'.
+      * PS00037-Total de registos do ficheiro inválido ou incoerente
+           05 PSCK0003-ERR-TOTAL-REG         PIC  X(07) VALUE 'PS00037'.
+      * PS00038-Montante total do ficheiro inválido ou incoerente
+           05 PSCK0003-ERR-TOTAL-MONT        PIC  X(07) VALUE 'PS00038'.
+      * PS00039-Erro na chamada ao módulo de validação da conta DO
+           05 PSCK0003-ERR-SXRM0170          PIC  X(07) VALUE 'PS00039'.
+      * PS00040-Erro na chamada ao módulo de validação de NIB
+           05 PSCK0003-ERR-SXRM0410          PIC  X(07) VALUE 'PS00040'.
+      * PS00041-Erro na chamada ao módulo de validação do código de m...
+           05 PSCK0003-ERR-SXRM0040          PIC  X(07) VALUE 'PS00041'.
+      * PS00042-Erro na chamada à rotina de datas
+           05 PSCK0003-ERR-SXCP1000          PIC  X(07) VALUE 'PS00042'.
+      * PS00043-Erro na chamada ao módulo de obtenção do banco de ins...
+           05 PSCK0003-ERR-SXRM0445          PIC  X(07) VALUE 'PS00043'.
+      * PS00044-Erro na referência do ficheiro Excel
+           05 PSCK0003-ERR-REF-FIC-XLS       PIC  X(07) VALUE 'PS00044'.
+      * PS00045-Email do ordenante inválido
+           05 PSCK0003-ERR-ORD-EMAIL         PIC  X(07) VALUE 'PS00045'.
+      * PS00046-Email do beneficiário inválido
+           05 PSCK0003-ERR-BEN-EMAIL         PIC  X(07) VALUE 'PS00046'.
+      * PS00047-Eerro na leitura da tabela de Trailer
+           05 PSCK0003-SELECT-PSTRAILER      PIC  X(07) VALUE 'PS00047'.
+      * PS00048-Erro na chamada ao módulo de obtenção da moeda da ins...
+           05 PSCK0003-CALL-SXCL0430         PIC  X(07) VALUE 'PS00048'.
+      * PS00049-Erro na leitura da tabela de contratos
+           05 PSCK0003-SELECT-PSCONTRAT      PIC  X(07) VALUE 'PS00049'.
+      * PS00050-Erro na leitura da tabela de preçário
+           05 PSCK0003-SELECT-PSPRECARI      PIC  X(07) VALUE 'PS00050'.
+      * PS00051-Erro na chamada ao módulo de obtenção de operações ca...
+           05 PSCK0003-CALL-SXCL0500         PIC  X(07) VALUE 'PS00051'.
+      * PS00052-Parametro de valor inválido ou inexistente
+           05 PSCK0003-PAVLR-INVALIDO        PIC  X(07) VALUE 'PS00052'.
+      * PS00053-Parâmetro de conta inválido ou inexistente
+           05 PSCK0003-PACNT-INVALIDO        PIC  X(07) VALUE 'PS00053'.
+      * PS00054-Erro na chamada ao módulo de cálculo de cambios
+           05 PSCK0003-CALL-SXCL0055         PIC  X(07) VALUE 'PS00054'.
+      * PS00055-Sequência de movimento inválida ou inexistente
+           05 PSCK0003-SEQMV-INVALIDO        PIC  X(07) VALUE 'PS00055'.
+      * PS00056-Erro na actualização à tabela de ficheiros
+           05 PSCK0003-UPDATE-PSFICHEIR      PIC  X(07) VALUE 'PS00056'.
+      * PS00057-Erro no montante a transferir nulo ou inválido
+           05 PSCK0003-ERR-VALOR             PIC  X(07) VALUE 'PS00057'.
+      * PS00058-Erro na inserção na tabela de Header
+           05 PSCK0003-INSERT-PSHEADER       PIC  X(07) VALUE 'PS00058'.
+      * PS00059-Erro na inserção na tabela de Detalhe
+           05 PSCK0003-INSERT-PSDETALHE      PIC  X(07) VALUE 'PS00059'.
+      * PS00060-Erro na inserção na tabela de Trailer
+           05 PSCK0003-INSERT-PSTRAILER      PIC  X(07) VALUE 'PS00060'.
+      * PS00061-NIB do beneficiário inválido
+           05 PSCK0003-ERR-BEN-NIB           PIC  X(07) VALUE 'PS00061'.
+      * PS00062-Erro na chamada ao módulo de obtenção de bloqueio de ...
+           05 PSCK0003-ERR-SXRM0460          PIC  X(07) VALUE 'PS00062'.
+      * PS00063-Erro na chamada ao módulo de cálculo de despesas e co...
+           05 PSCK0003-ERR-PSM5035           PIC  X(07) VALUE 'PS00063'.
+      * PS00064-Erro na chamada ao módulo de avisos e mensagens
+           05 PSCK0003-ERR-PSM5090           PIC  X(07) VALUE 'PS00064'.
+      * PS00065-Erro na actualização na da tabela de Headers
+           05 PSCK0003-UPDATE-PSHEADER       PIC  X(07) VALUE 'PS00065'.
+      * PS00066-Erro no número de conta do ordenante
+           05 PSCK0003-ERR-CNTA              PIC  X(07) VALUE 'PS00066'.
+      * PS00067-Erro na chamada ao módulo de manutenção TEI individual
+           05 PSCK0003-CALL-SXRM0530         PIC  X(07) VALUE 'PS00067'.
+      * PS00068-Erro na chamada ao módulo de manutenção TEI multipla
+           05 PSCK0003-CALL-SXRM0535         PIC  X(07) VALUE 'PS00068'.
+      * PS00069-Referência do ordenante vazio ou inválido
+           05 PSCK0003-ERR-REFORD            PIC  X(07) VALUE 'PS00069'.
+      * PS00070-Erro na actualização na tabela de Detalhe
+           05 PSCK0003-UPDATE-PSDETALHE      PIC  X(07) VALUE 'PS00070'.
+      * PS00071-Erro ao fechar o cursor à tabela de Detalhe
+           05 PSCK0003-ERR-NATR              PIC  X(07) VALUE 'PS00071'.
+      * PS00072-Erro na Conta
+           05 PSCK0003-ERR-CONTA             PIC  X(07) VALUE 'PS00072'.
+      * PS00073-Erro no Indicador de Bypass
+           05 PSCK0003-ERR-INDBYP            PIC  X(07) VALUE 'PS00073'.
+      * PS00074-Erro no Número de Operação
+           05 PSCK0003-ERR-NOPR              PIC  X(07) VALUE 'PS00074'.
+      * PS00075-Erro no Indicador de Estorno
+           05 PSCK0003-ERR-INDEST            PIC  X(07) VALUE 'PS00075'.
+      * PS00076-Erro na Situação da Conta Corrente Caucionada
+           05 PSCK0003-ERR-SITCCC            PIC  X(07) VALUE 'PS00076'.
+      * PS00077-Erro no acesso à rotina SXRM0405
+           05 PSCK0003-CALL-SXRM0405         PIC  X(07) VALUE 'PS00077'.
+      * PS00078-Erro no acesso à rotina SXRM0170
+           05 PSCK0003-CALL-SXRM0170         PIC  X(07) VALUE 'PS00078'.
+      * PS00079-Saldo disponível insuficiente
+           05 PSCK0003-ERR-SLDD              PIC  X(07) VALUE 'PS00079'.
+      * PS00080-Erro no acesso à rotina SXRM0510
+           05 PSCK0003-CALL-SXRM0510         PIC  X(07) VALUE 'PS00080'.
+      * PS00081-Erro no acesso à rotina SXRM0525
+           05 PSCK0003-CALL-SXRM0525         PIC  X(07) VALUE 'PS00081'.
+      * PS00082-Saldo insuficiente
+           05 PSCK0003-ERR-SALDO             PIC  X(07) VALUE 'PS00082'.
+      * PS00083-Erro no acesso à rotina SXRM0505
+           05 PSCK0003-CALL-SXRM0505         PIC  X(07) VALUE 'PS00083'.
+      * PS00084-Erro no acesso à rotina SXRM0515
+           05 PSCK0003-CALL-SXRM0515         PIC  X(07) VALUE 'PS00084'.
+      * PS00085-Sequência da conta errada
+           05 PSCK0003-ERR-NSEQ              PIC  X(07) VALUE 'PS00085'.
+      * PS00086-Número da operação contabilística do Banka inválido
+           05 PSCK0003-ERR-NOCB              PIC  X(07) VALUE 'PS00086'.
+      * PS00087-Erro na chamada ao módulo de activação de LCO
+           05 PSCK0003-ERR-SXRM0540          PIC  X(07) VALUE 'PS00087'.
+      * PS00088-Código de balcão inválido
+           05 PSCK0003-ERR-CBAL              PIC  X(07) VALUE 'PS00088'.
+      * PS00089-Limite de descoberto inválido
+           05 PSCK0003-ERR-LIMD              PIC  X(07) VALUE 'PS00089'.
+      * PS00090-O campo registo não informado
+           05 PSCK0003-ERR-REG               PIC  X(07) VALUE 'PS00090'.
+      * PS00091-Campo referência vazio ou inválido
+           05 PSCK0003-ERR-REF               PIC  X(07) VALUE 'PS00091'.
+      * PS00092-Campo situação de conta vazio ou inválido
+           05 PSCK0003-ERR-SITC              PIC  X(07) VALUE 'PS00092'.
+      * PS00093-Campo código de banco vazio ou inválido
+           05 PSCK0003-ERR-CBAN              PIC  X(07) VALUE 'PS00093'.
+      * PS00094-Campo check-digit vazio ou inválido
+           05 PSCK0003-ERR-CDIG              PIC  X(07) VALUE 'PS00094'.
+      * PS00095-Campo nome vazio ou inválido
+           05 PSCK0003-ERR-NOME              PIC  X(07) VALUE 'PS00095'.
+      * PS00096-Campo referência de transferência vazio ou inválido
+           05 PSCK0003-ERR-REFTR             PIC  X(07) VALUE 'PS00096'.
+      * PS00097-Campo data valor vazio ou inválido
+           05 PSCK0003-ERR-DVAL              PIC  X(07) VALUE 'PS00097'.
+      * PS00098-Campo template vazio ou inválido
+           05 PSCK0003-ERR-TEMP              PIC  X(07) VALUE 'PS00098'.
+      * PS00099-Erro na leitura da tabela de Templates
+           05 PSCK0003-SELECT-PSTEMPLAT      PIC  X(07) VALUE 'PS00099'.
+      * PS00100-Erro na leitura da tabela de Mensagens
+           05 PSCK0003-SELECT-PSMENSAG       PIC  X(07) VALUE 'PS00100'.
+      * PS00101-Campo nome do ficheiro inválido ou vazio
+           05 PSCK0003-ERR-NOMEF             PIC  X(07) VALUE 'PS00101'.
+      * PS00102-Campo orgão de gerência inválido ou vazio
+           05 PSCK0003-ERR-OGER              PIC  X(07) VALUE 'PS00102'.
+      * PS00103-Erro na leitura da tabela de dias de processamento
+           05 PSCK0003-SELEC-PSDIAPROC       PIC  X(07) VALUE 'PS00103'.
+      * PS00104-Detectado possível ficheiro duplicado
+           05 PSCK0003-DUP-FILE              PIC  X(07) VALUE 'PS00104'.
+      * PS00105-Atingido o número máximo de tentativas contratualizado.
+           05 PSCK0003-MAX-NTRY              PIC  X(07) VALUE 'PS00105'.
+      * PS00106-Erro na chamada ao módulo de obtenção de ordem perman...
+           05 PSCK0003-CALL-SXRM0560         PIC  X(07) VALUE 'PS00106'.
+      * PS00107-Erro na chamada ao módulo de validação de contas
+           05 PSCK0003-CALL-PSM5040          PIC  X(07) VALUE 'PS00107'.
+      * PS00108-Erro na leitura da tabela de Detalhe
+           05 PSCK0003-SELECT-PSDETALHE      PIC  X(07) VALUE 'PS00108'.
+      * PS00109-Erro na chamada ao módulo de movimentação
+           05 PSCK0003-CALL-PSM5070          PIC  X(07) VALUE 'PS00109'.
+      * PS00110-Erro na chamada ao módulo de gestão de notas/avisos
+           05 PSCK0003-CALL-SXRM0570         PIC  X(07) VALUE 'PS00110'.
+      * PS00111-Erro na chamada ao módulo de consulta de TEI
+           05 PSCK0003-CALL-SXRM0585         PIC  X(07) VALUE 'PS00111'.
+      * PS00112-Erro na chamada ao módulo de integração com TEI
+           05 PSCK0003-CALL-PSM5060          PIC  X(07) VALUE 'PS00112'.
+      * PS00113-Erro na abertura do ficheiro PS2 para extracção
+           05 PSCK0003-OPEN-PSFICHPS2        PIC  X(07) VALUE 'PS00113'.
+      * PS00114-Erro na escrita do ficheiro PS2 para extracção
+           05 PSCK0003-WRITE-PSFICHPS2       PIC  X(07) VALUE 'PS00114'.
+      * PS00115-Erro na leitura do ficheiro de importação
+           05 PSCK0003-READ-PSFICHPS2        PIC  X(07) VALUE 'PS00115'.
+      * PS00116-Erro na inserção na tabela de Ficheiros
+           05 PSCK0003-INSERT-PSFICHEIR      PIC  X(07) VALUE 'PS00116'.
+      * PS00117-Formato do ficheiro vazio ou inválido
+           05 PSCK0003-ERR-FORM              PIC  X(07) VALUE 'PS00117'.
+      * PS00118-Erro na chamada do módulo de inserção de PS2
+           05 PSCK0003-ERR-PSM5110           PIC  X(07) VALUE 'PS00118'.
+      * PS00119-Erro na chamada do módulo de inserção de Excel
+           05 PSCK0003-ERR-PSM5115           PIC  X(07) VALUE 'PS00119'.
+      * PS00120-Erro na chamada ao módulo de crédito de ficheiros
+           05 PSCK0003-CALL-PSM5135          PIC  X(07) VALUE 'PS00120'.
+      * PS00121-Erro na chamada ao módulo de débito por total
+           05 PSCK0003-CALL-PSM5120          PIC  X(07) VALUE 'PS00121'.
+      * PS00122-Erro na chamada ao módulo de débito por registo
+           05 PSCK0003-CALL-PSM5125          PIC  X(07) VALUE 'PS00122'.
+      * PS00123-Erro na chamada ao módulo de calculo dia da semana
+           05 PSCK0003-CALL-SXRM0555         PIC  X(07) VALUE 'PS00123'.
+      * PS00124-Erro na chamada ao módulo de calculo data do dia
+           05 PSCK0003-CALL-SXRM0025         PIC  X(07) VALUE 'PS00124'.
+      * PS00125-Erro na chamada ao módulo de validação de ficheiro PS2
+           05 PSCK0003-CALL-PSM5100          PIC  X(07) VALUE 'PS00125'.
+      * PS00126-Erro na chamada ao módulo de validação de ficheiro Excel
+           05 PSCK0003-CALL-PSM5105          PIC  X(07) VALUE 'PS00126'.
+      * PS00127-Erro na chamada ao módulo de validação de ficheuro duplicado
+           05 PSCK0003-CALL-PSM5010          PIC  X(07) VALUE 'PS00127'.
+      * PS00128-Erro na chamada ao módulo de calculo de cambios
+           05 PSCK0003-CALL-SXCL0450         PIC  X(07) VALUE 'PS00128'.
+      * PS00129-Erro na chamada ao módulo de consulta de clientes
+           05 PSCK0003-CALL-SXRM0380         PIC  X(07) VALUE 'PS00129'.
+      * PS00130-Erro na chamada ao módulo de envio de correio electrónico
+           05 PSCK0003-CALL-SXRM0630         PIC  X(07) VALUE 'PS00130'.
+      * PS00131-Erro na leitura da tabela de endereços de e-mails
+           05 PSCK0003-SELECT-PSEMAIL        PIC  X(07) VALUE 'PS00131'.
+      * PS00132-TEI sem nome do Beneficiário informado.
+           05 PSCK0003-ERR-BEN-NOME          PIC  X(07) VALUE 'PS00132'.
+      * PS00133-Erro na abertura do cursor à tabela de Mensagens
+           05 PSCK0003-OPEN-PSMENSAG         PIC  X(07) VALUE 'PS00133'.
+      * PS000134-Erro na escrita dos mapas de ocorrencias
+           05 PSCK0003-WRITE-PSMSGFICH       PIC  X(07) VALUE 'PS00134'.
+      * PS000135-Erro na escrita dos mapas para orgão de gerencia
+           05 PSCK0003-WRITE-PSMSGOGER       PIC  X(07) VALUE 'PS00135'.
+      * PS00136-Erro na chamada ao módulo de consulta de utilizadores
+           05 PSCK0003-CALL-SXRM0620         PIC  X(07) VALUE 'PS00136'.
+      * PS00137-Erro na actualização da tabela de Mensagens
+           05 PSCK0003-UPDATE-PSMENSAG       PIC  X(07) VALUE 'PS00137'.
+      * PS00138-Erro na chamada ao módulo de geração de borderaux
+           05 PSCK0003-CALL-PSM5095          PIC  X(07) VALUE 'PS00138'.
+      * PS00139-Erro na escrita na tabela de Mensagens SMS
+           05 PSCK0003-INSERT-PSMSGSMS       PIC  X(07) VALUE 'PS00139'.
+      * PS00140-Erro na chamada ao módulo de obtenção moeda nacional
+           05 PSCK0003-CALL-SXRM0430         PIC  X(07) VALUE 'PS00140'.
+      * PS00141-Erro na chamada ao módulo de envio sms beneficiario
+           05 PSCK0003-CALL-PSM5080          PIC  X(07) VALUE 'PS00141'.
+      * PS00142-Erro na chamada ao módulo de envio email beneficiario
+           05 PSCK0003-CALL-PSM5085          PIC  X(07) VALUE 'PS00142'.
+      * PS00143-Erro na chamada ao módulo de validação de cliente
+           05 PSCK0003-CALL-SXRM0045         PIC  X(07) VALUE 'PS00143'.
+      * PS00144-Erro na chamada ao módulo de obtenção de dado de cliente
+           05 PSCK0003-CALL-SXRM0610         PIC  X(07) VALUE 'PS00144'.
+      * PS00145-Erro na chamada ao módulo de movimentação contabilistica
+           05 PSCK0003-CALL-SXRM0035         PIC  X(07) VALUE 'PS00145'.
+      * PS00146-Erro na leitura da tabela de ficheiros
+           05 PSCK0003-SELECT-PSFICHEIR      PIC  X(07) VALUE 'PS00146'.
+      * PS00147-Erro na abertura do ficheiro PS2 para extracção
+           05 PSCK0003-OPEN-PSEXTRACT        PIC  X(07) VALUE 'PS00147'.
+      * PS00148-Erro na escrita do ficheiro PS2 para extracção
+           05 PSCK0003-WRITE-PSEXTRACT       PIC  X(07) VALUE 'PS00148'.
+      * PS00149-Erro na chamada ao módulo de validação de contas C/C/C
+           05 PSCK0003-CALL-PSM5050          PIC  X(07) VALUE 'PS00149'.
+      * PS00150-Campo canal vazio ou inválido
+           05 PSCK0003-ERR-CANAL             PIC  X(07) VALUE 'PS00150'.
+      * PS00151-ERRO NO ACESSO À API DE CONSULTA DE FICHEIROS EBANKA
+           05 PSCK0003-CALL-SXRM0670         PIC  X(07) VALUE 'PS00151'.
+      * PS00152-ERRO NO ACESSO À API DE MANUTENÇÃO DE FICHEIROS EBANKA
+           05 PSCK0003-CALL-SXRM0675         PIC  X(07) VALUE 'PS00152'.
+      * PS00153-ERRO NA CONSULTA À TABELA DE TIPOS DE OPERAÇÃO
+           05 PSCK0003-CALL-PSTIPOP          PIC  X(07) VALUE 'PS00153'.
+      * PS00154-ERRO NA CHAMADA AO MÓDULO DE INSERÇÃO DE FICHEIROS PS2
+           05 PSCK0003-CALL-PSM5400          PIC  X(07) VALUE 'PS00154'.
+      * PS00155-ERRO NA LEITURA DA TABELA DE CÓDIGOS GERAIS
+           05 PSCK0003-SELECT-CODESTABLE     PIC  X(07) VALUE 'PS00155'.
+      * PS00156-ERRO NO MÓDULO DE GERAÇÃO DE NOMES DE FICHEIROS
+           05 PSCK0003-CALL-PSM5240          PIC  X(07) VALUE 'PS00156'.
+      * PS00157-ERRO NA CONSULTA DA TABELA DE LOG DE FICHEIROS
+           05 PSCK0003-SELECT-BBLOGF         PIC  X(07) VALUE 'PS00157'.
+      * PS00158-BIBLIOTECA NÃO INFORMADA OU INVÁLIDA
+           05 PSCK0003-ERR-BIBLI             PIC  X(07) VALUE 'PS00158'.
+      * PS00159-ERRO NA CHAMADA AO MÓDULO DE VERIFICAÇÃO DE ESTADOS
+           05 PSCK0003-CALL-PSM5155          PIC  X(07) VALUE 'PS00159'.
+      * PS00160-ERRO NA CHAMADA AO MÓDULO DE ANULAÇÃO DE OPERAÇÕES
+           05 PSCK0003-CALL-SXRM0650         PIC  X(07) VALUE 'PS00160'.
+      * PS00161-NOME BENEFICIARIO OBRIGATORIO NAS TEIS
+           05 PSCK0003-NOME-TEI-OBRG         PIC  X(07) VALUE 'PS00161'.
+      * PS00162-MOEDA DA TEI INVALIDA
+           05 PSCK0003-MOED-TEI-INV          PIC  X(07) VALUE 'PS00162'.
+      * PS00163-ERRO NO ACESSO À ROTINA DAS ISENÇÕES
+           05 PSCK0003-ERR-SXRM0730          PIC  X(07) VALUE 'PS00163'.
+      * PS00164-TIPO DE TAXA INVALIDA
+           05 PSCK0003-TIPO-TX-INV           PIC  X(07) VALUE 'PS00164'.
+      * PS00165-TIPO DE REMUNARACAO INVALIDA
+           05 PSCK0003-ERR-TREMUN            PIC  X(07) VALUE 'PS00165'.
+      * PS00166-ERRO NO ACESSO À TABELA LCOFUN
+           05 PSCK0003-SELECT-LCOFUN         PIC  X(07) VALUE 'PS00166'.
+      * PS00167-ERRO NA LEITURA DO FICHEIRO
+           05 PSCK0003-READ-FILE             PIC  X(07) VALUE 'PS00167'.
+      * PS00168-AUTORIZAÇÃO INVÁLIDA
+           05 PSCK0003-AUTR-INV              PIC  X(07) VALUE 'PS00168'.
+      * PS00169-ERRO NO ACESSO AO MÓDULO DE RESTRIÇÕS DE ACESSO
+           05 PSCK0003-ERR-SXRM0800          PIC  X(07) VALUE 'PS00169'.
+      * PS00170-ERRO NA ANULAÇÃO DAS TEIS
+           05 PSCK0003-ERR-ANL-TEI           PIC  X(07) VALUE 'PS00170'.
+      * PS00171-ERRO NA OBTENCAO DE SEQUENCIADOR
+           05 PSCK0003-ERR-VIAR0030          PIC  X(07) VALUE 'PS00171'.
+      * PS00172-ERRO NA ABERTURA DE CURSOR A TABELA HISTORICO DE ALTERA
+           05 PSCK0003-OPEN-PSHISALT         PIC  X(07) VALUE 'PS00172'.
+      * PS00173-ERRO NA LEITURA DE CUSRSOR A TABELA HISTORICO DE ALTERA
+           05 PSCK0003-SELECT-PSHISALT       PIC  X(07) VALUE 'PS00173'.
+      * PS00174-ERRO NA ACTUALIZACAO DA TABELA HISTORICO DE ALTERACOES
+           05 PSCK0003-UPDATE-PSHISALT       PIC  X(07) VALUE 'PS00174'.
+      * PS00175-CONTA CCC VENCIDA
+           05 PSCK0003-CCC-VENCIDA           PIC  X(07) VALUE 'PS00175'.
+      * PS00176-ERRO NA CONSULTA E REGISTO DA SITUAÇÃO DAS TEI
+           05 PSCK0003-ERR-PSM5285           PIC  X(07) VALUE 'PS00176'.
+PML008* PS00177-Data não encontrada no módulo de calculo dia da semana
+PML008     05 PSCK0003-SXRM0555-DATA-NOTFND  PIC  X(07) VALUE 'PS00177'.
+PML   * PS00178-Utilizador sem autoridade movimentação conta débito
+PML        05 PSCK0003-ERR-AUT-DEBI          PIC  X(07) VALUE 'PS00178'.
+PML   * PS00179-Utilizador sem autoridade movimentação conta inactiva
+PML        05 PSCK0003-ERR-AUT-INAC          PIC  X(07) VALUE 'PS00179'.
+PML   * PS00180-Erro no módulo de Consulta de Perfil de Utilizador
+PML        05 PSCK0003-CALL-ETR00292         PIC  X(07) VALUE 'PS00180'.

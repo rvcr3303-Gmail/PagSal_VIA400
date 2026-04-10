@@ -1,0 +1,36 @@
+      ******************************************************************
+      *  PSM5310
+      *
+      *  Validação Autoridade Movimentação Contas Inactivas
+      *
+      *  PLIMA      20221020
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 PSCL5310-DATA.
+          05 PSCL5310-DADOS.
+             10 PSCL5310-PGMC              PIC  X(10).
+             10 PSCL5310-JOBNC             PIC  X(10).
+             10 PSCL5310-USERC             PIC  X(10).
+             10 PSCL5310-PGMQC             PIC  X(10).
+             10 PSCL5310-USERP             PIC  X(10).
+             10 PSCL5310-VAUTD             PIC  X(01).
+                88 PSCL5310-VAUTD-N                   VALUE 'N'.
+                88 PSCL5310-VAUTD-S                   VALUE 'S'.
+             10 PSCL5310-GRPR              PIC  X(10).
+             10 PSCL5310-CDGA              PIC  9(10).
+             10 PSCL5310-CODERR            PIC S9(04).
+
+      ******************************************************************
+      * I R * PGMC   : Program Caller
+      * I R * JOBNC  : Nome da Estação de Trabalho
+      * I R * USERC  : Utilizador
+      * I R * PGMQC  : Program Queue
+      * I R * USERP  : Utilizador de Posicionamento
+      *  O  * VAUTD  : Indicador de Validade de Autoridade
+      *  O  * GRPR   : Grupo de Responsabilidade
+      *  O  * CDGA   : Código de Autorização Automática
+      *  O  * CODERR : Código de Erro (PSCK0001)

@@ -1,0 +1,45 @@
+      ******************************************************************
+      *  APLICAÇÃO:        ARQUITECTURA                                *
+      *  MÓDULO:           MÓDULO DE CONSULTA ART27_PARMAIL            *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         ARM2705                                     *
+      *  CRIACAO:          2013.04.19                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 ARCL2705-DATA.
+          05 ARCL2705-STANDARD.
+             10 ARCL2705-AT-CBAN           PIC S9(04) COMP-3.
+             10 ARCL2705-AT-BALM           PIC S9(04) COMP-3.
+             10 ARCL2705-AT-DTOP           PIC S9(08) COMP-3.
+             10 ARCL2705-AT-CMOE           PIC  X(03).
+             10 ARCL2705-AT-DEBUG          PIC  X(01).
+             10 ARCL2705-AT-VERSAO         PIC  X(03).
+             10 ARCL2705-CODERR            PIC S9(04).
+             10 ARCL2705-AT-CUTILIZA       PIC  X(20).
+             10 ARCL2705-IND-ERROS         PIC  X(02).
+               88 ARCL2705-ABEND             VALUE 'A1'.
+               88 ARCL2705-ABEND-DB2         VALUE 'A2'.
+               88 ARCL2705-ERROS-ARQ         VALUE 'AT'.
+               88 ARCL2705-ERROS-VALIDOS     VALUE 'FU' 'FC' 'OK'.
+               88 ARCL2705-ERROS-FUNCAO      VALUE 'FU'.
+               88 ARCL2705-FIM-CONSULTA      VALUE 'FC'.
+               88 ARCL2705-SEM-ERROS         VALUE 'OK' '  '.
+               88 ARCL2705-ERROS-ABEND       VALUE 'A1' 'A2'.
+               88 ARCL2705-ERROS-OK          VALUE 'OK'.
+          05 ARCL2705-ENTRADA.
+             10 ARCL2705-CCOD              PIC  X(20).
+             10 ARCL2705-CTO               PIC  X(200).
+             10 ARCL2705-CCC               PIC  X(200).
+             10 ARCL2705-CBCC              PIC  X(200).
+             10 ARCL2705-TABELA.
+                15 ARCL2705-VARIAVEIS      PIC  X(42) OCCURS 20 TIMES.
+                  20 ARCL2705-VALOR        PIC  X(40).
+                  20 ARCL2705-TAMANHO      PIC  S9(02).
+      *
+       01 ARCL2705-ROTINA                  PIC  X(10) VALUE 'ARM2705'.

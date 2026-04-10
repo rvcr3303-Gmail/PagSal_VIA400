@@ -1,0 +1,93 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                       *
+      *  MÓDULO:           MÓDULO DE MOVIMENTACAO E CONTABILIZAÇÃO     *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         PSM5070                                     *
+      *  CRIACAO:          2012.04.02                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 PSCL5070-DATA.
+          05 PSCL5070-STD-BANKA.
+      *         NOME DO PROGRAMA CALLER
+             10 PSCL5070-PGMC              PIC  X(10).
+      *         CODIGO DA TRANSACCAO
+             10 PSCL5070-TTR               PIC  X(05).
+      *         JOBNAME DO CALLER (ESTACAO)
+             10 PSCL5070-JOBNC             PIC  X(10).
+      *         UTILIZADOR DO CALLER
+             10 PSCL5070-USERC             PIC  X(10).
+      *         PROGRAM QUEUE DO CALLER
+             10 PSCL5070-PGMQC             PIC  X(10).
+      *         RETURN CODE
+             10 PSCL5070-RCODE             PIC S9(01) COMP-3.
+                88 PSCL5070-SEM-ERROS                 VALUE 0, 1.
+                88 PSCL5070-COM-ERROS                 VALUE 2, 3.
+                88 PSCL5070-RCODE-OK                  VALUE 0.
+                88 PSCL5070-RCODE-INF                 VALUE 1.
+                88 PSCL5070-RCODE-VAL                 VALUE 2.
+                88 PSCL5070-RCODE-APL                 VALUE 3.
+             10 PSCL5070-CODERR-GRAVE      PIC  X(07).
+             10 PSCL5070-AT-CBAN           PIC S9(04) COMP-3.
+             10 PSCL5070-AT-BALM           PIC S9(04) COMP-3.
+             10 PSCL5070-AT-DTOP           PIC S9(08) COMP-3.
+             10 PSCL5070-AT-CMOE           PIC  X(03).
+             10 PSCL5070-AT-DEBUG          PIC  X(01).
+             10 PSCL5070-ERR-ST            PIC  X(01).
+                 88 PSCL5070-ERR-N                 VALUE '0'.
+                 88 PSCL5070-ERR-S                 VALUE '1'.
+             10 PSCL5070-ERR-CAPLIC        PIC X(02).
+             10 PSCL5070-ERR-MSG           PIC 9(04).
+      *         EXECUTAR TRANSACTION RECOVERY
+             10 PSCL5070-ESTR              PIC  X(01).
+                88 PSCL5070-ESTR-NOCOMMIT             VALUE '0'.
+                88 PSCL5070-ESTR-COMMIT               VALUE '1'.
+      *         APLICACAO DA TRANSACCAO
+             10 PSCL5070-APTR              PIC  X(01).
+                88 PSCL5070-APTR-APLICA               VALUE 'A'.
+                88 PSCL5070-APTR-VALIDA               VALUE 'V'.
+      *         VALIDACAO AO CLIENTE
+             10 PSCL5070-HCLI              PIC  X(01).
+                88 PSCL5070-HCLI-NV                   VALUE '0'.
+                88 PSCL5070-HCLI-VB                   VALUE '1'.
+                88 PSCL5070-HCLI-VM                   VALUE '2'.
+                88 PSCL5070-HCLI-VC                   VALUE '3'.
+                88 PSCL5070-HCLI-RC                   VALUE 'R'.
+      *         VERIFICA NIVEL DE CONFIDENCIALIDADE E RESTRICOES
+             10 PSCL5070-VNCR              PIC  X(01).
+                88 PSCL5070-VNCR-S                    VALUE 'S'.
+                88 PSCL5070-VNCR-N                    VALUE 'N'.
+          05 PSCL5070-DADOS.
+             10 PSCL5070-NCLI              PIC S9(09) COMP-3.
+             10 PSCL5070-BALM              PIC S9(04) COMP-3.
+      *         BALCAO DO MOVIMENTO
+             10 PSCL5070-CONTA             PIC S9(14).
+             10 FILLER REDEFINES PSCL5070-CONTA.
+                15 PSCL5070-CONTA-NCLI     PIC S9(09).
+                15 PSCL5070-CONTA-NATR     PIC S9(02).
+                15 PSCL5070-CONTA-NSEQ     PIC S9(03).
+             10 PSCL5070-MONT              PIC S9(11)V9(2) COMP-3.
+      *         MONTANTE
+             10 PSCL5070-MOED              PIC X(03).
+      *         INDICADOR DE ERRO DO CAMPO MOEDA
+             10 PSCL5070-COPE              PIC S9(03) COMP-3.
+             10 PSCL5070-DESC              PIC X(320).
+             10 PSCL5070-NOPR              PIC S9(09) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO NUMERO OPERACAO
+             10 PSCL5070-CCLI              PIC S9(09) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO NUMERO CLIENTE
+             10 PSCL5070-IDSP              PIC  X(01).
+             10 PSCL5070-CCB               PIC  X(13).
+             10 PSCL5070-PERLCO            PIC S9(03)V9(05) COMP-3.
+             10 PSCL5070-ILCO              PIC  X(01).
+             10 PSCL5070-USER              PIC  X(10).
+             10 PSCL5070-AUTR              PIC  9(10).
+             10 PSCL5070-TREMUN            PIC  X(01).
+             10 PSCL5070-TOPE              PIC S9(02).
+                88 PSCL5070-TOPE-SALARIOS  VALUE 08 80 69.
+                88 PSCL5070-TOPE-FORNEC    VALUE 09.

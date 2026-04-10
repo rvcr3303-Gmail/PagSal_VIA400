@@ -1,0 +1,151 @@
+      ******************************************************************
+      *  APLICAÇÃO:        PAGAMENTO DE SALARIOS                       *
+      *  MÓDULO:           CARREGAMENTO DA TABELA PSFICHEIR            *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         PSM5200                                     *
+      *  CRIACAO:          2012.02.20                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 PSCL5200-DATA.
+          05 PSCL5200-STD-BANKA.
+      *         NOME DO PROGRAMA CALLER
+             10 PSCL5200-PGMC              PIC  X(10).
+      *         CODIGO DA TRANSACCAO
+             10 PSCL5200-TTR               PIC  X(05).
+      *         JOBNAME DO CALLER (ESTACAO)
+             10 PSCL5200-JOBNC             PIC  X(10).
+      *         UTILIZADOR DO CALLER
+             10 PSCL5200-USERC             PIC  X(10).
+      *         PROGRAM QUEUE DO CALLER
+             10 PSCL5200-PGMQC             PIC  X(10).
+      *         RETURN CODE
+             10 PSCL5200-RCODE             PIC S9(01) COMP-3.
+                88 PSCL5200-SEM-ERROS                 VALUE 0, 1.
+                88 PSCL5200-COM-ERROS                 VALUE 2, 3.
+                88 PSCL5200-RCODE-OK                  VALUE 0.
+                88 PSCL5200-RCODE-INF                 VALUE 1.
+                88 PSCL5200-RCODE-VAL                 VALUE 2.
+                88 PSCL5200-RCODE-APL                 VALUE 3.
+             10 PSCL5200-CODERR-GRAVE      PIC  X(07).
+             10 PSCL5200-AT-CBAN           PIC S9(04) COMP-3.
+             10 PSCL5200-AT-BALM           PIC S9(04) COMP-3.
+             10 PSCL5200-AT-DTOP           PIC S9(08) COMP-3.
+             10 PSCL5200-AT-CMOE           PIC  X(03).
+             10 PSCL5200-AT-DEBUG          PIC  X(01).
+      *         EXECUTAR TRANSACTION RECOVERY
+             10 PSCL5200-ESTR              PIC  X(01).
+                88 PSCL5200-ESTR-NOCOMMIT             VALUE '0'.
+                88 PSCL5200-ESTR-COMMIT               VALUE '1'.
+      *         APLICACAO DA TRANSACCAO
+             10 PSCL5200-APTR              PIC  X(01).
+                88 PSCL5200-APTR-APLICA               VALUE 'A'.
+                88 PSCL5200-APTR-VALIDA               VALUE 'V'.
+          05 PSCL5200-DADOS.
+             10 PSCL5200-NCLI              PIC S9(09) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO CLIENTE
+             10 PSCL5200-NCLI-ST.
+                15 PSCL5200-ICE01          PIC  X(01).
+                   88 PSCL5200-ICE01-N                VALUE '0'.
+                   88 PSCL5200-ICE01-S                VALUE '1'.
+                15 PSCL5200-NCLI-CAPLIC    PIC X(02).
+                15 PSCL5200-NCLI-MSG       PIC 9(04).
+             10 PSCL5200-DINT              PIC S9(08) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO DATA INTEGRACAO
+             10 PSCL5200-DINT-ST.
+                15 PSCL5200-ICE02          PIC  X(01).
+                   88 PSCL5200-ICE02-N                VALUE '0'.
+                   88 PSCL5200-ICE02-S                VALUE '1'.
+                15 PSCL5200-DINT-CAPLIC    PIC X(02).
+                15 PSCL5200-DINT-MSG       PIC 9(04).
+             10 PSCL5200-NFIC              PIC S9(06) COMP-3.
+      *         INDICADOR DE ERRO DO CAMPO NUMERO DE FICHEIRO
+             10 PSCL5200-NFIC-ST.
+                15 PSCL5200-ICE03          PIC  X(01).
+                   88 PSCL5200-ICE03-N                VALUE '0'.
+                   88 PSCL5200-ICE03-S                VALUE '1'.
+                15 PSCL5200-NFIC-CAPLIC    PIC X(02).
+                15 PSCL5200-NFIC-MSG       PIC 9(04).
+             10 PSCL5200-FORM              PIC  X(01).
+      *         INDICADOR DE ERRO DO CAMPO FORMATO
+             10 PSCL5200-FORM-ST.
+                15 PSCL5200-FORM-S         PIC  X(01).
+                   88 PSCL5200-FORM-N                 VALUE '0'.
+                   88 PSCL5200-FORM-S                 VALUE '1'.
+                15 PSCL5200-FORM-CAPLIC    PIC X(02).
+                15 PSCL5200-FORM-MSG       PIC 9(04).
+             10 PSCL5200-NOMEF             PIC  X(10).
+      *         INDICADOR DE ERRO DO CAMPO NOME FICHEIRO
+             10 PSCL5200-NOMEF-ST.
+                15 PSCL5200-ICE04          PIC  X(01).
+                   88 PSCL5200-ICE04-N                VALUE '0'.
+                   88 PSCL5200-ICE04-S                VALUE '1'.
+                15 PSCL5200-NOMEF-CAPLIC   PIC X(02).
+                15 PSCL5200-NOMEF-MSG      PIC 9(04).
+             10 PSCL5200-OGER              PIC  X(10).
+      *         INDICADOR DE ERRO DO CAMPO GERENTE
+             10 PSCL5200-OGER-ST.
+                15 PSCL5200-ICE05          PIC  X(01).
+                   88 PSCL5200-ICE05-N                VALUE '0'.
+                   88 PSCL5200-ICE05-S                VALUE '1'.
+                15 PSCL5200-OGER-CAPLIC    PIC X(02).
+                15 PSCL5200-OGER-MSG       PIC 9(04).
+             10 PSCL5200-INDBYP            PIC  X(01).
+      *         INDICADOR DE ERRO DO CAMPO INDICADOR BYPASS
+             10 PSCL5200-INDBYP-ST.
+                15 PSCL5200-ICE06          PIC  X(01).
+                   88 PSCL5200-ICE06-N                VALUE '0'.
+                   88 PSCL5200-ICE06-S                VALUE '1'.
+                15 PSCL5200-INDBYP-CAPLIC    PIC X(02).
+                15 PSCL5200-INDBYP-MSG       PIC 9(04).
+             10 PSCL5200-CANAL             PIC  X(10).
+      *         INDICADOR DE ERRO DO CAMPO CANAL
+             10 PSCL5200-CANAL-ST.
+                15 PSCL5200-ICE07          PIC  X(01).
+                   88 PSCL5200-ICE07-N                VALUE '0'.
+                   88 PSCL5200-ICE07-S                VALUE '1'.
+                15 PSCL5200-CANAL-CAPLIC   PIC X(02).
+                15 PSCL5200-CANAL-MSG      PIC 9(04).
+             10 PSCL5200-BIBLI             PIC  X(10).
+      *         INDICADOR DE ERRO DO CAMPO BIBLIOTECA
+             10 PSCL5200-BIBLI-ST.
+                15 PSCL5200-ICE08          PIC  X(01).
+                   88 PSCL5200-ICE08-N                VALUE '0'.
+                   88 PSCL5200-ICE08-S                VALUE '1'.
+                15 PSCL5200-BIBLI-CAPLIC   PIC X(02).
+                15 PSCL5200-BIBLI-MSG      PIC 9(04).
+             10 PSCL5200-SITR              PIC  X(01).
+             10 PSCL5200-USRINT            PIC  X(10).
+             10 PSCL5200-AGEN              PIC S9(04) COMP-3.
+             10 PSCL5200-DCAR              PIC S9(08) COMP-3.
+             10 PSCL5200-DPRO              PIC S9(08) COMP-3.
+             10 PSCL5200-NCLIB             PIC S9(09) COMP-3.
+             10 PSCL5200-CONTAB            PIC S9(14).
+             10 FILLER REDEFINES PSCL5200-CONTAB.
+                15 PSCL5200-CONTAB-NCLIB   PIC S9(09).
+                15 PSCL5200-CONTAB-NATRB   PIC S9(02).
+                15 PSCL5200-CONTAB-NSEQB   PIC S9(03).
+             10 PSCL5200-DINTB             PIC S9(08) COMP-3.
+             10 PSCL5200-REFORDB           PIC  X(20).
+             10 PSCL5200-MONTB             PIC S9(11)V9(2) COMP-3.
+             10 PSCL5200-TREGB             PIC S9(14) COMP-3.
+             10 PSCL5200-NCLIC             PIC S9(09) COMP-3.
+             10 PSCL5200-CONTAC            PIC S9(14).
+             10 FILLER REDEFINES PSCL5200-CONTAC.
+                15 PSCL5200-CONTAC-NCLIC   PIC S9(09).
+                15 PSCL5200-CONTAC-NATRC   PIC S9(02).
+                15 PSCL5200-CONTAC-NSEQC   PIC S9(03).
+             10 PSCL5200-DINTC             PIC S9(08) COMP-3.
+             10 PSCL5200-REFORDC           PIC  X(20).
+             10 PSCL5200-MONTC             PIC S9(11)V9(2) COMP-3.
+             10 PSCL5200-TREGC             PIC S9(14) COMP-3.
+             10 PSCL5200-CODERR            PIC S9(04) COMP-3.
+             10 PSCL5200-TREMUN            PIC  X(01).
+             10 PSCL5200-TSERV             PIC  X(02).
+             10 PSCL5200-FILLER            PIC  X(80).
+             10 PSCL5200-IND-FICH-VAZIO    PIC  X(01).

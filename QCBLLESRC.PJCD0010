@@ -1,0 +1,8 @@
+      *****************************************************************
+      *                                                               *
+      *   PJCD0010  DECLARACAO TABELA DE ACUMULADO DE                 ***
+      *             MOVIMENTOS DIARIOS DO PAGSAL                      ***
+      *                                                               *
+      *****************************************************************
+       01  REG-PJCD0010.
+           COPY DDS-ALL-FORMATS OF PJF0010 PREFIX BY 'PJCD0010-'.

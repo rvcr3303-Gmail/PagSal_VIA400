@@ -1,0 +1,22 @@
+      ******************************************************************
+      *  APLICAÇÃO:        AR                                          *
+      *  MÓDULO:           COPIA FICHEIRO DO IFS PARA AS400            *
+      *  FUNÇÃO:           LINKAGE                                     *
+      *  PROGRAMA:         ARM70155                                    *
+      *  CRIACAO:          2014.08.14                                  *
+      *  AUTOR:            VIA CONSULTING                              *
+      *  DESCRIÇÃO:        LINKAGE COM CAMPOS INDIVIDUAIS              *
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S            *
+      *          *        *        *                                   *
+      ******************************************************************
+       01 ARCL7155-DATA.
+          05 ARCL7155-PATHI                PIC  X(100) VALUE SPACES.
+          05 ARCL7155-FILEI                PIC  X(100) VALUE SPACES.
+          05 ARCL7155-BIBLO                PIC  X(010) VALUE SPACES.
+          05 ARCL7155-FILEO                PIC  X(010) VALUE SPACES.
+          05 ARCL7155-FSIZE                PIC S9(004) COMP-3.
+
+       01 ARCL7155-ROTINA                  PIC  X(010) VALUE 'ARM70155'.

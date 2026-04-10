@@ -1,0 +1,59 @@
+      *****************************************************************
+      * NOME:      SXCL0045                                           *
+      * DESCRICAO: CAMPOS USADOS PARA CHAMADA À VALIDAÇÃO DO CLIENTE  *
+      *            VERSÃO 2.03 (GB2085)                               *
+      *            VERSÃO 3.00 (GB2085)                               *
+      * CRIACAO:   26-05-2011                                         *
+      * AUTOR:     VIA CONSULTING                                     *
+      *****************************************************************
+      * CAMPOS
+      *
+      * INPUT:
+      * SXCL0045-VERSAO: VERSAO (2.03/3.00)
+      * SXCL0045-NCLI  : NÚMERO DE CLIENTE A VALIDAR
+      *
+      *===============================================================*
+      * CALL "SXRM0045" USING SXCL0045-DATA                           *
+      *****************************************************************
+       01  SXCL0045-DATA.
+           05 SXCL0045-VERSAO            PIC  X(03)      VALUE SPACES.
+              88 SXCL0045-V203                           VALUE '203'.
+              88 SXCL0045-V300                           VALUE '300'.
+              88 SXCL0045-VVAL                           VALUE '203'
+                                                               '300'.
+      *---
+      *****************************************************************
+      *    CAMPOS STANDARD                                            *
+      *****************************************************************
+      *--- comum
+           05 SXCL0045-ENTRADA.
+              10 SXCL0045-DPGMQ          PIC  X(10)      VALUE SPACES.
+              10 SXCL0045-DRCODE         PIC  9(01)      COMP-3.
+              10 SXCL0045-DUSERC         PIC  X(10)      VALUE SPACES.
+              10 SXCL0045-DTACE          PIC  X(01)      VALUE SPACES.
+              10 SXCL0045-DVNCR          PIC  X(01)      VALUE SPACES.
+              10 SXCL0045-WTVCLI         PIC  X(01)      VALUE SPACES.
+              10 SXCL0045-WPNOME         PIC  X(01)      VALUE SPACES.
+              10 SXCL0045-CRNCLI         PIC  9(09)      COMP-3.
+              10 SXCL0045-DICE01         PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-WBLOQ             PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-CLBAL             PIC  9(04)      COMP-3.
+           05 SXCL0045-CLCRES            PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-CLCST             PIC  X(06)      VALUE SPACES.
+           05 SXCL0045-CLTCLI            PIC  X(02)      VALUE SPACES.
+           05 SXCL0045-CLNRCLI           PIC  X(10)      VALUE SPACES.
+           05 SXCL0045-CLPCNG            PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-CLEPAR            PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-TTNOMT            PIC  X(40)      VALUE SPACES.
+           05 SXCL0045-TTNUMT            PIC  9(07)      COMP-3.
+           05 SXCL0045-TTVINC            PIC  X(02)      VALUE SPACES.
+           05 SXCL0045-TTCAE             PIC  X(06)      VALUE SPACES.
+           05 SXCL0045-GBTTFOTO          PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-CLPAIS            PIC  X(03)      VALUE SPACES.
+           05 SXCL0045-CLCIAC            PIC  X(01)      VALUE SPACES.
+           05 SXCL0045-CLGERC            PIC  X(10)      VALUE SPACES.
+           05 SXCL0045-WRFLGCE.
+              10 DDESP-O OCCURS  20 TIMES.
+                 15 SXCL0045-WRFLGCE-T   PIC  X(04).
+      *---
+       01  SXCL0045-ROTINA               PIC  X(08) VALUE 'SXRM0045'.

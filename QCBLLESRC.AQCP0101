@@ -1,0 +1,112 @@
+      *****************************************************************
+      * NOME:      AQCP0101                                           *
+      * DESCRICAO: OBTENCAO VERSAO E DATA DA APLICACAO                *
+      *****************************************************************
+       AQCP0101-OBT-DADOS-ARQ.
+      *
+           IF ETCL0002-SEM-ERROS
+             PERFORM AQCP0101-VAL-IDEBUG
+                THRU AQCP0101-VAL-IDEBUG-EXIT
+           END-IF.
+      *
+           IF ETCL0002-SEM-ERROS
+             PERFORM AQCP0101-OBT-CORE
+                THRU AQCP0101-OBT-CORE-EXIT
+           END-IF.
+      *
+           IF ETCL0002-SEM-ERROS
+             PERFORM AQCP0101-OBT-DATA
+                THRU AQCP0101-OBT-DATA-EXIT
+           END-IF.
+      *
+       AQCP0101-OBT-DADOS-ARQ-EXIT.
+           EXIT.
+      *****************************************************************
+      * DESCRICAO: TRATAMENTO IDEBUG                                  *
+      *****************************************************************
+       AQCP0101-VAL-IDEBUG.
+
+           IF ETCL0002-DEBUG IS NOT ALPHABETIC
+             SET ETCL0002-DEBUG-SIM     TO TRUE
+           END-IF.
+      *
+       AQCP0101-VAL-IDEBUG-EXIT.
+           EXIT.
+      *****************************************************************
+      * DESCRICAO: OBTENCAO DA VERSÃO BANKA                           *
+      *****************************************************************
+       AQCP0101-OBT-CORE.
+
+           MOVE 'AQCP0101-OBT-CORE     ' TO VIAL0015-CALLER-ID.
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT.
+
+           INITIALIZE ARCL2205-DATA.
+
+           MOVE VIAK0002-PARAM-CORE         TO ARCL2205-CPARAM.
+           MOVE VIAK0002-APLIC-AT           TO ARCL2205-CAPLIC.
+
+           PERFORM CALL-ARM2206
+              THRU CALL-ARM2206-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+              CONTINUE
+           ELSE
+             MOVE 'ARCL2205-GVALOR1    ' TO VIAL0015-CAMPO-NM ( 2 )
+             MOVE ARCL2205-GVALOR1       TO VIAL0015-CAMPO-VLR ( 2 )
+             PERFORM VIAP0015-TRATA-DEBUG
+                THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+       AQCP0101-OBT-CORE-EXIT.
+           EXIT.
+      *****************************************************************
+      * DESCRICAO: OBTENCAO DA DATA DO SISTEMA                        *
+      *****************************************************************
+       AQCP0101-OBT-DATA.
+
+           IF ETCL0002-DEBUG-SIM
+             MOVE 'AQCP0101-OBT-DATA     ' TO VIAL0015-CALLER-ID
+             PERFORM VIAP0015-TRATA-DEBUG
+                THRU VIAP0015-TRATA-DEBUG-EXIT
+           END-IF.
+
+           INITIALIZE ETCL0050-DATA.
+           MOVE ARCL2205-GVALOR1                 TO ETCL0050-VERSAO.
+           MOVE ZEROES                           TO ETCL0050-RCODE.
+
+           PERFORM CALL-ETR00050
+              THRU CALL-ETR00050-EXIT.
+
+           IF ETCL0002-SEM-ERROS
+             MOVE ETCL0050-DTAPL         TO AQCW0100-AT-DTOP
+           ELSE
+             IF ETCL0050-DTAPL IS NUMERIC
+                MOVE 'ETCL0050-DTAPL      ' TO VIAL0015-CAMPO-NM ( 2 )
+                MOVE ETCL0050-DTAPL         TO VIAL0015-CAMPO-VLR ( 2 )
+                PERFORM VIAP0015-TRATA-DEBUG
+                   THRU VIAP0015-TRATA-DEBUG-EXIT
+             END-IF
+           END-IF.
+      *
+           IF ETCL0050-DTAPL IS NOT NUMERIC
+              SET ETCL0002-ERROS-FUNCAO  TO TRUE
+              SET ETCL0002-RCODE-VAL     TO TRUE
+              MOVE ETCK0001-ERR-DATA-PROC TO ETCL0002-NR-ERRO
+              MOVE ETCK0001-ERR-DATA-PROC TO ETCL0002-ST-ERRO
+              MOVE ETCK0002-APL-ET        TO ETCL0002-CAPLIC-ERRO
+           ELSE
+              IF ETCL0050-DTAPL EQUAL ZEROES
+                 SET ETCL0002-ERROS-FUNCAO  TO TRUE
+                 SET ETCL0002-RCODE-VAL     TO TRUE
+                 MOVE ETCK0001-ERR-DATA-PROC TO ETCL0002-NR-ERRO
+                 MOVE ETCK0001-ERR-DATA-PROC TO ETCL0002-ST-ERRO
+                 MOVE ETCK0002-APL-ET        TO ETCL0002-CAPLIC-ERRO
+              END-IF
+           END-IF.
+      *
+       AQCP0101-OBT-DATA-EXIT.
+           EXIT.
+       COPY VIAP0015.
+       COPY ETCP0050.
+       COPY ARCR2206.
