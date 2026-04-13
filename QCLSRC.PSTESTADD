@@ -1,0 +1,52 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/*                  Simulação de cadeia batch                   */
+/*                                                              */
+/*--------------------------------------------------------------*/
+           PGM
+/*--------------------------------------------------------------*/
+/* declaração de variaveis */
+           DCL VAR(&SPACES)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&TIME)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DATE)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DEBUG)   TYPE(*CHAR) LEN( 1)   VALUE(S)
+           DCL VAR(&$RCODE)  TYPE(*DEC)  LEN( 1 0) VALUE(0)
+           DCL VAR(&XRCODE)  TYPE(*CHAR) LEN( 1)   VALUE('0')
+           DCL VAR(&FDSEQE)  TYPE(*DEC)  LEN( 6 0) VALUE(0)
+           DCL VAR(&SEQ)     TYPE(*DEC)  LEN( 4 0) VALUE(00)
+           DCL VAR(&PGM)     TYPE(*CHAR) LEN(10)
+           DCL VAR(&EOB)     TYPE(*CHAR) LEN(10)   VALUE(*EOB)
+           DCL VAR(&CADEIA)  TYPE(*CHAR) LEN(10)   VALUE(TBBATCH)
+           DCL VAR(&CURLIB)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&LIB1)    TYPE(*CHAR) LEN(10) VALUE(VIAOBJ0008)
+           DCL VAR(&LIB2)    TYPE(*CHAR) LEN(10) VALUE(PROUSR0008)
+           DCL VAR(&LIB3)    TYPE(*CHAR) LEN(10) VALUE(VIA3G20154)
+/*         DCL VAR(&DIRFINP) TYPE(*CHAR) LEN(10)                */
+/*--------------------------------------------------------------*/
+/*  CARREGA BIBLIOTECAS DE TRABALHO                                          */
+/*--------------------------------------------------------------*/
+           RTVJOBA CURLIB(&CURLIB)
+           CHGCURLIB CURLIB(APAUNDE)
+/*--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------*/
+ INIT:       RUNSQL     SQL('INSERT INTO VIAF0015   (PGM, CALLER, +
+                          UTILIZA, CAMPOS, IDEBUG, HTIMEST, +
+                          DTPROC,NRSEQ)                               -
+                                           VALUES(''CPF2105'', +
+                          ''INI ADD '', ''RMELO'',  ''' || &PGM |< +
+                          ''', ''N'',        CURRENT_TIMESTAMP, +
+                          CURRENT_DATE, 0)')
+ CALLPGM:    RUNSQL     SQL('      ALTER +
+                          TABLE                                       -
+                              +
+                          APAUNDE/PSFFICHEIR                          -
+                                            ADD +
+                          COLUMN                                      -
+                                CSWCTA CHAR(40) NOT NULL WITH DEFAULT')
+/*--------------------------------------------------------------*/
+/*- REGISTA FIM DA CADEIA E TERMINA                            -*/
+/*--------------------------------------------------------------*/
+FIM:       CHGCURLIB CURLIB(&CURLIB)
+           RCLRSC
+           ENDPGM

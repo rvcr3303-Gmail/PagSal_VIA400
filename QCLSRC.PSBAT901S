@@ -1,0 +1,41 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/*   Cadeia de reorganização de ficheiros de salarios           */
+/*                   (apos expurgo)                             */
+/*--------------------------------------------------------------*/
+           PGM
+/*--------------------------------------------------------------*/
+/* declaração de variaveis */
+           DCL VAR(&SPACES)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&TIME)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DATE)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DEBUG)   TYPE(*CHAR) LEN( 1)   VALUE(S)
+           DCL VAR(&$RCODE)  TYPE(*DEC)  LEN( 2 0) VALUE(0)
+           DCL VAR(&XRCODE)  TYPE(*CHAR) LEN( 2)
+           DCL VAR(&FDSEQE)  TYPE(*DEC)  LEN( 6 0) VALUE(0)
+           DCL VAR(&SEQ)     TYPE(*DEC)  LEN( 3 0) VALUE(00)
+           DCL VAR(&PGM)     TYPE(*CHAR) LEN(10)
+           DCL VAR(&EOB)     TYPE(*CHAR) LEN(10)   VALUE(*EOB)
+           DCL VAR(&CURLIB)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&CADEIA)  TYPE(*CHAR) LEN(10)   VALUE(PSBAT901)
+           DCL VAR(&DATA)   TYPE(*CHAR) LEN(10) VALUE('0001-01-01')
+           DCL VAR(&CURLIB) TYPE(*CHAR) LEN(10)
+           DCL VAR(&CUR)    TYPE(*CHAR) LEN(10)
+           DCL VAR(&AMB)    TYPE(*CHAR) LEN(01)
+/*--------------------------------------------------------------*/
+           RTVJOBA CURLIB(&CURLIB)
+           CALL BAB49900 PARM(&$RCODE &AMB &CUR)
+           CHGCURLIB CURLIB(&CUR)
+/*--------------------------------------------------------------*/
+           CALL BMEXT PARM('    ' '    ' 'E')
+           CALL BAB49991 PARM(&$RCODE &CADEIA &DATA)
+/*--------------------------------------------------------------*/
+ RTV1:       RGZPFM     FILE(&CUR/PSFFICHEIR) /* FICHEIROS      */
+ RTV2:       RGZPFM     FILE(&CUR/PSFHEADER)  /* HEADER         */
+ RTV3:       RGZPFM     FILE(&CUR/PSFDETALHE) /* DETALHES       */
+ RTV4:       RGZPFM     FILE(&CUR/PSFTRAILER) /* TRAILER        */
+ RTV5:       RGZPFM     FILE(&CUR/PSFHMENSAG) /* MENSAGENS      */
+/*--------------------------------------------------------------*/
+FIM:       CALL BAB49996 PARM(&$RCODE &CADEIA &DATA)
+           CHGCURLIB CURLIB(&CURLIB)
+           ENDPGM

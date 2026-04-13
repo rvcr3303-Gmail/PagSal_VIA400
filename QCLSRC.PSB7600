@@ -1,0 +1,26 @@
+/*****************************************************************************/
+/*                                                                           */
+/*                           PAGAMENTO DE SALÁRIOS                           */
+/*                                                                           */
+/*****************************************************************************/
+/* Envio de emails                                                           */
+/*****************************************************************************/
+/*           L O G     D E     A L T E R A C O E S                           */
+/*****************************************************************************/
+/*  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S                       */
+/*          *        *        *                                              */
+/*          *        *        *                                              */
+/*****************************************************************************/
+/*                                                                   */
+      PGM
+      DCL VAR(&$RCODE)  TYPE(*DEC)  LEN( 1 0)
+      DCL VAR(&RECORD)  TYPE(*DEC)  LEN(10 0)
+
+      CALL PGM(PSB4600) PARM(&$RCODE)
+
+      /* Formata e envia correio electrónico */
+      IF ((&$RCODE=0) *OR (&$RCODE=1)) THEN(DO)
+        RTVMBRD FILE(VIAFMAIL) NBRCURRCD(&RECORD)
+        IF (&RECORD>0) CALL PGM(VIAR0075)
+        ENDDO
+      ENDPGM

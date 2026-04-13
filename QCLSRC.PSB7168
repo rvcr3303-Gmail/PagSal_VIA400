@@ -1,0 +1,27 @@
+/*****************************************************************************/
+/*                                                                           */
+/*                           PAGAMENTO DE SALÁRIOS                           */
+/*                                                                           */
+/*****************************************************************************/
+/* Envio de emails                                                           */
+/*****************************************************************************/
+/*           L O G     D E     A L T E R A C O E S                           */
+/*****************************************************************************/
+/*  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S                       */
+/*          *        *        *                                              */
+/*          *        *        *                                              */
+/*****************************************************************************/
+      PGM /* PARM(&$RCODE) */
+      DCL VAR(&$RCODE)  TYPE(*DEC)  LEN( 1 0)
+      DCL VAR(&RECORD)  TYPE(*DEC)  LEN(10 0)
+      CHGCURLIB  CURLIB(PROUSR0008)
+
+      FMTDTA INFILE(VIAF0055) OUTFILE(VIAF00551)  +
+             SRCFILE(QCLSRC) SRCMBR(SORT55) OPTION(*NOPRT)
+
+      /* Formata e envia correio electrónico */
+      IF ((&$RCODE=0) *OR (&$RCODE=1)) THEN(DO)
+        RTVMBRD FILE(VIAF0055) NBRCURRCD(&RECORD)
+        IF (&RECORD>0) CALL PGM(VIAR0056)
+        ENDDO
+      ENDPGM

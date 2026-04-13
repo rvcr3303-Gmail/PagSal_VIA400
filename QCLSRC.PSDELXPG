@@ -1,0 +1,72 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/* PAGSAL - Expurga Ficheiro com Backup                         */
+/*                                                              */
+/*--------------------------------------------------------------*/
+   PGM PARM(&RCODE &LIBEXP &FILE)
+/*--------------------------------------------------------------*/
+/* DECLARACAO DE VARIAVEIS                                      */
+/*--------------------------------------------------------------*/
+   DCL VAR(&RCODE)     TYPE(*DEC)   LEN(1 0)
+   DCL VAR(&LIBEXP)    TYPE(*CHAR)  LEN(10)
+   DCL VAR(&FILE)      TYPE(*CHAR)  LEN(10)
+
+   DCL VAR(&LIB)       TYPE(*CHAR)  LEN(10)
+   DCL VAR(&AMB)       TYPE(*CHAR)  LEN(01)
+
+   DCL VAR(&PGM)       TYPE(*CHAR)  LEN(10)
+   DCL VAR(&PGMBCK)    TYPE(*CHAR)  LEN(10)  VALUE(PSB4410)
+   DCL VAR(&LIBBCK)    TYPE(*CHAR)  LEN(10)  VALUE(       )
+
+/*--------------------------------------------------------------*/
+/* Obtem e altera biblioteca de trabalho                        */
+/*--------------------------------------------------------------*/
+   CALLCURLIB:
+       CHGVAR    &PGM       VALUE(BAB49900)
+       CALL      &PGM       PARM(&RCODE &AMB &LIB)
+       IF        (&RCODE>1) THEN(GOTO ERRPGM)
+       CHGCURLIB CURLIB(&LIB)
+
+/*--------------------------------------------------------------*/
+/* Obter lib backup expurgos                                             */
+/*--------------------------------------------------------------*/
+   CALLPGM:
+       CHGVAR    &PGM       VALUE(&PGMBCK)
+       CALL      &PGMBCK    PARM(&RCODE &LIBEXP &LIBBCK)
+       IF        (&RCODE>1) THEN(GOTO ERRPGM)
+
+/*--------------------------------------------------------------*/
+/* Copiar para a lib de backup                                             */
+/*--------------------------------------------------------------*/
+   CPYFILE:
+       CHGVAR    &PGM       VALUE(CPYF)
+       CPYF      FROMFILE(&LIBEXP/&FILE) +
+                 TOFILE(&LIBBCK/&FILE)   +
+                 FROMMBR(*FIRST)         +
+                 TOMBR(*FIRST)           +
+                 CRTFILE(*YES)           +
+                 FMTOPT(*NOCHK)
+       MONMSG    MSGID(CPF2817) EXEC(GOTO ERRPGM)
+
+/*--------------------------------------------------------------*/
+/* Apagar ficheiro                                             */
+/*--------------------------------------------------------------*/
+   DLTFILE:
+       CHGVAR    &PGM       VALUE(DLTF)
+       DLTF      FILE(&LIBEXP/&FILE)
+       MONMSG    MSGID(CPF2105 CPF3220) EXEC(GOTO ERRPGM)
+       GOTO FINISH
+
+/*--------------------------------------------------------------*/
+/* Erro na execucao                                               */
+/*--------------------------------------------------------------*/
+   ERRPGM:
+/*     SNDUSRMSG ('Erro na execucao do ' || &PGM)               */
+       CHGVAR  VAR(&RCODE)  VALUE(3)
+       GOTO CMDLBL(FINISH)
+
+/*--------------------------------------------------------------*/
+/* Termina execucao e devolve o controlo ao chamador            */
+/*--------------------------------------------------------------*/
+   FINISH:
+       RETURN

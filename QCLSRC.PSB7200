@@ -1,0 +1,80 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/* Pagamentos de Salarios ou a Fornecedores                     */
+/*                                                              */
+/*--------------------------------------------------------------*/
+   PGM PARM(&RCODE &NCLI &DINT &NFIC &STGY)
+/*--------------------------------------------------------------*/
+/* Declaracao de variaveis                                      */
+/*--------------------------------------------------------------*/
+   DCL VAR(&RCODE)     TYPE(*DEC)   LEN(1 0)
+
+   DCL VAR(&LIB)       TYPE(*CHAR)  LEN(10)
+   DCL VAR(&AMB)       TYPE(*CHAR)  LEN(01)
+
+/* Identificacao do ficheiro */
+   DCL VAR(&NCLI) TYPE(*CHAR) LEN(9)
+   DCL VAR(&DINT) TYPE(*CHAR) LEN(8)
+   DCL VAR(&NFIC) TYPE(*CHAR) LEN(6)
+   DCL VAR(&STGY) TYPE(*CHAR) LEN(1)
+
+   DCL VAR(&GEST) TYPE(*CHAR) LEN(10)  VALUE(PSB4201)
+   DCL VAR(&STEP) TYPE(*CHAR) LEN(10)
+
+/*--------------------------------------------------------------*/
+/* Obtem e altera biblioteca de trabalho                        */
+/*--------------------------------------------------------------*/
+   CURLIB:
+       CALL      BAB49900   PARM(&RCODE &AMB &LIB)
+       IF        (&RCODE>1) THEN(GOTO ERRORBAB)
+       CHGCURLIB CURLIB(&LIB)
+       GOTO      GESTOR
+
+/*--------------------------------------------------------------*/
+/* Gestor da cadeia                                             */
+/*--------------------------------------------------------------*/
+   GESTOR:
+       CALL      &GEST      PARM(&RCODE &NCLI &DINT &NFIC +
+                                 &STGY &STEP)
+       IF        (&RCODE>1) THEN(GOTO ERRGEST)
+       IF        ((&STEP *EQ &GEST) *OR (&STEP *EQ FINISH)) +
+                            THEN(GOTO FINISH)
+
+/*--------------------------------------------------------------*/
+/* Execucao do step                                             */
+/*--------------------------------------------------------------*/
+   CALLSTEP:
+/*     SNDUSRMSG ('step ' || &STEP || '...')                    */
+       CALL      &STEP      PARM(&RCODE &NCLI &DINT &NFIC)
+       IF        (&RCODE>1) THEN(GOTO ERRSTEP)
+       ELSE                     (GOTO GESTOR)
+
+/*--------------------------------------------------------------*/
+/* Erro programa BAB49900                                       */
+/*--------------------------------------------------------------*/
+   ERRORBAB:
+       SNDUSRMSG ('Erro na execução do programa BAB49900')
+       CHGVAR  VAR(&RCODE)  VALUE(3)
+       GOTO CMDLBL(FINISH)
+
+/*--------------------------------------------------------------*/
+/* Erro no gestor                                               */
+/*--------------------------------------------------------------*/
+   ERRGEST:
+       SNDUSRMSG ('Erro na execução do gestor ' || &GEST)
+       CHGVAR  VAR(&RCODE)  VALUE(3)
+       GOTO CMDLBL(FINISH)
+
+/*--------------------------------------------------------------*/
+/* Erro no step                                                 */
+/*--------------------------------------------------------------*/
+   ERRSTEP:
+/*     SNDUSRMSG ('Erro na execução do passo ' || &STEP)        */
+       CHGVAR  VAR(&RCODE)  VALUE(2)
+       GOTO CMDLBL(FINISH)
+
+/*--------------------------------------------------------------*/
+/* Termina execucao e devolve o controlo ao chamador            */
+/*--------------------------------------------------------------*/
+   FINISH:
+       RETURN

@@ -1,0 +1,31 @@
+/******************************************************************/
+/***                                                            ***/
+/*                            PROJECTO                            */
+/*                     PAGAMENTO DE SALÁRIOS                      */
+/***                                                            ***/
+/******************************************************************/
+/* OBJECTIVO: Conta a quantidade de registos existente num        */
+/*            ficheiro salvaguardado numa pasta do IFS            */
+/******************************************************************/
+      PGM   PARM(&RCODE &RCOUNT)
+/******************************************************************/
+/***                                                            ***/
+/*                     PROCEDIMENTOS INICIAIS                     */
+/***                                                            ***/
+/******************************************************************/
+      DCL  VAR(&RCODE)    TYPE(*DEC)  LEN(01 0)
+      DCL  VAR(&RCOUNT)   TYPE(*CHAR) LEN(20)
+/*                                                                */
+      DCLF FILE(PSFIFSFC)
+      RCVF
+      CHGVAR VAR(&RCOUNT)  VALUE(&PSFIFSFC)
+/***                                                            ***/
+      GOTO       ENDPGM
+/******************************************************************/
+/*            V i a     C o n s u l t i n g     W a y             */
+/******************************************************************/
+ERRQTDO:  /* Ficheiro não encontrado no IFS */
+          CHGVAR    &RCODE    VALUE('2')
+          GOTO ENDPGM
+/*                                                                */
+ENDPGM:  ENDPGM

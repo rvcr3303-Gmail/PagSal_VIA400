@@ -1,0 +1,105 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/*        Cadeia Batch de Expurgos (Pag. Salários) - Exec       */
+/*                                                              */
+/*--------------------------------------------------------------*/
+           PGM
+
+/*--------------------------------------------------------------*/
+/* Declara variáveis                                            */
+/*--------------------------------------------------------------*/
+           DCL VAR(&SPACES)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&TIME)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DATE)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DEBUG)   TYPE(*CHAR) LEN( 1)   VALUE(S)
+           DCL VAR(&$RCODE)  TYPE(*DEC)  LEN( 1 0) VALUE(0)
+           DCL VAR(&XRCODE)  TYPE(*CHAR) LEN( 2)
+           DCL VAR(&FDSEQE)  TYPE(*DEC)  LEN( 6 0) VALUE(0)
+           DCL VAR(&SEQ)     TYPE(*DEC)  LEN( 3 0) VALUE(00)
+           DCL VAR(&PGM)     TYPE(*CHAR) LEN(10)
+           DCL VAR(&EOB)     TYPE(*CHAR) LEN(10)   VALUE(*EOB)
+           DCL VAR(&CURLIB)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&CADEIA)  TYPE(*CHAR) LEN(10)   VALUE(PSEXPURG)
+           DCL VAR(&DATA)    TYPE(*CHAR) LEN(10)   VALUE('0001-01-01')
+           DCL VAR(&CURLIB)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&CUR)     TYPE(*CHAR) LEN(10)
+           DCL VAR(&AMB)     TYPE(*CHAR) LEN(01)
+
+/*--------------------------------------------------------------*/
+/*  Obtém biblioteca de trabalho, salvaguarda corrente          */
+/*--------------------------------------------------------------*/
+           RTVJOBA CURLIB(&CURLIB)
+           CALL BAB49900 PARM(&$RCODE &AMB &CUR)
+           IF     (&$RCODE>1) THEN(GOTO FIM)
+           CHGCURLIB CURLIB(&CUR)
+/*--------------------------------------------------------------*/
+/* Registo Execução                                             */
+/*--------------------------------------------------------------*/
+/* Comentar a proxima linha em PROJETOX (erro CPF0001) */
+           CALL BMEXT PARM('    ' '    ' 'E')
+           CALL BAB49991 PARM(&$RCODE &CADEIA &DATA)
+           IF     (&$RCODE>1) THEN(GOTO FIM)
+
+/*--------------------------------------------------------------*/
+/* Sequenciação de programas                                    */
+/*--------------------------------------------------------------*/
+MAIN:      CHGVAR VAR(&SEQ) VALUE(&SEQ + 1)
+           CHGVAR VAR(&PGM) VALUE(&SPACES)
+
+/*--------------------------------------------------------------*/
+/* Programas                                                    */
+/*--------------------------------------------------------------*/
+/* NOVO PROGRAMA QUE INACTIVA APLICAÇAO DE PAGSAL               */
+           IF (&SEQ=01)  CHGVAR &PGM PSB7010
+           IF (&SEQ=02)  CHGVAR &PGM PSB7900
+           IF (&SEQ=03)  CHGVAR &PGM PSB7905
+           IF (&SEQ=04)  CHGVAR &PGM PSB7910
+           IF (&SEQ=05)  CHGVAR &PGM PSB7915
+           IF (&SEQ=06)  CHGVAR &PGM PSB7920
+           IF (&SEQ=07)  CHGVAR &PGM PSB7925
+           IF (&SEQ=08)  CHGVAR &PGM PSB7930
+           IF (&SEQ=09)  CHGVAR &PGM PSB7935
+           IF (&SEQ=10)  CHGVAR &PGM PSB7940
+           IF (&SEQ=11)  CHGVAR &PGM PSB7945
+           IF (&SEQ=12)  CHGVAR &PGM PSB7950
+
+           IF (&SEQ=78)  CHGVAR &PGM PSB7999
+/* NOVO PROGRAMA QUE RE-ACTIVA APLICAÇAO DE PAGSAL              */
+           IF (&SEQ=79)  CHGVAR &PGM PSB7090
+
+/* Previne LOOP infinito */
+           IF (&SEQ>80)  CHGVAR &PGM &EOB
+
+/*--------------------------------------------------------------*/
+/* Execução do programa                                         */
+/*--------------------------------------------------------------*/
+CALLPGM:   IF (&PGM *EQ &EOB)    GOTO FIM
+           IF (&PGM *EQ &SPACES) GOTO MAIN
+
+           RTVSYSVAL SYSVAL(QTIME) RTNVAR(&TIME)
+           RTVSYSVAL SYSVAL(QDATE) RTNVAR(&DATE)
+           IF (&DEBUG=S) +
+               SNDPGMMSG MSG('Debug>  '             +
+                             *CAT &PGM              +
+                             *CAT ' iniciou em '    +
+                             *CAT &DATE             +
+                             *CAT ' às '            +
+                             *CAT %SST(&TIME 1 2)   +
+                             *CAT ':'               +
+                             *CAT %SST(&TIME 3 2)   +
+                             *CAT ':'               +
+                             *CAT %SST(&TIME 5 2)   )
+
+           CALL &CUR/&PGM PARM(&$RCODE)
+           CHGVAR VAR(&XRCODE) VALUE(&$RCODE)
+           SNDPGMMSG MSG('RETURN CODE = ' *CAT &XRCODE)
+           IF ((&$RCODE=0) *OR (&$RCODE=1)) THEN(GOTO MAIN)
+           ELSE SNDUSRMSG ('Procedimento terminou por erro')
+
+/*--------------------------------------------------------------*/
+/* Finaliza execução                                            */
+/*--------------------------------------------------------------*/
+FIM:
+           CALL BAB49996 PARM(&$RCODE &CADEIA &DATA)
+           CHGCURLIB CURLIB(&CURLIB)
+           ENDPGM

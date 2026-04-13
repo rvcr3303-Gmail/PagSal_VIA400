@@ -1,0 +1,23 @@
+/***********************************************************************/
+/***********************************************************************/
+/*           L O G     D E     A L T E R A C O E S                     */
+/***********************************************************************/
+/*  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S                 */
+/*          *        *        *                                        */
+/*          *        *        *                                        */
+/***********************************************************************/
+/*--------------------------------------------------------------*/
+
+      PGM PARM(&$RCODE &AMB &CUR)
+      DCL VAR(&$RCODE)  TYPE(*DEC)  LEN(2 0)
+      DCL VAR(&CUR)     TYPE(*CHAR) LEN(10)
+      DCL VAR(&AMB)     TYPE(*CHAR) LEN(01)
+      IF ((&$RCODE=0) *OR (&$RCODE=1))
+/*--------------------------------------------------------------*/
+ REO1:       RGZPFM     FILE(&CUR/PSFFICHEIR) /* FICHEIROS      */
+ REO2:       RGZPFM     FILE(&CUR/PSFHEADER)  /* HEADER         */
+ REO3:       RGZPFM     FILE(&CUR/PSFDETALHE) /* DETALHES       */
+ REO4:       RGZPFM     FILE(&CUR/PSFTRAILER) /* TRAILER        */
+ REO5:       RGZPFM     FILE(&CUR/PSFHMENSAG) /* MENSAGENS      */
+/*--------------------------------------------------------------*/
+      ENDPGM

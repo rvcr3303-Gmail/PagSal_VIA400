@@ -1,0 +1,18 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/*     Cadeia de reorganização de ficheiros de salarios         */
+/*                     (apos expurgo)                           */
+/*--------------------------------------------------------------*/
+           PGM
+/*--------------------------------------------------------------*/
+/* declaração de variaveis */
+           DCL VAR(&CADEIA)  TYPE(*CHAR) LEN(10)  VALUE(PSBAT901S)
+/*--------------------------------------------------------------*/
+/* Programas                                                    */
+/*--------------------------------------------------------------*/
+SUBMIT:    SBMJOB     CMD(CALL PGM(&CADEIA) ) +
+                        JOB(VIA_BATCH)                +
+                        PRTDEV(*SYSVAL) USER(DSIOPRS) +
+                        JOBMSGQFL(*WRAP) INQMSGRPY(*RQD)
+/*--------------------------------------------------------------*/
+FIM:       ENDPGM

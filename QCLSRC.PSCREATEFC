@@ -1,0 +1,89 @@
+/******************************************************************/
+/***                                                            ***/
+/*                            PROJECTO                            */
+/*                     PAGAMENTO DE SALÁRIOS                      */
+/***                                                            ***/
+/******************************************************************/
+/* OBJECTIVO: COPIA FICHEIRO INICIAL PARA FICHEIRO TEMPORÁRIO     */
+/*            APAGA FICHEIRO INICIAL, CRIA FICHEIRO INICIAL COM   */
+/*            150 DE RECORD LENGTH E COPIA FICH TEMPORÁRIO PARA   */
+/*            FICHEIRO INICIAL                                    */
+/******************************************************************/
+      PGM   PARM(&FILENAME &LIB &RCOUNT &RCODE)
+/******************************************************************/
+/***                                                            ***/
+/*                     PROCEDIMENTOS INICIAIS                     */
+/***                                                            ***/
+/******************************************************************/
+      DCL VAR(&FILENAME) TYPE(*CHAR) LEN(10)
+      DCL VAR(&LIB)      TYPE(*CHAR) LEN(10)
+      DCL VAR(&RCOUNT)   TYPE(*DEC)  LEN(10 0)
+      DCL VAR(&RCODE)    TYPE(*CHAR) LEN(01)
+      DCL VAR(&REC)      TYPE(*DEC)  LEN(10 0) VALUE(0)
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 1                             */
+/*                        CRIA FICHEIROS                          */
+/***                                                            ***/
+/******************************************************************/
+/***                                                            ***/
+      CHGVAR VAR(&RCOUNT)  VALUE(0)
+/***                                                            ***/
+/***        CONTA REGISTOS NO FICHEIRO ORIGINAL                 ***/
+/***                                                            ***/
+      RTVMBRD FILE(&LIB/&FILENAME) NBRCURRCD(&REC)
+      IF (&REC *EQ 0) THEN(GOTO ERRO1)
+      CHGVAR VAR(&RCOUNT)  VALUE(&REC)
+/***                                                            ***/
+/***        APAGA FICHEIRO TEMPORARIO E CRIA NOVO               ***/
+/***                                                            ***/
+      DLTF   FILE(&LIB/PSFICHENV)
+      MONMSG MSGID(CPF2105 CPF3220)
+      CRTPF  FILE(&LIB/PSFICHENV) MBR(PSFICHENV) +
+          RCDLEN(340) SIZE(*NOMAX)
+/***                                                            ***/
+/***        COPIA FICHEIRO RECEBIDO PARA O TEMPORARIO           ***/
+/***                                                            ***/
+      CPYF FROMFILE(&LIB/&FILENAME)   +
+          TOFILE(&LIB/PSFICHENV)        +
+          MBROPT(*ADD) FMTOPT(*NOCHK)
+/***                                                            ***/
+/***        CONTA REGISTOS COPIADOS PARA O TEMPORARIO           ***/
+/***                                                            ***/
+      RTVMBRD FILE(&LIB/PSFICHENV) NBRCURRCD(&REC)
+      IF (&REC *NE &RCOUNT) THEN(GOTO ERRO2)
+/***                                                            ***/
+/***        APAGA FICHEIRO ORIGINAL E VOLTA A CRIA-LO           ***/
+/***                                                            ***/
+      DLTF   FILE(&LIB/&FILENAME)
+      MONMSG MSGID(CPF2105 CPF3220)
+      CRTPF  FILE(&LIB/&FILENAME) MBR(&FILENAME) +
+          RCDLEN(340) SIZE(*NOMAX)
+/***                                                            ***/
+/***        COPIA FICHEIRO TEMPORARIO PARA O ORIGINAL           ***/
+/***                                                            ***/
+      CPYF FROMFILE(&LIB/PSFICHENV)   +
+          TOFILE(&LIB/&FILENAME)         +
+          MBROPT(*ADD) FMTOPT(*NOCHK)
+/***                                                            ***/
+/***        CONTA REGISTOS COPIADOS PARA O ORIGINAL             ***/
+/***                                                            ***/
+      RTVMBRD FILE(&LIB/&FILENAME) NBRCURRCD(&REC)
+      IF (&REC *NE &RCOUNT) THEN(GOTO ERRO3)
+/***                                                            ***/
+      DLTF   FILE(&LIB/PSFICHENV)
+      MONMSG MSGID(CPF2105 CPF3220)
+/***                                                            ***/
+      GOTO       ENDPGM
+/******************************************************************/
+/*            V i a     C o n s u l t i n g     W a y             */
+/******************************************************************/
+ERRO1:    /* O FICHEIRO ORIGINAL NÃO TEM REGISTOS                 */
+          CHGVAR    &RCODE    VALUE('9')
+          GOTO ENDPGM
+ERRO2:    /* A COPIA DO ORIGINAL PARA O TEMPORARIO PERDEU REGISTOS*/
+          CHGVAR    &RCODE    VALUE('8')
+          GOTO ENDPGM
+ERRO3:    /* A COPIA DO TEMPORARIO PARA O ORIGINAL PERDEU REGISTOS*/
+          CHGVAR    &RCODE    VALUE('7')
+ENDPGM:  ENDPGM

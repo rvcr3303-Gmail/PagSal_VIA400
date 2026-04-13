@@ -1,0 +1,88 @@
+/******************************************************************/
+/***                                                            ***/
+/*                            PROJECTO                            */
+/*                     PAGAMENTO DE SALÁRIOS                      */
+/***                                                            ***/
+/******************************************************************/
+/* OBJECTIVO: Conta a quantidade de registos existente num        */
+/*            ficheiro salvaguardado numa pasta do IFS            */
+/******************************************************************/
+      PGM   PARM(&RCODE &IFSFILE &WRKLIB &RCOUNT)
+/******************************************************************/
+/***                                                            ***/
+/*                     PROCEDIMENTOS INICIAIS                     */
+/***                                                            ***/
+/******************************************************************/
+      DCL  VAR(&RCODE)    TYPE(*DEC)  LEN(01 0)
+      DCL  VAR(&IFSFILE)  TYPE(*CHAR) LEN(100)
+      DCL  VAR(&WRKLIB)   TYPE(*CHAR) LEN(10)
+      DCL  VAR(&RCOUNT)   TYPE(*CHAR) LEN(20)
+/*                                                                */
+      DCL  VAR(&QSHCMD)   TYPE(*CHAR) LEN(500)  VALUE(*SPACE)
+      DCL  VAR(&REC)      TYPE(*DEC)  LEN(10 0) VALUE(0)
+      DCL  VAR(&CURLIB)   TYPE(*CHAR) LEN(10)   VALUE(*SPACE)
+/*                                                                */
+/*                                                                */
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 1                             */
+/*              Criação do ficheiro para a contagem               */
+/***                                                            ***/
+/******************************************************************/
+/***                  Apagar ficheiro anterior                  ***/
+/***                                                            ***/
+      DLTF   FILE(&WRKLIB/PSFIFSFC)
+      MONMSG MSGID(CPF2105 CPF3220 CPF3273)
+/***                                                            ***/
+/***                    Criar novo ficheiro                     ***/
+/***                                                            ***/
+      CRTPF  FILE(&WRKLIB/PSFIFSFC) MBR(PSFIFSFC) +
+          RCDLEN(20) SIZE(*NOMAX)
+      MONMSG MSGID(CPF7302)
+/***                                                            ***/
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 2                             */
+/*       Efectuar a contagem de registos do ficheiro no IFS       */
+/***                                                            ***/
+/******************************************************************/
+/***               Construir string com o comando               ***/
+/***                                                            ***/
+      CHGVAR VAR(&QSHCMD)                                     +
+             VALUE('wc -l ' || &IFSFILE     |<                +
+                   ' | awk {''print $1''} ' ||                +
+                   ' > /qsys.lib/'          ||                +
+                   &WRKLIB |< '.lib/'       ||                +
+                   'psfifsfc.file/psfifsfc.mbr')
+/***                                                            ***/
+/***                     Executar o comando                     ***/
+/***                                                            ***/
+      STRQSH CMD(&QSHCMD)
+/***                                                            ***/
+/***                 Verificar se ocorreu output                ***/
+/***                                                            ***/
+      RTVMBRD FILE(&WRKLIB/PSFIFSFC) NBRCURRCD(&REC)
+      IF (&REC *EQ 0) THEN(GOTO ERRQTDO)
+/***                                                            ***/
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 3                             */
+/*       Ler o registo do ficheiro para retornar ao chamador      */
+/***                                                            ***/
+/******************************************************************/
+/***               Extrair do ficheiro o registo                ***/
+/***                                                            ***/
+      RTVJOBA CURLIB(&CURLIB)
+      CHGCURLIB CURLIB(&WRKLIB)
+      CALL   PGM(PSBREADFC) PARM(&RCODE &RCOUNT)
+      IF (&CURLIB *NE *NONE) THEN(CHGCURLIB CURLIB(&CURLIB))
+/***                                                            ***/
+      GOTO       ENDPGM
+/******************************************************************/
+/*            V i a     C o n s u l t i n g     W a y             */
+/******************************************************************/
+ERRQTDO:  /* Ficheiro não encontrado no IFS */
+          CHGVAR    &RCODE    VALUE('2')
+          GOTO ENDPGM
+/*                                                                */
+ENDPGM:  ENDPGM

@@ -1,0 +1,45 @@
+/******************************************************************/
+/***                                                            ***/
+/*                            PROJECTO                            */
+/*                     PAGAMENTO DE SALÁRIOS                      */
+/***                                                            ***/
+/******************************************************************/
+/* OBJECTIVO: COPIA ORIGIANL RECEBIDO PARA O DE OUTPUT PARA FTP   */
+/******************************************************************/
+      PGM   PARM(&FILENAME &LIBIN &LIBOUT &RCODE)
+/******************************************************************/
+/***                                                            ***/
+/*                     PROCEDIMENTOS INICIAIS                     */
+/***                                                            ***/
+/******************************************************************/
+      DCL VAR(&FILENAME) TYPE(*CHAR) LEN(10)
+      DCL VAR(&LIBIN)    TYPE(*CHAR) LEN(10)
+      DCL VAR(&LIBOUT)   TYPE(*CHAR) LEN(10)
+      DCL VAR(&RCODE)    TYPE(*CHAR) LEN(02)
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 1                             */
+/*                   LIMPA FICHEIRO DE OUTPUT                     */
+/***                                                            ***/
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 2                             */
+/*   COPIA FICHEIRO DE TRABALHO PARA FICHEIRO DE OUTPUT QUE VAI   */
+/*                  SER ENVIADO PARA O ONLINE                     */
+/***                                                            ***/
+/******************************************************************/
+/***                                                            ***/
+/***  CPYF   FROMFILE(&LIBIN/&FILENAME) TOFILE(&LIBOUT/O) +     ***/
+      CPYF   FROMFILE(&LIBIN/&FILENAME) TOFILE(&LIBOUT/&FILENAME) +
+             FROMMBR(*FIRST) TOMBR(&FILENAME) +
+             MBROPT(*REPLACE) FMTOPT(*NOCHK) CRTFILE(*YES)
+      MONMSG MSGID(CPF2817 CPF0001)  EXEC(GOTO ERRCPYI)
+/***                                                            ***/
+             CHGVAR     VAR(&RCODE) VALUE('00')
+             GOTO       ENDPGM
+/******************************************************************/
+/*            V i a     C o n s u l t i n g     W a y             */
+/******************************************************************/
+ERRCPYI:  CHGVAR    &RCODE    VALUE('01')
+          GOTO ENDPGM
+ENDPGM:  ENDPGM

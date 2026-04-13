@@ -1,0 +1,83 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/*                  Simulação de cadeia batch                   */
+/*                         *********                            */
+/*--------------------------------------------------------------*/
+           PGM
+/*--------------------------------------------------------------*/
+/* declaração de variaveis */
+           DCL VAR(&SPACES)  TYPE(*CHAR) LEN(10)
+           DCL VAR(&TIME)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&DATE)    TYPE(*CHAR) LEN( 6)
+           DCL VAR(&EBANK)   TYPE(*CHAR) LEN( 1)   VALUE(N)
+           DCL VAR(&DEBUG)   TYPE(*CHAR) LEN( 1)   VALUE(S)
+           DCL VAR(&$RCODE)  TYPE(*DEC)  LEN( 1 0) VALUE(0)
+           DCL VAR(&XRCODE)  TYPE(*CHAR) LEN( 1)
+           DCL VAR(&FDSEQE)  TYPE(*DEC)  LEN( 6 0) VALUE(0)
+           DCL VAR(&SEQ)     TYPE(*DEC)  LEN( 3 0) VALUE(00)
+           DCL VAR(&PGM)     TYPE(*CHAR) LEN(10)
+           DCL VAR(&EOB)     TYPE(*CHAR) LEN(10)   VALUE(*EOB)
+           DCL VAR(&CADEIA)  TYPE(*CHAR) LEN(10)   VALUE(PSBATCH)
+           DCL VAR(&CURLIB)  TYPE(*CHAR) LEN(10)
+/*--------------------------------------------------------------*/
+           RTVJOBA CURLIB(&CURLIB)
+           CHGCURLIB CURLIB(PAGSALF)
+/*--------------------------------------------------------------*/
+           CALL BMEXT PARM('    ' '    ' 'E')
+/*--------------------------------------------------------------*/
+MAIN:      CHGVAR VAR(&SEQ) VALUE(&SEQ + 1)
+           CHGVAR VAR(&PGM) VALUE(&SPACES)
+/*--------------------------------------------------------------*/
+/* Programas */
+           IF (&SEQ=01)  IF (&EBANK=S)  CHGVAR &PGM PSB7400
+           IF (&SEQ=02)  CHGVAR &PGM PSB7140
+           IF (&SEQ=03)  CHGVAR &PGM PSB7100
+           IF (&SEQ=04)  CHGVAR &PGM PSB7115
+           IF (&SEQ=05)  CHGVAR &PGM PSB7110
+           IF (&SEQ=06)  CHGVAR &PGM PSB7120
+           IF (&SEQ=07)  CHGVAR &PGM PSB7133
+           IF (&SEQ=08)  CHGVAR &PGM PSB7134
+           IF (&SEQ=09)  CHGVAR &PGM PSB7131
+           IF (&SEQ=10)  CHGVAR &PGM PSB7132
+           IF (&SEQ=11)  IF (&EBANK=S)  CHGVAR &PGM PSB7500
+           IF (&SEQ=12)  CALL PGM(PSB4155) PARM(&$RCODE)
+           IF (&SEQ=13)  CHGVAR &PGM PSB7165
+           IF (&SEQ=14)  CHGVAR &PGM PSB7166
+           IF (&SEQ=15)  CHGVAR &PGM PSB7167
+           IF (&SEQ=16)  CHGVAR &PGM PSB7168
+           IF (&SEQ=17)  CHGVAR &PGM PSB7170
+           IF (&SEQ=18)  IF (&EBANK=S)  CHGVAR &PGM PSB7600
+           IF (&SEQ=19)  CHGVAR &PGM PSB7169
+           IF (&SEQ=20)  CHGVAR &PGM ARB7015
+
+/* Previne o LOOP */
+           IF (&SEQ>50)  CHGVAR &PGM &EOB
+
+/*--------------------------------------------------------------*/
+CALLPGM:   IF (&PGM *EQ &EOB)    GOTO FIM
+           IF (&PGM *EQ &SPACES) GOTO MAIN
+
+           RTVSYSVAL SYSVAL(QTIME) RTNVAR(&TIME)
+           RTVSYSVAL SYSVAL(QDATE) RTNVAR(&DATE)
+           IF (&DEBUG=S) +
+               SNDPGMMSG MSG('Debug>  '             +
+                             *CAT &PGM              +
+                             *CAT ' iniciou em '    +
+                             *CAT &DATE             +
+                             *CAT ' às '            +
+                             *CAT %SST(&TIME 1 2)   +
+                             *CAT ':'               +
+                             *CAT %SST(&TIME 3 2)   +
+                             *CAT ':'               +
+                             *CAT %SST(&TIME 5 2)   )
+
+           CALL &PGM PARM(&$RCODE)
+           CHGVAR VAR(&XRCODE) VALUE(&$RCODE)
+           SNDPGMMSG MSG('RETURN CODE = ' *CAT &XRCODE)
+           IF ((&$RCODE=0) *OR (&$RCODE=1)) THEN(GOTO MAIN)
+           ELSE SNDUSRMSG ('Procedimento terminou por erro')
+
+/*--------------------------------------------------------------*/
+FIM:       CALL BAB49995 PARM(&$RCODE &CADEIA)
+           CHGCURLIB CURLIB(&CURLIB)
+           ENDPGM

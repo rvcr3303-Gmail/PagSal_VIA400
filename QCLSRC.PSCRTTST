@@ -1,0 +1,64 @@
+/******************************************************************/
+/***                                                            ***/
+/*                            PROJECTO                            */
+/*                     PAGAMENTO DE SALÁRIOS                      */
+/***                                                            ***/
+/******************************************************************/
+/* OBJECTIVO: COPIA FICHEIRO INICIAL PARA FICHEIRO TEMPORÁRIO     */
+/*            APAGA FICHEIRO INICIAL, CRIA FICHEIRO INICIAL COM   */
+/*            150 DE RECORD LENGTH E COPIA FICH TEMPORÁRIO PARA   */
+/*            FICHEIRO INICIAL                                    */
+/******************************************************************/
+/*    PGM   PARM(&FILENAME &LIB &RCODE)                           */
+      PGM   PARM(&RCODE)
+/******************************************************************/
+/***                                                            ***/
+/*                     PROCEDIMENTOS INICIAIS                     */
+/***                                                            ***/
+/******************************************************************/
+      DCL VAR(&FILENAME) TYPE(*CHAR) LEN(10)   VALUE(AI128A0007)
+      DCL VAR(&LIB)      TYPE(*CHAR) LEN(10)   VALUE(PAGSALF)
+      DCL VAR(&REC)      TYPE(*DEC)  LEN(10 0) VALUE(0)
+      DCL VAR(&RCODE)    TYPE(*CHAR) LEN(01)
+/******************************************************************/
+/***                                                            ***/
+/*                            PASSO 1                             */
+/*                        CRIA FICHEIROS                          */
+/***                                                            ***/
+/******************************************************************/
+/***                  APAGA FICHEIRO                            ***/
+/***                                                            ***/
+      DLTF   FILE(&LIB/PSFICHENV)
+      MONMSG MSGID(CPF2105 CPF3220)
+      CRTPF  FILE(&LIB/PSFICHENV) MBR(PSFICHENV) +
+          RCDLEN(340) SIZE(*NOMAX)
+/***                                                            ***/
+      CPYF FROMFILE(&LIB/&FILENAME)   +
+          TOFILE(&LIB/PSFICHENV)        +
+          MBROPT(*ADD) FMTOPT(*NOCHK)
+/***                                                            ***/
+      RTVMBRD FILE(&LIB/PSFICHENV) NBRCURRCD(&REC)
+      IF (&REC *EQ 0) THEN(GOTO ERRCPYI)
+/***                                                            ***/
+      DLTF   FILE(&LIB/&FILENAME)
+      MONMSG MSGID(CPF2105 CPF3220)
+      CRTPF  FILE(&LIB/&FILENAME) MBR(&FILENAME) +
+          RCDLEN(340) SIZE(*NOMAX)
+/***                                                            ***/
+      CPYF FROMFILE(&LIB/PSFICHENV)   +
+          TOFILE(&LIB/&FILENAME)         +
+          MBROPT(*ADD) FMTOPT(*NOCHK)
+/***                                                            ***/
+      RTVMBRD FILE(&LIB/&FILENAME) NBRCURRCD(&REC)
+      IF (&REC *EQ 0) THEN(GOTO ERRCPYI)
+/***                                                            ***/
+      DLTF   FILE(&LIB/PSFICHENV)
+      MONMSG MSGID(CPF2105 CPF3220)
+/***                                                            ***/
+      GOTO       ENDPGM
+/******************************************************************/
+/*            V i a     C o n s u l t i n g     W a y             */
+/******************************************************************/
+ERRCPYI:  CHGVAR    &RCODE    VALUE('2')
+          GOTO ENDPGM
+ENDPGM:  ENDPGM

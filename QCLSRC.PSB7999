@@ -1,0 +1,34 @@
+/*--------------------------------------------------------------*/
+/*                                                              */
+/*            Reorganizacao dos ficheiros expurgados            */
+/*                                                              */
+/*--------------------------------------------------------------*/
+   PGM PARM(&$RCODE)
+
+/*--------------------------------------------------------------*/
+/* Declara variáveis                                            */
+/*--------------------------------------------------------------*/
+   DCL VAR(&$RCODE)    TYPE(*DEC)   LEN(1 0)
+   DCL VAR(&CUR)       TYPE(*CHAR)  LEN(10)
+   DCL VAR(&AMB)       TYPE(*CHAR)  LEN(01)
+
+/*--------------------------------------------------------------*/
+/*  Obtém biblioteca de trabalho                                */
+/*--------------------------------------------------------------*/
+   CURLIB:
+       CALL   BAB49900 PARM(&$RCODE &AMB &CUR)
+       IF     (&$RCODE>1) THEN(GOTO FINISH)
+
+/*--------------------------------------------------------------*/
+   REO1:   RGZPFM FILE(&CUR/PSFFICHEIR)
+   REO2:   RGZPFM FILE(&CUR/PSFFICHREL)
+   REO3:   RGZPFM FILE(&CUR/PSFDETALHE)
+   REO4:   RGZPFM FILE(&CUR/PSFTRAILER)
+   REO5:   RGZPFM FILE(&CUR/PSFHISTALT)
+   REO6:   RGZPFM FILE(&CUR/PSFMENSAG)
+   REO7:   RGZPFM FILE(&CUR/PSFHMENSAG)
+   REO8:   RGZPFM FILE(&CUR/PSFHEADER)
+
+/*--------------------------------------------------------------*/
+   FINISH:
+       ENDPGM

@@ -1,0 +1,16 @@
+             PGM
+
+             ENDJRNPF   FILE(PROUSR0008/PSFFICHEIR)
+
+             CHGPF      FILE(PROUSR0008/PSFFICHEIR) FRCRATIO(*NONE) +
+                          WAITFILE(30)
+
+             FMTDTA     INFILE((PROMOSOFT/F0000A)) +
+                          OUTFILE(PROUSR0008/PSFFICHEIR) +
+                          SRCFILE(VIA_APPDEV/QCLSRT) SRCMBR(AFSORT)
+
+             STRJRNPF   FILE(PROUSR0008/PSFFICHEIR) +
+                          JRN(PROJRN0008/SDJRN) IMAGES(*BOTH) +
+                          OMTJRNE(*OPNCLO)
+
+             ENDPGM
