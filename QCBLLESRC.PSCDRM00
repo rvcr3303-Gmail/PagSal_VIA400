@@ -1,0 +1,16 @@
+           EXEC SQL DECLARE PSFORMATO TABLE
+           (
+               FOFORM CHAR(1) NOT NULL
+             , FODESC CHAR(50) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSFORMATO
+      ******************************************************************
+       01  DCLPSCDRM00.
+            05 PSCDRM00-FOFORM PIC X(01).
+            05 PSCDRM00-FODESC PIC X(50).
+            05 PSCDRM00-CUSERID PIC X(20).
+            05 PSCDRM00-HTIMEEST PIC X(26).
+

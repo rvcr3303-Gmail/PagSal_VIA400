@@ -1,0 +1,143 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV4411                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV4411-LENGTH                       PIC  9(05) VALUE 951.
+       01  PSCV4411-NR-CAMPOS                    PIC  9(05) VALUE 16.
+      *
+       01  PSCV4411-MSG.
+           05 PSCV4411-ASE.
+              10 PSCV4411-PRCODPAR-ST.
+                 15 PSCV4411-PRCODPAR-S         PIC  X(01).
+                    88 PSCV4411-PRCODPAR-0      VALUE '0'.
+                    88 PSCV4411-PRCODPAR-1      VALUE '1' ' '.
+                 15 PSCV4411-PRCODPAR-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRCODPAR-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARAM-ST.
+                 15 PSCV4411-PRPARAM-S         PIC  X(01).
+                    88 PSCV4411-PRPARAM-0      VALUE '0'.
+                    88 PSCV4411-PRPARAM-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARAM-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARAM-MSG       PIC 9(04).
+
+              10 PSCV4411-PRTIPPAR-ST.
+                 15 PSCV4411-PRTIPPAR-S         PIC  X(01).
+                    88 PSCV4411-PRTIPPAR-0      VALUE '0'.
+                    88 PSCV4411-PRTIPPAR-1      VALUE '1' ' '.
+                 15 PSCV4411-PRTIPPAR-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRTIPPAR-MSG       PIC 9(04).
+
+              10 PSCV4411-PRVALDAT-ST.
+                 15 PSCV4411-PRVALDAT-S         PIC  X(01).
+                    88 PSCV4411-PRVALDAT-0      VALUE '0'.
+                    88 PSCV4411-PRVALDAT-1      VALUE '1' ' '.
+                 15 PSCV4411-PRVALDAT-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRVALDAT-MSG       PIC 9(04).
+
+              10 PSCV4411-PRVALNUM-ST.
+                 15 PSCV4411-PRVALNUM-S         PIC  X(01).
+                    88 PSCV4411-PRVALNUM-0      VALUE '0'.
+                    88 PSCV4411-PRVALNUM-1      VALUE '1' ' '.
+                 15 PSCV4411-PRVALNUM-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRVALNUM-MSG       PIC 9(04).
+
+              10 PSCV4411-PRVALBOL-ST.
+                 15 PSCV4411-PRVALBOL-S         PIC  X(01).
+                    88 PSCV4411-PRVALBOL-0      VALUE '0'.
+                    88 PSCV4411-PRVALBOL-1      VALUE '1' ' '.
+                 15 PSCV4411-PRVALBOL-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRVALBOL-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM0-ST.
+                 15 PSCV4411-PRPARM0-S         PIC  X(01).
+                    88 PSCV4411-PRPARM0-0      VALUE '0'.
+                    88 PSCV4411-PRPARM0-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM0-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM0-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM1-ST.
+                 15 PSCV4411-PRPARM1-S         PIC  X(01).
+                    88 PSCV4411-PRPARM1-0      VALUE '0'.
+                    88 PSCV4411-PRPARM1-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM1-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM1-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM2-ST.
+                 15 PSCV4411-PRPARM2-S         PIC  X(01).
+                    88 PSCV4411-PRPARM2-0      VALUE '0'.
+                    88 PSCV4411-PRPARM2-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM2-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM2-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM3-ST.
+                 15 PSCV4411-PRPARM3-S         PIC  X(01).
+                    88 PSCV4411-PRPARM3-0      VALUE '0'.
+                    88 PSCV4411-PRPARM3-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM3-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM3-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM4-ST.
+                 15 PSCV4411-PRPARM4-S         PIC  X(01).
+                    88 PSCV4411-PRPARM4-0      VALUE '0'.
+                    88 PSCV4411-PRPARM4-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM4-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM4-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM5-ST.
+                 15 PSCV4411-PRPARM5-S         PIC  X(01).
+                    88 PSCV4411-PRPARM5-0      VALUE '0'.
+                    88 PSCV4411-PRPARM5-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM5-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM5-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM6-ST.
+                 15 PSCV4411-PRPARM6-S         PIC  X(01).
+                    88 PSCV4411-PRPARM6-0      VALUE '0'.
+                    88 PSCV4411-PRPARM6-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM6-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM6-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM7-ST.
+                 15 PSCV4411-PRPARM7-S         PIC  X(01).
+                    88 PSCV4411-PRPARM7-0      VALUE '0'.
+                    88 PSCV4411-PRPARM7-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM7-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM7-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM8-ST.
+                 15 PSCV4411-PRPARM8-S         PIC  X(01).
+                    88 PSCV4411-PRPARM8-0      VALUE '0'.
+                    88 PSCV4411-PRPARM8-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM8-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM8-MSG       PIC 9(04).
+
+              10 PSCV4411-PRPARM9-ST.
+                 15 PSCV4411-PRPARM9-S         PIC  X(01).
+                    88 PSCV4411-PRPARM9-0      VALUE '0'.
+                    88 PSCV4411-PRPARM9-1      VALUE '1' ' '.
+                 15 PSCV4411-PRPARM9-CAPLIC    PIC X(02).
+                 15 PSCV4411-PRPARM9-MSG       PIC 9(04).
+
+      *
+          05  PSCV4411-ADE.
+                10 PSCV4411-PRCODPAR PIC X(02).
+                10 PSCV4411-PRPARAM PIC X(10).
+                10 PSCV4411-PRTIPPAR PIC X(01).
+                10 PSCV4411-PRVALDAT PIC X(10).
+                10 PSCV4411-PRVALNUM PIC  9(13)V9(2).
+                10 PSCV4411-PRVALBOL PIC X(01).
+                10 PSCV4411-PRPARM0 PIC X(80).
+                10 PSCV4411-PRPARM1 PIC X(80).
+                10 PSCV4411-PRPARM2 PIC X(80).
+                10 PSCV4411-PRPARM3 PIC X(80).
+                10 PSCV4411-PRPARM4 PIC X(80).
+                10 PSCV4411-PRPARM5 PIC X(80).
+                10 PSCV4411-PRPARM6 PIC X(80).
+                10 PSCV4411-PRPARM7 PIC X(80).
+                10 PSCV4411-PRPARM8 PIC X(80).
+                10 PSCV4411-PRPARM9 PIC X(80).
+

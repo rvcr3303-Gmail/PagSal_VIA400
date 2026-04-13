@@ -1,0 +1,16 @@
+           EXEC SQL DECLARE PSSITCONT TABLE
+           (
+               SCSITC DECIMAL(2,0) NOT NULL
+             , SCSITS DECIMAL(2,0) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSSITCONT
+      ******************************************************************
+       01  DCLPSCDTC00.
+            05 PSCDTC00-SCSITC PIC S9(02) COMP-3.
+            05 PSCDTC00-SCSITS PIC S9(02) COMP-3.
+            05 PSCDTC00-CUSERID PIC X(20).
+            05 PSCDTC00-HTIMEEST PIC X(26).
+

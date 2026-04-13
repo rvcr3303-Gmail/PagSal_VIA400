@@ -1,0 +1,81 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV2371                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV2371-LENGTH                       PIC  9(05) VALUE 195.
+       01  PSCV2371-NR-CAMPOS                    PIC  9(05) VALUE 13.
+      *
+       01  PSCV2371-MSG.
+           05 PSCV2371-ASE.
+              10 PSCV2371-FCNCLI-ST.
+                 15 PSCV2371-FCNCLI-S         PIC  X(01).
+                    88 PSCV2371-FCNCLI-0      VALUE '0'.
+                    88 PSCV2371-FCNCLI-1      VALUE '1' ' '.
+                 15 PSCV2371-FCNCLI-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCNCLI-MSG       PIC 9(04).
+
+              10 PSCV2371-FCNMCLI-ST.
+                 15 PSCV2371-FCNMCLI-S         PIC  X(01).
+                    88 PSCV2371-FCNMCLI-0      VALUE '0'.
+                    88 PSCV2371-FCNMCLI-1      VALUE '1' ' '.
+                 15 PSCV2371-FCNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCNMCLI-MSG       PIC 9(04).
+
+              10 PSCV2371-FCDINT-ST.
+                 15 PSCV2371-FCDINT-S         PIC  X(01).
+                    88 PSCV2371-FCDINT-0      VALUE '0'.
+                    88 PSCV2371-FCDINT-1      VALUE '1' ' '.
+                 15 PSCV2371-FCDINT-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCDINT-MSG       PIC 9(04).
+
+              10 PSCV2371-FCNFIC-ST.
+                 15 PSCV2371-FCNFIC-S         PIC  X(01).
+                    88 PSCV2371-FCNFIC-0      VALUE '0'.
+                    88 PSCV2371-FCNFIC-1      VALUE '1' ' '.
+                 15 PSCV2371-FCNFIC-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCNFIC-MSG       PIC 9(04).
+
+              10 PSCV2371-FCNREG-ST.
+                 15 PSCV2371-FCNREG-S         PIC  X(01).
+                    88 PSCV2371-FCNREG-0      VALUE '0'.
+                    88 PSCV2371-FCNREG-1      VALUE '1' ' '.
+                 15 PSCV2371-FCNREG-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCNREG-MSG       PIC 9(04).
+
+              10 PSCV2371-FCMONT-ST.
+                 15 PSCV2371-FCMONT-S         PIC  X(01).
+                    88 PSCV2371-FCMONT-0      VALUE '0'.
+                    88 PSCV2371-FCMONT-1      VALUE '1' ' '.
+                 15 PSCV2371-FCMONT-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCMONT-MSG       PIC 9(04).
+
+              10 PSCV2371-FCTREG-ST.
+                 15 PSCV2371-FCTREG-S         PIC  X(01).
+                    88 PSCV2371-FCTREG-0      VALUE '0'.
+                    88 PSCV2371-FCTREG-1      VALUE '1' ' '.
+                 15 PSCV2371-FCTREG-CAPLIC    PIC X(02).
+                 15 PSCV2371-FCTREG-MSG       PIC 9(04).
+
+      *
+          05  PSCV2371-ADE.
+                10 PSCV2371-FCNCLI PIC 9(09).
+                10 PSCV2371-FCNMCLI PIC X(40).
+                10 PSCV2371-FCDINT PIC X(10).
+                10 PSCV2371-FCNFIC PIC 9(06).
+                10 PSCV2371-FCNREG PIC 9(06).
+                10 PSCV2371-FCTSERV PIC X(02).
+                10 PSCV2371-FCDPRO PIC X(10).
+                10 PSCV2371-FCNIB PIC X(21).
+                   15 PSCV2371-FCCBAN  PIC 9(04).
+                   15 PSCV2371-FCCBAL  PIC 9(04).
+                   15 PSCV2371-FCCNTA  PIC 9(11).
+                   15 PSCV2371-FCCDIG  PIC 9(02).
+                10 PSCV2371-FCMONT PIC 9(11)V9(2).
+                10 PSCV2371-FCMOED PIC X(03).
+                10 PSCV2371-FCSLD PIC S9(15)V9(2).
+                10 PSCV2371-FCMOEC PIC X(03).
+                10 PSCV2371-FCTREG PIC 9(06).
+

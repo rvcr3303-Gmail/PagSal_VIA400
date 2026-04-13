@@ -1,0 +1,94 @@
+           EXEC SQL DECLARE PSHCONTRA TABLE
+           (
+               CHCCLI DECIMAL(9,0) NOT NULL
+             , CHDESC CHAR(20) NOT NULL
+             , CHNCLIA DECIMAL(9,0) NOT NULL
+             , CHNATRA DECIMAL(2,0) NOT NULL
+             , CHNSEQA DECIMAL(3,0) NOT NULL
+             , CHNCLIB DECIMAL(9,0) NOT NULL
+             , CHNATRB DECIMAL(2,0) NOT NULL
+             , CHNSEQB DECIMAL(3,0) NOT NULL
+             , CHNCLIC DECIMAL(9,0) NOT NULL
+             , CHNATRC DECIMAL(2,0) NOT NULL
+             , CHNSEQC DECIMAL(3,0) NOT NULL
+             , CHCLICCC DECIMAL(9,0) NOT NULL
+             , CHNATCCC DECIMAL(2,0) NOT NULL
+             , CHSEQCCC DECIMAL(3,0) NOT NULL
+             , CHDABR DECIMAL(8,0) NOT NULL
+             , CHDENC DECIMAL(8,0) NOT NULL
+             , CHSITU CHAR(2) NOT NULL
+             , CHPREC CHAR(2) NOT NULL
+             , CHTMOV CHAR(1) NOT NULL
+             , CHNTRY DECIMAL(3,0) NOT NULL
+             , CHILCO CHAR(1) NOT NULL
+             , CHNOTOS CHAR(1) NOT NULL
+             , CHNOTBS CHAR(1) NOT NULL
+             , CHOGER CHAR(10) NOT NULL
+             , CHEMAIL CHAR(50) NOT NULL
+             , CHNOTOE CHAR(1) NOT NULL
+             , CHNOTBE CHAR(1) NOT NULL
+             , CHAGEN DECIMAL(4,0) NOT NULL
+             , CHASSA CHAR(1) NOT NULL
+             , CHASSB CHAR(1) NOT NULL
+             , CHASSC CHAR(1) NOT NULL
+             , CHCACE CHAR(1) NOT NULL
+             , CHCCONF CHAR(1) NOT NULL
+             , CHPASS CHAR(50) NOT NULL
+             , CHTELF CHAR(39) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEEST TIMESTAMP NOT NULL
+             , CHTSERV CHAR(2) NOT NULL
+             , CHZALT DECIMAL(15,0) NOT NULL
+             , COCONTAA DECIMAL(14,0) NOT NULL
+             , COCONTAB DECIMAL(14,0) NOT NULL
+             , COCONTAC DECIMAL(14,0) NOT NULL
+             , COCONTACCC DECIMAL(14,0) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSHCONTRA
+      ******************************************************************
+       01  DCLPSHCDNT00.
+            05 PSHCDNT00-CHCCLI PIC S9(09) COMP-3.
+            05 PSHCDNT00-CHDESC PIC X(20).
+            05 PSHCDNT00-CHNCLIA PIC S9(09) COMP-3.
+            05 PSHCDNT00-CHNATRA PIC S9(02) COMP-3.
+            05 PSHCDNT00-CHNSEQA PIC S9(03) COMP-3.
+            05 PSHCDNT00-CHNCLIB PIC S9(09) COMP-3.
+            05 PSHCDNT00-CHNATRB PIC S9(02) COMP-3.
+            05 PSHCDNT00-CHNSEQB PIC S9(03) COMP-3.
+            05 PSHCDNT00-CHNCLIC PIC S9(09) COMP-3.
+            05 PSHCDNT00-CHNATRC PIC S9(02) COMP-3.
+            05 PSHCDNT00-CHNSEQC PIC S9(03) COMP-3.
+            05 PSHCDNT00-CHCLICCC PIC S9(09) COMP-3.
+            05 PSHCDNT00-CHNATCCC PIC S9(02) COMP-3.
+            05 PSHCDNT00-CHSEQCCC PIC S9(03) COMP-3.
+            05 PSHCDNT00-CHDABR PIC S9(08) COMP-3.
+            05 PSHCDNT00-CHDENC PIC S9(08) COMP-3.
+            05 PSHCDNT00-CHSITU PIC X(02).
+            05 PSHCDNT00-CHPREC PIC X(02).
+            05 PSHCDNT00-CHTMOV PIC X(01).
+            05 PSHCDNT00-CHNTRY PIC S9(03) COMP-3.
+            05 PSHCDNT00-CHILCO PIC X(01).
+            05 PSHCDNT00-CHNOTOS PIC X(01).
+            05 PSHCDNT00-CHNOTBS PIC X(01).
+            05 PSHCDNT00-CHOGER PIC X(10).
+            05 PSHCDNT00-CHEMAIL PIC X(50).
+            05 PSHCDNT00-CHNOTOE PIC X(01).
+            05 PSHCDNT00-CHNOTBE PIC X(01).
+            05 PSHCDNT00-CHAGEN PIC S9(04) COMP-3.
+            05 PSHCDNT00-CHASSA PIC X(01).
+            05 PSHCDNT00-CHASSB PIC X(01).
+            05 PSHCDNT00-CHASSC PIC X(01).
+            05 PSHCDNT00-CHCACE PIC X(01).
+            05 PSHCDNT00-CHCCONF PIC X(01).
+            05 PSHCDNT00-CHPASS PIC X(50).
+            05 PSHCDNT00-CHTELF PIC X(39).
+            05 PSHCDNT00-CUSERID PIC X(20).
+            05 PSHCDNT00-HTIMEEST PIC X(26).
+            05 PSHCDNT00-CHTSERV PIC X(02).
+            05 PSHCDNT00-CHZALT     PIC S9(15) COMP-3.
+            05 PSHCDNT00-CHCONTAA   PIC S9(14) COMP-3.
+            05 PSHCDNT00-CHCONTAB   PIC S9(14) COMP-3.
+            05 PSHCDNT00-CHCONTAC   PIC S9(14) COMP-3.
+            05 PSHCDNT00-CHCONTACCC PIC S9(14) COMP-3.
+

@@ -1,0 +1,44 @@
+           EXEC SQL DECLARE PSPARAM TABLE
+           (
+               PRCODPAR CHAR(2) NOT NULL
+             , PRPARAM CHAR(10) NOT NULL
+             , PRTIPPAR CHAR(1) NOT NULL
+             , PRVALDAT DECIMAL(8,0) NOT NULL
+             , PRVALNUM DECIMAL(15,2) NOT NULL
+             , PRVALBOL CHAR(1) NOT NULL
+             , PRPARM0 CHAR(80) NOT NULL
+             , PRPARM1 CHAR(80) NOT NULL
+             , PRPARM2 CHAR(80) NOT NULL
+             , PRPARM3 CHAR(80) NOT NULL
+             , PRPARM4 CHAR(80) NOT NULL
+             , PRPARM5 CHAR(80) NOT NULL
+             , PRPARM6 CHAR(80) NOT NULL
+             , PRPARM7 CHAR(80) NOT NULL
+             , PRPARM8 CHAR(80) NOT NULL
+             , PRPARM9 CHAR(80) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSPARAM
+      ******************************************************************
+       01  DCLPSCDRA00.
+            05 PSCDRA00-PRCODPAR PIC X(02).
+            05 PSCDRA00-PRPARAM PIC X(10).
+            05 PSCDRA00-PRTIPPAR PIC X(01).
+            05 PSCDRA00-PRVALDAT PIC S9(08) COMP-3.
+            05 PSCDRA00-PRVALNUM PIC S9(13)V9(2) COMP-3.
+            05 PSCDRA00-PRVALBOL PIC X(01).
+            05 PSCDRA00-PRPARM0 PIC X(80).
+            05 PSCDRA00-PRPARM1 PIC X(80).
+            05 PSCDRA00-PRPARM2 PIC X(80).
+            05 PSCDRA00-PRPARM3 PIC X(80).
+            05 PSCDRA00-PRPARM4 PIC X(80).
+            05 PSCDRA00-PRPARM5 PIC X(80).
+            05 PSCDRA00-PRPARM6 PIC X(80).
+            05 PSCDRA00-PRPARM7 PIC X(80).
+            05 PSCDRA00-PRPARM8 PIC X(80).
+            05 PSCDRA00-PRPARM9 PIC X(80).
+            05 PSCDRA00-CUSERID PIC X(20).
+            05 PSCDRA00-HTIMEEST PIC X(26).
+

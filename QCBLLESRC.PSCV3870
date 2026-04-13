@@ -1,0 +1,132 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV3870                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV3870-LENGTH                       PIC  9(05) VALUE 374.
+       01  PSCV3870-NR-CAMPOS                    PIC  9(05) VALUE 26.
+      *
+       01  PSCV3870-MSG.
+           05 PSCV3870-ASE.
+              10 PSCV3870-ORNCLI-ST.
+                 15 PSCV3870-ORNCLI-S         PIC  X(01).
+                    88 PSCV3870-ORNCLI-0      VALUE '0'.
+                    88 PSCV3870-ORNCLI-1      VALUE '1' ' '.
+                 15 PSCV3870-ORNCLI-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORNCLI-MSG       PIC 9(04).
+
+              10 PSCV3870-ORNMCLI-ST.
+                 15 PSCV3870-ORNMCLI-S         PIC  X(01).
+                    88 PSCV3870-ORNMCLI-0      VALUE '0'.
+                    88 PSCV3870-ORNMCLI-1      VALUE '1' ' '.
+                 15 PSCV3870-ORNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORNMCLI-MSG       PIC 9(04).
+
+              10 PSCV3870-ORDINT-ST.
+                 15 PSCV3870-ORDINT-S         PIC  X(01).
+                    88 PSCV3870-ORDINT-0      VALUE '0'.
+                    88 PSCV3870-ORDINT-1      VALUE '1' ' '.
+                 15 PSCV3870-ORDINT-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORDINT-MSG       PIC 9(04).
+
+              10 PSCV3870-ORNFIC-ST.
+                 15 PSCV3870-ORNFIC-S         PIC  X(01).
+                    88 PSCV3870-ORNFIC-0      VALUE '0'.
+                    88 PSCV3870-ORNFIC-1      VALUE '1' ' '.
+                 15 PSCV3870-ORNFIC-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORNFIC-MSG       PIC 9(04).
+
+              10 PSCV3870-ORNIB-ST.
+                 15 PSCV3870-ORNIB-S         PIC  X(01).
+                    88 PSCV3870-ORNIB-0      VALUE '0'.
+                    88 PSCV3870-ORNIB-1      VALUE '1' ' '.
+                 15 PSCV3870-ORNIB-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORNIB-MSG       PIC 9(04).
+
+              10 PSCV3870-ORMOED-ST.
+                 15 PSCV3870-ORMOED-S         PIC  X(01).
+                    88 PSCV3870-ORMOED-0      VALUE '0'.
+                    88 PSCV3870-ORMOED-1      VALUE '1' ' '.
+                 15 PSCV3870-ORMOED-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORMOED-MSG       PIC 9(04).
+
+              10 PSCV3870-ORDPRO-ST.
+                 15 PSCV3870-ORDPRO-S         PIC  X(01).
+                    88 PSCV3870-ORDPRO-0      VALUE '0'.
+                    88 PSCV3870-ORDPRO-1      VALUE '1' ' '.
+                 15 PSCV3870-ORDPRO-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORDPRO-MSG       PIC 9(04).
+
+              10 PSCV3870-ORREFORD-ST.
+                 15 PSCV3870-ORREFORD-S         PIC  X(01).
+                    88 PSCV3870-ORREFORD-0      VALUE '0'.
+                    88 PSCV3870-ORREFORD-1      VALUE '1' ' '.
+                 15 PSCV3870-ORREFORD-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORREFORD-MSG       PIC 9(04).
+
+              10 PSCV3870-ORMAIL-ST.
+                 15 PSCV3870-ORMAIL-S         PIC  X(01).
+                    88 PSCV3870-ORMAIL-0      VALUE '0'.
+                    88 PSCV3870-ORMAIL-1      VALUE '1' ' '.
+                 15 PSCV3870-ORMAIL-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORMAIL-MSG       PIC 9(04).
+
+              10 PSCV3870-OROGER-ST.
+                 15 PSCV3870-OROGER-S         PIC  X(01).
+                    88 PSCV3870-OROGER-0      VALUE '0'.
+                    88 PSCV3870-OROGER-1      VALUE '1' ' '.
+                 15 PSCV3870-OROGER-CAPLIC    PIC X(02).
+                 15 PSCV3870-OROGER-MSG       PIC 9(04).
+
+              10 PSCV3870-ORAGEN-ST.
+                 15 PSCV3870-ORAGEN-S         PIC  X(01).
+                    88 PSCV3870-ORAGEN-0      VALUE '0'.
+                    88 PSCV3870-ORAGEN-1      VALUE '1' ' '.
+                 15 PSCV3870-ORAGEN-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORAGEN-MSG       PIC 9(04).
+
+              10 PSCV3870-ORUSER-ST.
+                 15 PSCV3870-ORUSER-S         PIC  X(01).
+                    88 PSCV3870-ORUSER-0      VALUE '0'.
+                    88 PSCV3870-ORUSER-1      VALUE '1' ' '.
+                 15 PSCV3870-ORUSER-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORUSER-MSG       PIC 9(04).
+
+              10 PSCV3870-ORAUTR-ST.
+                 15 PSCV3870-ORAUTR-S         PIC  X(01).
+                    88 PSCV3870-ORAUTR-0      VALUE '0'.
+                    88 PSCV3870-ORAUTR-1      VALUE '1' ' '.
+                 15 PSCV3870-ORAUTR-CAPLIC    PIC X(02).
+                 15 PSCV3870-ORAUTR-MSG       PIC 9(04).
+
+      *
+          05  PSCV3870-ADE.
+                10 PSCV3870-ORNCLI PIC 9(09).
+                10 PSCV3870-ORNMCLI PIC X(40).
+                10 PSCV3870-ORDINT PIC X(10).
+                10 PSCV3870-ORNFIC PIC 9(06).
+                10 PSCV3870-ORTSERV PIC X(02).
+                10 PSCV3870-ORREF PIC X(10).
+                10 PSCV3870-ORSITU PIC X(02).
+                10 PSCV3870-ORSITR PIC X(01).
+                10 PSCV3870-ORNIB PIC X(21).
+                10 PSCV3870-ORMOED PIC X(03).
+                10 PSCV3870-ORDPRO PIC X(10).
+                10 PSCV3870-ORREFORD PIC X(20).
+                10 PSCV3870-ORDVAL PIC X(10).
+                10 PSCV3870-ORNTRY PIC 9(06).
+                10 PSCV3870-ORNOCB PIC 9(09).
+                10 PSCV3870-ORANUL PIC X(01).
+                10 PSCV3870-ORMAIL PIC X(50).
+                10 PSCV3870-ORTOPE PIC X(02).
+                10 PSCV3870-ORNREG PIC 9(06).
+                10 PSCV3870-ORMONT PIC 9(11)V9(2).
+                10 PSCV3870-OROGER PIC X(10).
+                10 PSCV3870-ORAGEN PIC 9(04).
+                10 PSCV3870-ORSLD PIC S9(15)V9(2).
+                10 PSCV3870-ORBYPASS PIC X(01).
+                10 PSCV3870-ORUSER PIC X(10).
+                10 PSCV3870-ORAUTR PIC 9(10).
+

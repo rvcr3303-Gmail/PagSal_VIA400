@@ -1,0 +1,31 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1611                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1611-LENGTH                       PIC  9(05) VALUE 66.
+       01  PSCV1611-NR-CAMPOS                    PIC  9(05) VALUE 2.
+      *
+       01  PSCV1611-MSG.
+           05 PSCV1611-ASE.
+              10 PSCV1611-SHSITU-ST.
+                 15 PSCV1611-SHSITU-S         PIC  X(01).
+                    88 PSCV1611-SHSITU-0      VALUE '0'.
+                    88 PSCV1611-SHSITU-1      VALUE '1' ' '.
+                 15 PSCV1611-SHSITU-CAPLIC    PIC X(02).
+                 15 PSCV1611-SHSITU-MSG       PIC 9(04).
+
+              10 PSCV1611-SHDESC-ST.
+                 15 PSCV1611-SHDESC-S         PIC  X(01).
+                    88 PSCV1611-SHDESC-0      VALUE '0'.
+                    88 PSCV1611-SHDESC-1      VALUE '1' ' '.
+                 15 PSCV1611-SHDESC-CAPLIC    PIC X(02).
+                 15 PSCV1611-SHDESC-MSG       PIC 9(04).
+
+      *
+          05  PSCV1611-ADE.
+                10 PSCV1611-SHSITU PIC X(02).
+                10 PSCV1611-SHDESC PIC X(50).
+

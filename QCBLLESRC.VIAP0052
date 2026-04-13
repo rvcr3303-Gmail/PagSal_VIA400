@@ -1,0 +1,49 @@
+      ****************************************************************
+      *
+      *                  VIAP0052-TRATA-ERRO-BANKA
+      ****************************************************************
+      *
+       VIAP0052-TRATA-ERRO-BANKA.
+      *
+            IF VIAW0050-MSGQ NOT EQUAL SPACES
+              MOVE VIAW0050-MSGQ              TO BRCL1020-PGMQ
+              MOVE ZEROES                     TO VIAW0050-COD-ERR
+              MOVE ZEROES                     TO VIAW0050-INDEX
+      *
+              CALL 'AR102000'  USING BRCL1020-PGMQ
+                                     BRCL1020-WRMG-H
+                                     BRCL1020-WNOCORN
+
+              PERFORM VARYING VIAW0050-INDEX FROM 1 BY 1
+                UNTIL (VIAW0050-INDEX > 10)
+                   OR BRCL1020-WRMG(VIAW0050-INDEX) EQUAL SPACES
+
+                PERFORM VIAP0052-REG-ERRO-TRACE
+                   THRU VIAP0052-REG-ERRO-TRACE-EXIT
+
+              END-PERFORM
+            ELSE
+              DISPLAY 'WS-PROGNAME..= ' WS-PROGNAME
+                    '/ VIAW0050-MSGQ...= ' VIAW0050-MSGQ
+            END-IF.
+      *
+       VIAP0052-TRATA-ERRO-BANKA-EXIT.
+           EXIT.
+      *
+       VIAP0052-REG-ERRO-TRACE.
+      *
+           MOVE BRCL1020-WRMG(VIAW0050-INDEX)  TO VIAW0050-MSG-TOT
+           MOVE 'VIAP0052-TRATA-ERRO-BANKA'    TO VIAL0015-CALLER-ID
+           MOVE 'VIAP0052-WRMG'                TO VIAL0015-CAMPO-NM(1)
+           MOVE BRCL1020-WRMG(VIAW0050-INDEX)(1:50)
+                                               TO VIAL0015-CAMPOS-R(1)
+           MOVE BRCL1020-WRMG(VIAW0050-INDEX)(51:30)
+                                               TO VIAL0015-CAMPOS-R(2)
+           MOVE 'MSGQ: '                       TO VIAL0015-CAMPO-NM(4)
+           MOVE VIAW0050-MSGQ                  TO VIAL0015-CAMPO-VLR(4)
+
+           PERFORM VIAP0015-TRATA-DEBUG
+              THRU VIAP0015-TRATA-DEBUG-EXIT.
+
+       VIAP0052-REG-ERRO-TRACE-EXIT.
+           EXIT.

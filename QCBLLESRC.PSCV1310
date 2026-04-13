@@ -1,0 +1,31 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1310                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1310-LENGTH                       PIC  9(05) VALUE 65.
+       01  PSCV1310-NR-CAMPOS                    PIC  9(05) VALUE 2.
+      *
+       01  PSCV1310-MSG.
+           05 PSCV1310-ASE.
+              10 PSCV1310-MVTMOV-ST.
+                 15 PSCV1310-MVTMOV-S         PIC  X(01).
+                    88 PSCV1310-MVTMOV-0      VALUE '0'.
+                    88 PSCV1310-MVTMOV-1      VALUE '1' ' '.
+                 15 PSCV1310-MVTMOV-CAPLIC    PIC X(02).
+                 15 PSCV1310-MVTMOV-MSG       PIC 9(04).
+
+              10 PSCV1310-MVDESC-ST.
+                 15 PSCV1310-MVDESC-S         PIC  X(01).
+                    88 PSCV1310-MVDESC-0      VALUE '0'.
+                    88 PSCV1310-MVDESC-1      VALUE '1' ' '.
+                 15 PSCV1310-MVDESC-CAPLIC    PIC X(02).
+                 15 PSCV1310-MVDESC-MSG       PIC 9(04).
+
+      *
+          05  PSCV1310-ADE.
+                10 PSCV1310-MVTMOV PIC X(01).
+                10 PSCV1310-MVDESC PIC X(50).
+

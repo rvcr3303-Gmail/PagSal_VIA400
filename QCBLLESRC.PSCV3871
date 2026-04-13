@@ -1,0 +1,136 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV3871                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV3871-LENGTH                       PIC  9(05) VALUE 374.
+       01  PSCV3871-NR-CAMPOS                    PIC  9(05) VALUE 26.
+      *
+       01  PSCV3871-MSG.
+           05 PSCV3871-ASE.
+              10 PSCV3871-ORNCLI-ST.
+                 15 PSCV3871-ORNCLI-S         PIC  X(01).
+                    88 PSCV3871-ORNCLI-0      VALUE '0'.
+                    88 PSCV3871-ORNCLI-1      VALUE '1' ' '.
+                 15 PSCV3871-ORNCLI-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORNCLI-MSG       PIC 9(04).
+
+              10 PSCV3871-ORNMCLI-ST.
+                 15 PSCV3871-ORNMCLI-S         PIC  X(01).
+                    88 PSCV3871-ORNMCLI-0      VALUE '0'.
+                    88 PSCV3871-ORNMCLI-1      VALUE '1' ' '.
+                 15 PSCV3871-ORNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORNMCLI-MSG       PIC 9(04).
+
+              10 PSCV3871-ORDINT-ST.
+                 15 PSCV3871-ORDINT-S         PIC  X(01).
+                    88 PSCV3871-ORDINT-0      VALUE '0'.
+                    88 PSCV3871-ORDINT-1      VALUE '1' ' '.
+                 15 PSCV3871-ORDINT-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORDINT-MSG       PIC 9(04).
+
+              10 PSCV3871-ORNFIC-ST.
+                 15 PSCV3871-ORNFIC-S         PIC  X(01).
+                    88 PSCV3871-ORNFIC-0      VALUE '0'.
+                    88 PSCV3871-ORNFIC-1      VALUE '1' ' '.
+                 15 PSCV3871-ORNFIC-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORNFIC-MSG       PIC 9(04).
+
+              10 PSCV3871-ORNIB-ST.
+                 15 PSCV3871-ORNIB-S         PIC  X(01).
+                    88 PSCV3871-ORNIB-0      VALUE '0'.
+                    88 PSCV3871-ORNIB-1      VALUE '1' ' '.
+                 15 PSCV3871-ORNIB-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORNIB-MSG       PIC 9(04).
+
+              10 PSCV3871-ORMOED-ST.
+                 15 PSCV3871-ORMOED-S         PIC  X(01).
+                    88 PSCV3871-ORMOED-0      VALUE '0'.
+                    88 PSCV3871-ORMOED-1      VALUE '1' ' '.
+                 15 PSCV3871-ORMOED-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORMOED-MSG       PIC 9(04).
+
+              10 PSCV3871-ORDPRO-ST.
+                 15 PSCV3871-ORDPRO-S         PIC  X(01).
+                    88 PSCV3871-ORDPRO-0      VALUE '0'.
+                    88 PSCV3871-ORDPRO-1      VALUE '1' ' '.
+                 15 PSCV3871-ORDPRO-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORDPRO-MSG       PIC 9(04).
+
+              10 PSCV3871-ORREFORD-ST.
+                 15 PSCV3871-ORREFORD-S         PIC  X(01).
+                    88 PSCV3871-ORREFORD-0      VALUE '0'.
+                    88 PSCV3871-ORREFORD-1      VALUE '1' ' '.
+                 15 PSCV3871-ORREFORD-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORREFORD-MSG       PIC 9(04).
+
+              10 PSCV3871-ORMAIL-ST.
+                 15 PSCV3871-ORMAIL-S         PIC  X(01).
+                    88 PSCV3871-ORMAIL-0      VALUE '0'.
+                    88 PSCV3871-ORMAIL-1      VALUE '1' ' '.
+                 15 PSCV3871-ORMAIL-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORMAIL-MSG       PIC 9(04).
+
+              10 PSCV3871-OROGER-ST.
+                 15 PSCV3871-OROGER-S         PIC  X(01).
+                    88 PSCV3871-OROGER-0      VALUE '0'.
+                    88 PSCV3871-OROGER-1      VALUE '1' ' '.
+                 15 PSCV3871-OROGER-CAPLIC    PIC X(02).
+                 15 PSCV3871-OROGER-MSG       PIC 9(04).
+
+              10 PSCV3871-ORAGEN-ST.
+                 15 PSCV3871-ORAGEN-S         PIC  X(01).
+                    88 PSCV3871-ORAGEN-0      VALUE '0'.
+                    88 PSCV3871-ORAGEN-1      VALUE '1' ' '.
+                 15 PSCV3871-ORAGEN-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORAGEN-MSG       PIC 9(04).
+
+              10 PSCV3871-ORUSER-ST.
+                 15 PSCV3871-ORUSER-S         PIC  X(01).
+                    88 PSCV3871-ORUSER-0      VALUE '0'.
+                    88 PSCV3871-ORUSER-1      VALUE '1' ' '.
+                 15 PSCV3871-ORUSER-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORUSER-MSG       PIC 9(04).
+
+              10 PSCV3871-ORAUTR-ST.
+                 15 PSCV3871-ORAUTR-S         PIC  X(01).
+                    88 PSCV3871-ORAUTR-0      VALUE '0'.
+                    88 PSCV3871-ORAUTR-1      VALUE '1' ' '.
+                 15 PSCV3871-ORAUTR-CAPLIC    PIC X(02).
+                 15 PSCV3871-ORAUTR-MSG       PIC 9(04).
+
+      *
+          05  PSCV3871-ADE.
+                10 PSCV3871-ORNCLI PIC 9(09).
+                10 PSCV3871-ORNMCLI PIC X(40).
+                10 PSCV3871-ORDINT PIC X(10).
+                10 PSCV3871-ORNFIC PIC 9(06).
+                10 PSCV3871-ORTSERV PIC X(02).
+                10 PSCV3871-ORREF PIC X(10).
+                10 PSCV3871-ORSITU PIC X(02).
+                10 PSCV3871-ORSITR PIC X(01).
+                10 PSCV3871-ORNIB PIC X(21).
+                   15 PSCV3871-ORCBAN  PIC 9(04).
+                   15 PSCV3871-ORCBAL  PIC 9(04).
+                   15 PSCV3871-ORCNTA  PIC 9(11).
+                   15 PSCV3871-ORCDIG  PIC 9(02).
+                10 PSCV3871-ORMOED PIC X(03).
+                10 PSCV3871-ORDPRO PIC X(10).
+                10 PSCV3871-ORREFORD PIC X(20).
+                10 PSCV3871-ORDVAL PIC X(10).
+                10 PSCV3871-ORNTRY PIC 9(06).
+                10 PSCV3871-ORNOCB PIC 9(09).
+                10 PSCV3871-ORANUL PIC X(01).
+                10 PSCV3871-ORMAIL PIC X(50).
+                10 PSCV3871-ORTOPE PIC X(02).
+                10 PSCV3871-ORNREG PIC 9(06).
+                10 PSCV3871-ORMONT PIC 9(11)V9(2).
+                10 PSCV3871-OROGER PIC X(10).
+                10 PSCV3871-ORAGEN PIC 9(04).
+                10 PSCV3871-ORSLD PIC S9(15)V9(2).
+                10 PSCV3871-ORBYPASS PIC X(01).
+                10 PSCV3871-ORUSER PIC X(10).
+                10 PSCV3871-ORAUTR PIC 9(10).
+

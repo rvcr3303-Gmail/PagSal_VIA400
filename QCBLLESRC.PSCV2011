@@ -1,0 +1,130 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV2011                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV2011-LENGTH                       PIC  9(05) VALUE 436.
+       01  PSCV2011-NR-CAMPOS                    PIC  9(05) VALUE 31.
+      *
+       01  PSCV2011-MSG.
+           05 PSCV2011-ASE.
+              10 PSCV2011-FCNCLI-ST.
+                 15 PSCV2011-FCNCLI-S         PIC  X(01).
+                    88 PSCV2011-FCNCLI-0      VALUE '0'.
+                    88 PSCV2011-FCNCLI-1      VALUE '1' ' '.
+                 15 PSCV2011-FCNCLI-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCNCLI-MSG       PIC 9(04).
+
+              10 PSCV2011-FCNMCLI-ST.
+                 15 PSCV2011-FCNMCLI-S         PIC  X(01).
+                    88 PSCV2011-FCNMCLI-0      VALUE '0'.
+                    88 PSCV2011-FCNMCLI-1      VALUE '1' ' '.
+                 15 PSCV2011-FCNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCNMCLI-MSG       PIC 9(04).
+
+              10 PSCV2011-FCDINT-ST.
+                 15 PSCV2011-FCDINT-S         PIC  X(01).
+                    88 PSCV2011-FCDINT-0      VALUE '0'.
+                    88 PSCV2011-FCDINT-1      VALUE '1' ' '.
+                 15 PSCV2011-FCDINT-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCDINT-MSG       PIC 9(04).
+
+              10 PSCV2011-FCNFIC-ST.
+                 15 PSCV2011-FCNFIC-S         PIC  X(01).
+                    88 PSCV2011-FCNFIC-0      VALUE '0'.
+                    88 PSCV2011-FCNFIC-1      VALUE '1' ' '.
+                 15 PSCV2011-FCNFIC-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCNFIC-MSG       PIC 9(04).
+
+              10 PSCV2011-FCNREG-ST.
+                 15 PSCV2011-FCNREG-S         PIC  X(01).
+                    88 PSCV2011-FCNREG-0      VALUE '0'.
+                    88 PSCV2011-FCNREG-1      VALUE '1' ' '.
+                 15 PSCV2011-FCNREG-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCNREG-MSG       PIC 9(04).
+
+              10 PSCV2011-FCNIB-ST.
+                 15 PSCV2011-FCNIB-S         PIC  X(01).
+                    88 PSCV2011-FCNIB-0      VALUE '0'.
+                    88 PSCV2011-FCNIB-1      VALUE '1' ' '.
+                 15 PSCV2011-FCNIB-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCNIB-MSG       PIC 9(04).
+
+              10 PSCV2011-FCMOED-ST.
+                 15 PSCV2011-FCMOED-S         PIC  X(01).
+                    88 PSCV2011-FCMOED-0      VALUE '0'.
+                    88 PSCV2011-FCMOED-1      VALUE '1' ' '.
+                 15 PSCV2011-FCMOED-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCMOED-MSG       PIC 9(04).
+
+              10 PSCV2011-FCDPRO-ST.
+                 15 PSCV2011-FCDPRO-S         PIC  X(01).
+                    88 PSCV2011-FCDPRO-0      VALUE '0'.
+                    88 PSCV2011-FCDPRO-1      VALUE '1' ' '.
+                 15 PSCV2011-FCDPRO-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCDPRO-MSG       PIC 9(04).
+
+              10 PSCV2011-FCREFORD-ST.
+                 15 PSCV2011-FCREFORD-S         PIC  X(01).
+                    88 PSCV2011-FCREFORD-0      VALUE '0'.
+                    88 PSCV2011-FCREFORD-1      VALUE '1' ' '.
+                 15 PSCV2011-FCREFORD-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCREFORD-MSG       PIC 9(04).
+
+              10 PSCV2011-FCMAIL-ST.
+                 15 PSCV2011-FCMAIL-S         PIC  X(01).
+                    88 PSCV2011-FCMAIL-0      VALUE '0'.
+                    88 PSCV2011-FCMAIL-1      VALUE '1' ' '.
+                 15 PSCV2011-FCMAIL-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCMAIL-MSG       PIC 9(04).
+
+              10 PSCV2011-FCOGER-ST.
+                 15 PSCV2011-FCOGER-S         PIC  X(01).
+                    88 PSCV2011-FCOGER-0      VALUE '0'.
+                    88 PSCV2011-FCOGER-1      VALUE '1' ' '.
+                 15 PSCV2011-FCOGER-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCOGER-MSG       PIC 9(04).
+
+              10 PSCV2011-FCAGEN-ST.
+                 15 PSCV2011-FCAGEN-S         PIC  X(01).
+                    88 PSCV2011-FCAGEN-0      VALUE '0'.
+                    88 PSCV2011-FCAGEN-1      VALUE '1' ' '.
+                 15 PSCV2011-FCAGEN-CAPLIC    PIC X(02).
+                 15 PSCV2011-FCAGEN-MSG       PIC 9(04).
+
+      *
+          05  PSCV2011-ADE.
+                10 PSCV2011-FCNCLI PIC 9(09).
+                10 PSCV2011-FCNMCLI PIC X(40).
+                10 PSCV2011-FCDINT PIC X(10).
+                10 PSCV2011-FCNFIC PIC 9(06).
+                10 PSCV2011-FCNREG PIC 9(06).
+                10 PSCV2011-FCNOMEF PIC X(10).
+                10 PSCV2011-FCFORM PIC X(01).
+                10 PSCV2011-FCTREG PIC X(01).
+                10 PSCV2011-FCTOPE PIC X(02).
+                10 PSCV2011-FCSITC PIC X(02).
+                10 PSCV2011-FCSITR PIC X(01).
+                10 PSCV2011-FCNIB PIC X(21).
+                10 PSCV2011-FCMOED PIC X(03).
+                10 PSCV2011-FCDPRO PIC X(10).
+                10 PSCV2011-FCREFORD PIC X(20).
+                10 PSCV2011-FCMAIL PIC X(50).
+                10 PSCV2011-FCSITU PIC X(02).
+                10 PSCV2011-FCOGER PIC X(10).
+                10 PSCV2011-FCAGEN PIC 9(04).
+                10 PSCV2011-FCNCLI-B PIC 9(09).
+                10 PSCV2011-FCCONTA-B PIC 9(14).
+                10 PSCV2011-FCDINT-B PIC X(10).
+                10 PSCV2011-FCREFORD-B PIC X(20).
+                10 PSCV2011-FCMONT-B PIC 9(11)V9(2).
+                10 PSCV2011-FCTREG-B PIC 9(06).
+                10 PSCV2011-FCNCLI-C PIC 9(09).
+                10 PSCV2011-FCCONTA-C PIC 9(14).
+                10 PSCV2011-FCDINT-C PIC X(10).
+                10 PSCV2011-FCREFORD-C PIC X(20).
+                10 PSCV2011-FCMONT-C PIC 9(11)V9(2).
+                10 PSCV2011-FCTREG-C PIC 9(06).
+

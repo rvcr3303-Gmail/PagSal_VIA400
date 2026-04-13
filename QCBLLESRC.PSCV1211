@@ -1,0 +1,31 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1211                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1211-LENGTH                       PIC  9(05) VALUE 65.
+       01  PSCV1211-NR-CAMPOS                    PIC  9(05) VALUE 2.
+      *
+       01  PSCV1211-MSG.
+           05 PSCV1211-ASE.
+              10 PSCV1211-FOFORM-ST.
+                 15 PSCV1211-FOFORM-S         PIC  X(01).
+                    88 PSCV1211-FOFORM-0      VALUE '0'.
+                    88 PSCV1211-FOFORM-1      VALUE '1' ' '.
+                 15 PSCV1211-FOFORM-CAPLIC    PIC X(02).
+                 15 PSCV1211-FOFORM-MSG       PIC 9(04).
+
+              10 PSCV1211-FODESC-ST.
+                 15 PSCV1211-FODESC-S         PIC  X(01).
+                    88 PSCV1211-FODESC-0      VALUE '0'.
+                    88 PSCV1211-FODESC-1      VALUE '1' ' '.
+                 15 PSCV1211-FODESC-CAPLIC    PIC X(02).
+                 15 PSCV1211-FODESC-MSG       PIC 9(04).
+
+      *
+          05  PSCV1211-ADE.
+                10 PSCV1211-FOFORM PIC X(01).
+                10 PSCV1211-FODESC PIC X(50).
+

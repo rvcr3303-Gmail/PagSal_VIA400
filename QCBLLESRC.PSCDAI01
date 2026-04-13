@@ -1,0 +1,18 @@
+           EXEC SQL DECLARE PSEMAIL TABLE
+           (
+               EMINT CHAR(1) NOT NULL
+             , EMCINT CHAR(25) NOT NULL
+             , EMMAIL CHAR(50) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSEMAIL
+      ******************************************************************
+       01  DCLPSCDAI01.
+            05 PSCDAI01-EMINT PIC X(01).
+            05 PSCDAI01-EMCINT PIC X(25).
+            05 PSCDAI01-EMMAIL PIC X(50).
+            05 PSCDAI01-CUSERID PIC X(20).
+            05 PSCDAI01-HTIMEEST PIC X(26).
+

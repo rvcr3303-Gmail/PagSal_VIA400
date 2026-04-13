@@ -1,0 +1,76 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1191                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1191-LENGTH                       PIC  9(05) VALUE 6899.
+       01  PSCV1191-NR-CAMPOS                    PIC  9(05) VALUE 12.
+       01 PSCV1191-INDICE PIC S9(05) VALUE 0.
+           88 PSCV1191-PAGINA-CHEIA VALUE 70.
+       01 PSCV1191-INDICE-INVERSO PIC S9(05) VALUE 70.
+       01 PSCV1191-DIMINUI-LENGTH PIC S9(05) VALUE 6899.
+       01 PSCV1191-LENGTH-OCCUR PIC S9(05) VALUE 97.
+      *
+       01  PSCV1191-MSG.
+           05 PSCV1191-ASE.
+              10 PSCV1191-COCCLI-ST.
+                 15 PSCV1191-COCCLI-S         PIC  X(01).
+                    88 PSCV1191-COCCLI-0      VALUE '0'.
+                    88 PSCV1191-COCCLI-1      VALUE '1' ' '.
+                 15 PSCV1191-COCCLI-CAPLIC    PIC X(02).
+                 15 PSCV1191-COCCLI-MSG       PIC 9(04).
+
+              10 PSCV1191-CONMCLI-ST.
+                 15 PSCV1191-CONMCLI-S         PIC  X(01).
+                    88 PSCV1191-CONMCLI-0      VALUE '0'.
+                    88 PSCV1191-CONMCLI-1      VALUE '1' ' '.
+                 15 PSCV1191-CONMCLI-CAPLIC    PIC X(02).
+                 15 PSCV1191-CONMCLI-MSG       PIC 9(04).
+
+              10 PSCV1191-CODABR-ST.
+                 15 PSCV1191-CODABR-S         PIC  X(01).
+                    88 PSCV1191-CODABR-0      VALUE '0'.
+                    88 PSCV1191-CODABR-1      VALUE '1' ' '.
+                 15 PSCV1191-CODABR-CAPLIC    PIC X(02).
+                 15 PSCV1191-CODABR-MSG       PIC 9(04).
+
+              10 PSCV1191-COSITU-ST.
+                 15 PSCV1191-COSITU-S         PIC  X(01).
+                    88 PSCV1191-COSITU-0      VALUE '0'.
+                    88 PSCV1191-COSITU-1      VALUE '1' ' '.
+                 15 PSCV1191-COSITU-CAPLIC    PIC X(02).
+                 15 PSCV1191-COSITU-MSG       PIC 9(04).
+
+              10 PSCV1191-COPREC-ST.
+                 15 PSCV1191-COPREC-S         PIC  X(01).
+                    88 PSCV1191-COPREC-0      VALUE '0'.
+                    88 PSCV1191-COPREC-1      VALUE '1' ' '.
+                 15 PSCV1191-COPREC-CAPLIC    PIC X(02).
+                 15 PSCV1191-COPREC-MSG       PIC 9(04).
+
+              10 PSCV1191-COAGEN-ST.
+                 15 PSCV1191-COAGEN-S         PIC  X(01).
+                    88 PSCV1191-COAGEN-0      VALUE '0'.
+                    88 PSCV1191-COAGEN-1      VALUE '1' ' '.
+                 15 PSCV1191-COAGEN-CAPLIC    PIC X(02).
+                 15 PSCV1191-COAGEN-MSG       PIC 9(04).
+
+      *
+          05  PSCV1191-ADE.
+                10 PSCV1191-COCCLI PIC 9(09).
+                10 PSCV1191-CONMCLI PIC X(40).
+                10 PSCV1191-CODABR PIC X(10).
+                10 PSCV1191-COSITU PIC X(02).
+                10 PSCV1191-COPREC PIC X(02).
+                10 PSCV1191-COAGEN PIC 9(04).
+                10 PSCV1191-DETALHE OCCURS 70 TIMES.
+                    15 PSCV1191-D-COCCLI PIC 9(09).
+                    15 PSCV1191-D-CONMCLI PIC X(40).
+                    15 PSCV1191-D-COTSERV PIC X(02).
+                    15 PSCV1191-D-CODESC PIC X(20).
+                    15 PSCV1191-D-CONCLIA PIC X(16).
+                    15 PSCV1191-D-CODABR PIC X(10).
+                    15 PSCV1191-D-COSITU PIC X(02).
+

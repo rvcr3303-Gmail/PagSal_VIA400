@@ -1,0 +1,93 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV2411                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV2411-LENGTH                       PIC  9(05) VALUE 415.
+       01  PSCV2411-NR-CAMPOS                    PIC  9(05) VALUE 18.
+      *
+       01  PSCV2411-MSG.
+           05 PSCV2411-ASE.
+              10 PSCV2411-FCNCLI-ST.
+                 15 PSCV2411-FCNCLI-S         PIC  X(01).
+                    88 PSCV2411-FCNCLI-0      VALUE '0'.
+                    88 PSCV2411-FCNCLI-1      VALUE '1' ' '.
+                 15 PSCV2411-FCNCLI-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCNCLI-MSG       PIC 9(04).
+
+              10 PSCV2411-FCNMCLI-ST.
+                 15 PSCV2411-FCNMCLI-S         PIC  X(01).
+                    88 PSCV2411-FCNMCLI-0      VALUE '0'.
+                    88 PSCV2411-FCNMCLI-1      VALUE '1' ' '.
+                 15 PSCV2411-FCNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCNMCLI-MSG       PIC 9(04).
+
+              10 PSCV2411-FCDINT-ST.
+                 15 PSCV2411-FCDINT-S         PIC  X(01).
+                    88 PSCV2411-FCDINT-0      VALUE '0'.
+                    88 PSCV2411-FCDINT-1      VALUE '1' ' '.
+                 15 PSCV2411-FCDINT-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCDINT-MSG       PIC 9(04).
+
+              10 PSCV2411-FCNFIC-ST.
+                 15 PSCV2411-FCNFIC-S         PIC  X(01).
+                    88 PSCV2411-FCNFIC-0      VALUE '0'.
+                    88 PSCV2411-FCNFIC-1      VALUE '1' ' '.
+                 15 PSCV2411-FCNFIC-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCNFIC-MSG       PIC 9(04).
+
+              10 PSCV2411-FCNREG-ST.
+                 15 PSCV2411-FCNREG-S         PIC  X(01).
+                    88 PSCV2411-FCNREG-0      VALUE '0'.
+                    88 PSCV2411-FCNREG-1      VALUE '1' ' '.
+                 15 PSCV2411-FCNREG-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCNREG-MSG       PIC 9(04).
+
+              10 PSCV2411-FCNOMEB-ST.
+                 15 PSCV2411-FCNOMEB-S         PIC  X(01).
+                    88 PSCV2411-FCNOMEB-0      VALUE '0'.
+                    88 PSCV2411-FCNOMEB-1      VALUE '1' ' '.
+                 15 PSCV2411-FCNOMEB-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCNOMEB-MSG       PIC 9(04).
+
+              10 PSCV2411-FCNOMEBM-ST.
+                 15 PSCV2411-FCNOMEBM-S         PIC  X(01).
+                    88 PSCV2411-FCNOMEBM-0      VALUE '0'.
+                    88 PSCV2411-FCNOMEBM-1      VALUE '1' ' '.
+                 15 PSCV2411-FCNOMEBM-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCNOMEBM-MSG       PIC 9(04).
+
+              10 PSCV2411-FCDDEB-ST.
+                 15 PSCV2411-FCDDEB-S         PIC  X(01).
+                    88 PSCV2411-FCDDEB-0      VALUE '0'.
+                    88 PSCV2411-FCDDEB-1      VALUE '1' ' '.
+                 15 PSCV2411-FCDDEB-CAPLIC    PIC X(02).
+                 15 PSCV2411-FCDDEB-MSG       PIC 9(04).
+
+      *
+          05  PSCV2411-ADE.
+                10 PSCV2411-FCNCLI PIC 9(09).
+                10 PSCV2411-FCNMCLI PIC X(40).
+                10 PSCV2411-FCDINT PIC X(10).
+                10 PSCV2411-FCNFIC PIC 9(06).
+                10 PSCV2411-FCNREG PIC 9(06).
+                10 PSCV2411-FCREF PIC X(03).
+                10 PSCV2411-FCTREG PIC X(01).
+                10 PSCV2411-FCTOPE PIC X(02).
+                10 PSCV2411-FCSITC PIC X(02).
+                10 PSCV2411-FCSITR PIC X(01).
+                10 PSCV2411-FCNIB.
+                   15 PSCV2411-FCCBAN  PIC 9(04).
+                   15 PSCV2411-FCCBAL  PIC 9(04).
+                   15 PSCV2411-FCCNTA  PIC 9(11).
+                   15 PSCV2411-FCCDIG  PIC 9(02).
+                10 PSCV2411-FCMONT PIC 9(11)V9(2).
+                10 PSCV2411-FCNOME PIC X(20).
+                10 PSCV2411-FCREFTR PIC X(15).
+                10 PSCV2411-FCMAIL PIC X(50).
+                10 PSCV2411-FCNOMEB PIC X(80).
+                10 PSCV2411-FCNOMEBM PIC X(40).
+                10 PSCV2411-FCDDEB PIC X(40).
+

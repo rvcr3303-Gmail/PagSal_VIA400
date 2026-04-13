@@ -1,0 +1,272 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV4010                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV4010-LENGTH                       PIC  9(05) VALUE 778.
+       01  PSCV4010-NR-CAMPOS                    PIC  9(05) VALUE 32.
+      *
+       01  PSCV4010-MSG.
+           05 PSCV4010-ASE.
+              10 PSCV4010-PINCLI-ST.
+                 15 PSCV4010-PINCLI-S         PIC  X(01).
+                    88 PSCV4010-PINCLI-0      VALUE '0'.
+                    88 PSCV4010-PINCLI-1      VALUE '1' ' '.
+                 15 PSCV4010-PINCLI-CAPLIC    PIC X(02).
+                 15 PSCV4010-PINCLI-MSG       PIC 9(04).
+
+              10 PSCV4010-PICONTA-ST.
+                 15 PSCV4010-PICONTA-S         PIC  X(01).
+                    88 PSCV4010-PICONTA-0      VALUE '0'.
+                    88 PSCV4010-PICONTA-1      VALUE '1' ' '.
+                 15 PSCV4010-PICONTA-CAPLIC    PIC X(02).
+                 15 PSCV4010-PICONTA-MSG       PIC 9(04).
+
+              10 PSCV4010-PIDINT-ST.
+                 15 PSCV4010-PIDINT-S         PIC  X(01).
+                    88 PSCV4010-PIDINT-0      VALUE '0'.
+                    88 PSCV4010-PIDINT-1      VALUE '1' ' '.
+                 15 PSCV4010-PIDINT-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIDINT-MSG       PIC 9(04).
+
+              10 PSCV4010-PIFORM-ST.
+                 15 PSCV4010-PIFORM-S         PIC  X(01).
+                    88 PSCV4010-PIFORM-0      VALUE '0'.
+                    88 PSCV4010-PIFORM-1      VALUE '1' ' '.
+                 15 PSCV4010-PIFORM-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIFORM-MSG       PIC 9(04).
+
+              10 PSCV4010-PIREFORD-ST.
+                 15 PSCV4010-PIREFORD-S         PIC  X(01).
+                    88 PSCV4010-PIREFORD-0      VALUE '0'.
+                    88 PSCV4010-PIREFORD-1      VALUE '1' ' '.
+                 15 PSCV4010-PIREFORD-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIREFORD-MSG       PIC 9(04).
+
+              10 PSCV4010-PIMONT-ST.
+                 15 PSCV4010-PIMONT-S         PIC  X(01).
+                    88 PSCV4010-PIMONT-0      VALUE '0'.
+                    88 PSCV4010-PIMONT-1      VALUE '1' ' '.
+                 15 PSCV4010-PIMONT-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIMONT-MSG       PIC 9(04).
+
+              10 PSCV4010-PITREG-ST.
+                 15 PSCV4010-PITREG-S         PIC  X(01).
+                    88 PSCV4010-PITREG-0      VALUE '0'.
+                    88 PSCV4010-PITREG-1      VALUE '1' ' '.
+                 15 PSCV4010-PITREG-CAPLIC    PIC X(02).
+                 15 PSCV4010-PITREG-MSG       PIC 9(04).
+
+              10 PSCV4010-PITPROC-ST.
+                 15 PSCV4010-PITPROC-S         PIC  X(01).
+                    88 PSCV4010-PITPROC-0      VALUE '0'.
+                    88 PSCV4010-PITPROC-1      VALUE '1' ' '.
+                 15 PSCV4010-PITPROC-CAPLIC    PIC X(02).
+                 15 PSCV4010-PITPROC-MSG       PIC 9(04).
+
+              10 PSCV4010-PINOMEO-ST.
+                 15 PSCV4010-PINOMEO-S         PIC  X(01).
+                    88 PSCV4010-PINOMEO-0      VALUE '0'.
+                    88 PSCV4010-PINOMEO-1      VALUE '1' ' '.
+                 15 PSCV4010-PINOMEO-CAPLIC    PIC X(02).
+                 15 PSCV4010-PINOMEO-MSG       PIC 9(04).
+
+              10 PSCV4010-PINOMEF-ST.
+                 15 PSCV4010-PINOMEF-S         PIC  X(01).
+                    88 PSCV4010-PINOMEF-0      VALUE '0'.
+                    88 PSCV4010-PINOMEF-1      VALUE '1' ' '.
+                 15 PSCV4010-PINOMEF-CAPLIC    PIC X(02).
+                 15 PSCV4010-PINOMEF-MSG       PIC 9(04).
+
+              10 PSCV4010-PIIENVF-ST.
+                 15 PSCV4010-PIIENVF-S         PIC  X(01).
+                    88 PSCV4010-PIIENVF-0      VALUE '0'.
+                    88 PSCV4010-PIIENVF-1      VALUE '1' ' '.
+                 15 PSCV4010-PIIENVF-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIIENVF-MSG       PIC 9(04).
+
+              10 PSCV4010-PICHKSO-ST.
+                 15 PSCV4010-PICHKSO-S         PIC  X(01).
+                    88 PSCV4010-PICHKSO-0      VALUE '0'.
+                    88 PSCV4010-PICHKSO-1      VALUE '1' ' '.
+                 15 PSCV4010-PICHKSO-CAPLIC    PIC X(02).
+                 15 PSCV4010-PICHKSO-MSG       PIC 9(04).
+
+              10 PSCV4010-PICHKSC-ST.
+                 15 PSCV4010-PICHKSC-S         PIC  X(01).
+                    88 PSCV4010-PICHKSC-0      VALUE '0'.
+                    88 PSCV4010-PICHKSC-1      VALUE '1' ' '.
+                 15 PSCV4010-PICHKSC-CAPLIC    PIC X(02).
+                 15 PSCV4010-PICHKSC-MSG       PIC 9(04).
+
+              10 PSCV4010-PIBIBLI-ST.
+                 15 PSCV4010-PIBIBLI-S         PIC  X(01).
+                    88 PSCV4010-PIBIBLI-0      VALUE '0'.
+                    88 PSCV4010-PIBIBLI-1      VALUE '1' ' '.
+                 15 PSCV4010-PIBIBLI-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIBIBLI-MSG       PIC 9(04).
+
+              10 PSCV4010-PILMSG-ST.
+                 15 PSCV4010-PILMSG-S         PIC  X(01).
+                    88 PSCV4010-PILMSG-0      VALUE '0'.
+                    88 PSCV4010-PILMSG-1      VALUE '1' ' '.
+                 15 PSCV4010-PILMSG-CAPLIC    PIC X(02).
+                 15 PSCV4010-PILMSG-MSG       PIC 9(04).
+
+              10 PSCV4010-PIICONT-ST.
+                 15 PSCV4010-PIICONT-S         PIC  X(01).
+                    88 PSCV4010-PIICONT-0      VALUE '0'.
+                    88 PSCV4010-PIICONT-1      VALUE '1' ' '.
+                 15 PSCV4010-PIICONT-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIICONT-MSG       PIC 9(04).
+
+              10 PSCV4010-PIICANC-ST.
+                 15 PSCV4010-PIICANC-S         PIC  X(01).
+                    88 PSCV4010-PIICANC-0      VALUE '0'.
+                    88 PSCV4010-PIICANC-1      VALUE '1' ' '.
+                 15 PSCV4010-PIICANC-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIICANC-MSG       PIC 9(04).
+
+              10 PSCV4010-PINCLI-B-ST.
+                 15 PSCV4010-PINCLI-B-S         PIC  X(01).
+                    88 PSCV4010-PINCLI-B-0      VALUE '0'.
+                    88 PSCV4010-PINCLI-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PINCLI-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PINCLI-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PICONTA-B-ST.
+                 15 PSCV4010-PICONTA-B-S         PIC  X(01).
+                    88 PSCV4010-PICONTA-B-0      VALUE '0'.
+                    88 PSCV4010-PICONTA-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PICONTA-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PICONTA-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PIDINT-B-ST.
+                 15 PSCV4010-PIDINT-B-S         PIC  X(01).
+                    88 PSCV4010-PIDINT-B-0      VALUE '0'.
+                    88 PSCV4010-PIDINT-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PIDINT-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIDINT-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PIFORM-B-ST.
+                 15 PSCV4010-PIFORM-B-S         PIC  X(01).
+                    88 PSCV4010-PIFORM-B-0      VALUE '0'.
+                    88 PSCV4010-PIFORM-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PIFORM-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIFORM-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PIREFORD-B-ST.
+                 15 PSCV4010-PIREFORD-B-S         PIC  X(01).
+                    88 PSCV4010-PIREFORD-B-0      VALUE '0'.
+                    88 PSCV4010-PIREFORD-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PIREFORD-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIREFORD-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PIMONT-B-ST.
+                 15 PSCV4010-PIMONT-B-S         PIC  X(01).
+                    88 PSCV4010-PIMONT-B-0      VALUE '0'.
+                    88 PSCV4010-PIMONT-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PIMONT-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIMONT-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PITREG-B-ST.
+                 15 PSCV4010-PITREG-B-S         PIC  X(01).
+                    88 PSCV4010-PITREG-B-0      VALUE '0'.
+                    88 PSCV4010-PITREG-B-1      VALUE '1' ' '.
+                 15 PSCV4010-PITREG-B-CAPLIC    PIC X(02).
+                 15 PSCV4010-PITREG-B-MSG       PIC 9(04).
+
+              10 PSCV4010-PINCLI-C-ST.
+                 15 PSCV4010-PINCLI-C-S         PIC  X(01).
+                    88 PSCV4010-PINCLI-C-0      VALUE '0'.
+                    88 PSCV4010-PINCLI-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PINCLI-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PINCLI-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PICONTA-C-ST.
+                 15 PSCV4010-PICONTA-C-S         PIC  X(01).
+                    88 PSCV4010-PICONTA-C-0      VALUE '0'.
+                    88 PSCV4010-PICONTA-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PICONTA-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PICONTA-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PIDINT-C-ST.
+                 15 PSCV4010-PIDINT-C-S         PIC  X(01).
+                    88 PSCV4010-PIDINT-C-0      VALUE '0'.
+                    88 PSCV4010-PIDINT-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PIDINT-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIDINT-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PIFORM-C-ST.
+                 15 PSCV4010-PIFORM-C-S         PIC  X(01).
+                    88 PSCV4010-PIFORM-C-0      VALUE '0'.
+                    88 PSCV4010-PIFORM-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PIFORM-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIFORM-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PIREFORD-C-ST.
+                 15 PSCV4010-PIREFORD-C-S         PIC  X(01).
+                    88 PSCV4010-PIREFORD-C-0      VALUE '0'.
+                    88 PSCV4010-PIREFORD-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PIREFORD-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIREFORD-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PIMONT-C-ST.
+                 15 PSCV4010-PIMONT-C-S         PIC  X(01).
+                    88 PSCV4010-PIMONT-C-0      VALUE '0'.
+                    88 PSCV4010-PIMONT-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PIMONT-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PIMONT-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PITREG-C-ST.
+                 15 PSCV4010-PITREG-C-S         PIC  X(01).
+                    88 PSCV4010-PITREG-C-0      VALUE '0'.
+                    88 PSCV4010-PITREG-C-1      VALUE '1' ' '.
+                 15 PSCV4010-PITREG-C-CAPLIC    PIC X(02).
+                 15 PSCV4010-PITREG-C-MSG       PIC 9(04).
+
+              10 PSCV4010-PIIPAGSAL-C-ST.
+                 15 PSCV4010-PIIPAGSAL-C-S      PIC  X(01).
+                    88 PSCV4010-PIIPAGSAL-C-0   VALUE '0'.
+                    88 PSCV4010-PIIPAGSAL-C-1   VALUE '1' ' '.
+                 15 PSCV4010-PIIPAGSAL-C-CAPLIC PIC X(02).
+                 15 PSCV4010-PIIPAGSAL-C-MSG    PIC 9(04).
+      *
+          05  PSCV4010-ADE.
+                10 PSCV4010-PINCLI PIC 9(09).
+                10 PSCV4010-PINMCLI PIC X(40).
+                10 PSCV4010-PICONTA PIC 9(14).
+                10 PSCV4010-PIDINT PIC X(10).
+                10 PSCV4010-PINFIC PIC 9(06).
+                10 PSCV4010-PIFORM PIC X(01).
+                10 PSCV4010-PIREFORD PIC X(20).
+                10 PSCV4010-PIMONT PIC 9(11)V9(2).
+                10 PSCV4010-PITREG PIC 9(06).
+                10 PSCV4010-PITPROC PIC X(01).
+                10 PSCV4010-PINOMEO PIC X(100).
+                10 PSCV4010-PINOMEF PIC X(10).
+                10 PSCV4010-PIIENVF PIC X(01).
+                10 PSCV4010-PICHKSO PIC X(32).
+                10 PSCV4010-PICHKSC PIC X(32).
+                10 PSCV4010-PIBIBLI PIC X(10).
+                10 PSCV4010-PILMSG PIC X(100).
+                10 PSCV4010-PIICONT PIC X(01).
+                10 PSCV4010-PIICANC PIC X(01).
+                10 PSCV4010-PINCLI-B PIC 9(09).
+                10 PSCV4010-PICONTA-B PIC 9(14).
+                10 PSCV4010-PIDINT-B PIC X(10).
+                10 PSCV4010-PIFORM-B PIC X(01).
+                10 PSCV4010-PIREFORD-B PIC X(20).
+                10 PSCV4010-PIMONT-B PIC 9(11)V9(2).
+                10 PSCV4010-PITREG-B PIC 9(06).
+                10 PSCV4010-PINCLI-C PIC 9(09).
+                10 PSCV4010-PICONTA-C PIC 9(14).
+                10 PSCV4010-PIDINT-C PIC X(10).
+                10 PSCV4010-PIFORM-C PIC X(01).
+                10 PSCV4010-PIREFORD-C PIC X(20).
+                10 PSCV4010-PIMONT-C PIC 9(11)V9(2).
+                10 PSCV4010-PITREG-C PIC 9(06).
+                10 PSCV4010-PIIPAGSAL PIC X(01).
+

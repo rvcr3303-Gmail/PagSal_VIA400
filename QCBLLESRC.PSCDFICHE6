@@ -1,0 +1,7 @@
+      ******************************************************************
+      *                                                                *
+      *       PSCDFICHEI  DECLARACAO DA TABELA PSFICHEIR               *
+      *                                                                *
+      ******************************************************************
+       01  REG-PSFICHEIR.
+           COPY DDS-ALL-FORMATS OF PSFICHEIR6 PREFIX BY 'PSFICHEIR-'.

@@ -1,0 +1,49 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1011                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1011-LENGTH                       PIC  9(05) VALUE 56.
+       01  PSCV1011-NR-CAMPOS                    PIC  9(05) VALUE 6.
+      *
+       01  PSCV1011-MSG.
+           05 PSCV1011-ASE.
+              10 PSCV1011-PRPREC-ST.
+                 15 PSCV1011-PRPREC-S         PIC  X(01).
+                    88 PSCV1011-PRPREC-0      VALUE '0'.
+                    88 PSCV1011-PRPREC-1      VALUE '1' ' '.
+                 15 PSCV1011-PRPREC-CAPLIC    PIC X(02).
+                 15 PSCV1011-PRPREC-MSG       PIC 9(04).
+
+              10 PSCV1011-PRTSERV-ST.
+                 15 PSCV1011-PRTSERV-S         PIC  X(01).
+                    88 PSCV1011-PRTSERV-0      VALUE '0'.
+                    88 PSCV1011-PRTSERV-1      VALUE '1' ' '.
+                 15 PSCV1011-PRTSERV-CAPLIC    PIC X(02).
+                 15 PSCV1011-PRTSERV-MSG       PIC 9(04).
+
+              10 PSCV1011-PRCANAL-ST.
+                 15 PSCV1011-PRCANAL-S         PIC  X(01).
+                    88 PSCV1011-PRCANAL-0      VALUE '0'.
+                    88 PSCV1011-PRCANAL-1      VALUE '1' ' '.
+                 15 PSCV1011-PRCANAL-CAPLIC    PIC X(02).
+                 15 PSCV1011-PRCANAL-MSG       PIC 9(04).
+
+              10 PSCV1011-PRTOPC-ST.
+                 15 PSCV1011-PRTOPC-S         PIC  X(01).
+                    88 PSCV1011-PRTOPC-0      VALUE '0'.
+                    88 PSCV1011-PRTOPC-1      VALUE '1' ' '.
+                 15 PSCV1011-PRTOPC-CAPLIC    PIC X(02).
+                 15 PSCV1011-PRTOPC-MSG       PIC 9(04).
+
+      *
+          05  PSCV1011-ADE.
+                10 PSCV1011-PRPREC PIC X(02).
+                10 PSCV1011-PRTSERV PIC X(02).
+                10 PSCV1011-PRCANAL PIC X(10).
+                10 PSCV1011-PRPRECO PIC X(02).
+                10 PSCV1011-PRTOPC PIC X(10).
+                10 PSCV1011-PRSITU PIC X(02).
+

@@ -1,0 +1,312 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1110                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1110-LENGTH                       PIC  9(05) VALUE 560.
+       01  PSCV1110-NR-CAMPOS                    PIC  9(05) VALUE 38.
+      *
+       01  PSCV1110-MSG.
+           05 PSCV1110-ASE.
+              10 PSCV1110-COCCLI-ST.
+                 15 PSCV1110-COCCLI-S         PIC  X(01).
+                    88 PSCV1110-COCCLI-0      VALUE '0'.
+                    88 PSCV1110-COCCLI-1      VALUE '1' ' '.
+                 15 PSCV1110-COCCLI-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCCLI-MSG       PIC 9(04).
+
+              10 PSCV1110-CONMCLI-ST.
+                 15 PSCV1110-CONMCLI-S         PIC  X(01).
+                    88 PSCV1110-CONMCLI-0      VALUE '0'.
+                    88 PSCV1110-CONMCLI-1      VALUE '1' ' '.
+                 15 PSCV1110-CONMCLI-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONMCLI-MSG       PIC 9(04).
+
+              10 PSCV1110-COTSERV-ST.
+                 15 PSCV1110-COTSERV-S         PIC  X(01).
+                    88 PSCV1110-COTSERV-0      VALUE '0'.
+                    88 PSCV1110-COTSERV-1      VALUE '1' ' '.
+                 15 PSCV1110-COTSERV-CAPLIC    PIC X(02).
+                 15 PSCV1110-COTSERV-MSG       PIC 9(04).
+
+              10 PSCV1110-CODESC-ST.
+                 15 PSCV1110-CODESC-S         PIC  X(01).
+                    88 PSCV1110-CODESC-0      VALUE '0'.
+                    88 PSCV1110-CODESC-1      VALUE '1' ' '.
+                 15 PSCV1110-CODESC-CAPLIC    PIC X(02).
+                 15 PSCV1110-CODESC-MSG       PIC 9(04).
+
+              10 PSCV1110-CONCLIA-ST.
+                 15 PSCV1110-CONCLIA-S         PIC  X(01).
+                    88 PSCV1110-CONCLIA-0      VALUE '0'.
+                    88 PSCV1110-CONCLIA-1      VALUE '1' ' '.
+                 15 PSCV1110-CONCLIA-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONCLIA-MSG       PIC 9(04).
+
+              10 PSCV1110-COCONTAA-ST.
+                 15 PSCV1110-COCONTAA-S         PIC  X(01).
+                    88 PSCV1110-COCONTAA-0      VALUE '0'.
+                    88 PSCV1110-COCONTAA-1      VALUE '1' ' '.
+                 15 PSCV1110-COCONTAA-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCONTAA-MSG       PIC 9(04).
+
+              10 PSCV1110-CONCLIB-ST.
+                 15 PSCV1110-CONCLIB-S         PIC  X(01).
+                    88 PSCV1110-CONCLIB-0      VALUE '0'.
+                    88 PSCV1110-CONCLIB-1      VALUE '1' ' '.
+                 15 PSCV1110-CONCLIB-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONCLIB-MSG       PIC 9(04).
+
+              10 PSCV1110-COCONTAB-ST.
+                 15 PSCV1110-COCONTAB-S         PIC  X(01).
+                    88 PSCV1110-COCONTAB-0      VALUE '0'.
+                    88 PSCV1110-COCONTAB-1      VALUE '1' ' '.
+                 15 PSCV1110-COCONTAB-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCONTAB-MSG       PIC 9(04).
+
+              10 PSCV1110-CONCLIC-ST.
+                 15 PSCV1110-CONCLIC-S         PIC  X(01).
+                    88 PSCV1110-CONCLIC-0      VALUE '0'.
+                    88 PSCV1110-CONCLIC-1      VALUE '1' ' '.
+                 15 PSCV1110-CONCLIC-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONCLIC-MSG       PIC 9(04).
+
+              10 PSCV1110-COCONTC-ST.
+                 15 PSCV1110-COCONTAC-S         PIC  X(01).
+                    88 PSCV1110-COCONTAC-0      VALUE '0'.
+                    88 PSCV1110-COCONTAC-1      VALUE '1' ' '.
+                 15 PSCV1110-COCONTAC-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCONTAC-MSG       PIC 9(04).
+
+              10 PSCV1110-COCLICCC-ST.
+                 15 PSCV1110-COCLICCC-S         PIC  X(01).
+                    88 PSCV1110-COCLICCC-0      VALUE '0'.
+                    88 PSCV1110-COCLICCC-1      VALUE '1' ' '.
+                 15 PSCV1110-COCLICCC-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCLICCC-MSG       PIC 9(04).
+
+              10 PSCV1110-COCONCCC-ST.
+                 15 PSCV1110-COCONCCC-S         PIC  X(01).
+                    88 PSCV1110-COCONTACCC-0      VALUE '0'.
+                    88 PSCV1110-COCONTACCC-1      VALUE '1' ' '.
+                 15 PSCV1110-COCONTACCC-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCONTACCC-MSG       PIC 9(04).
+
+              10 PSCV1110-CODABR-ST.
+                 15 PSCV1110-CODABR-S         PIC  X(01).
+                    88 PSCV1110-CODABR-0      VALUE '0'.
+                    88 PSCV1110-CODABR-1      VALUE '1' ' '.
+                 15 PSCV1110-CODABR-CAPLIC    PIC X(02).
+                 15 PSCV1110-CODABR-MSG       PIC 9(04).
+
+              10 PSCV1110-COSITU-ST.
+                 15 PSCV1110-COSITU-S         PIC  X(01).
+                    88 PSCV1110-COSITU-0      VALUE '0'.
+                    88 PSCV1110-COSITU-1      VALUE '1' ' '.
+                 15 PSCV1110-COSITU-CAPLIC    PIC X(02).
+                 15 PSCV1110-COSITU-MSG       PIC 9(04).
+
+              10 PSCV1110-COPREC-ST.
+                 15 PSCV1110-COPREC-S         PIC  X(01).
+                    88 PSCV1110-COPREC-0      VALUE '0'.
+                    88 PSCV1110-COPREC-1      VALUE '1' ' '.
+                 15 PSCV1110-COPREC-CAPLIC    PIC X(02).
+                 15 PSCV1110-COPREC-MSG       PIC 9(04).
+
+              10 PSCV1110-COTMOV-ST.
+                 15 PSCV1110-COTMOV-S         PIC  X(01).
+                    88 PSCV1110-COTMOV-0      VALUE '0'.
+                    88 PSCV1110-COTMOV-1      VALUE '1' ' '.
+                 15 PSCV1110-COTMOV-CAPLIC    PIC X(02).
+                 15 PSCV1110-COTMOV-MSG       PIC 9(04).
+
+              10 PSCV1110-CONTRY-ST.
+                 15 PSCV1110-CONTRY-S         PIC  X(01).
+                    88 PSCV1110-CONTRY-0      VALUE '0'.
+                    88 PSCV1110-CONTRY-1      VALUE '1' ' '.
+                 15 PSCV1110-CONTRY-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONTRY-MSG       PIC 9(04).
+
+              10 PSCV1110-COILCO-ST.
+                 15 PSCV1110-COILCO-S         PIC  X(01).
+                    88 PSCV1110-COILCO-0      VALUE '0'.
+                    88 PSCV1110-COILCO-1      VALUE '1' ' '.
+                 15 PSCV1110-COILCO-CAPLIC    PIC X(02).
+                 15 PSCV1110-COILCO-MSG       PIC 9(04).
+
+              10 PSCV1110-COIIPURG-ST.
+                 15 PSCV1110-COIIPURG-S         PIC  X(01).
+                    88 PSCV1110-COIIPURG-0      VALUE '0'.
+                    88 PSCV1110-COIIPURG-1      VALUE '1' ' '.
+                 15 PSCV1110-COIIPURG-CAPLIC    PIC X(02).
+                 15 PSCV1110-COIIPURG-MSG       PIC 9(04).
+
+              10 PSCV1110-COIIMREG-ST.
+                 15 PSCV1110-COIIMREG-S         PIC  X(01).
+                    88 PSCV1110-COIIMREG-0      VALUE '0'.
+                    88 PSCV1110-COIIMREG-1      VALUE '1' ' '.
+                 15 PSCV1110-COIIMREG-CAPLIC    PIC X(02).
+                 15 PSCV1110-COIIMREG-MSG       PIC 9(04).
+
+              10 PSCV1110-COIIEBORDO-ST.
+                 15 PSCV1110-COIIEBORDO-S         PIC  X(01).
+                    88 PSCV1110-COIIEBORDO-0      VALUE '0'.
+                    88 PSCV1110-COIIEBORDO-1      VALUE '1' ' '.
+                 15 PSCV1110-COIIEBORDO-CAPLIC    PIC X(02).
+                 15 PSCV1110-COIIEBORDO-MSG       PIC 9(04).
+
+              10 PSCV1110-COIIEBORDB-ST.
+                 15 PSCV1110-COIIEBORDB-S         PIC  X(01).
+                    88 PSCV1110-COIIEBORDB-0      VALUE '0'.
+                    88 PSCV1110-COIIEBORDB-1      VALUE '1' ' '.
+                 15 PSCV1110-COIIEBORDB-CAPLIC    PIC X(02).
+                 15 PSCV1110-COIIEBORDB-MSG       PIC 9(04).
+
+              10 PSCV1110-COIIFORMT-ST.
+                 15 PSCV1110-COIIFORMT-S         PIC  X(01).
+                    88 PSCV1110-COIIFORMT-0      VALUE '0'.
+                    88 PSCV1110-COIIFORMT-1      VALUE '1' ' '.
+                 15 PSCV1110-COIIFORMT-CAPLIC    PIC X(02).
+                 15 PSCV1110-COIIFORMT-MSG       PIC 9(04).
+
+              10 PSCV1110-CONOTOS-ST.
+                 15 PSCV1110-CONOTOS-S         PIC  X(01).
+                    88 PSCV1110-CONOTOS-0      VALUE '0'.
+                    88 PSCV1110-CONOTOS-1      VALUE '1' ' '.
+                 15 PSCV1110-CONOTOS-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONOTOS-MSG       PIC 9(04).
+
+              10 PSCV1110-CONOTBS-ST.
+                 15 PSCV1110-CONOTBS-S         PIC  X(01).
+                    88 PSCV1110-CONOTBS-0      VALUE '0'.
+                    88 PSCV1110-CONOTBS-1      VALUE '1' ' '.
+                 15 PSCV1110-CONOTBS-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONOTBS-MSG       PIC 9(04).
+
+              10 PSCV1110-COOGER-ST.
+                 15 PSCV1110-COOGER-S         PIC  X(01).
+                    88 PSCV1110-COOGER-0      VALUE '0'.
+                    88 PSCV1110-COOGER-1      VALUE '1' ' '.
+                 15 PSCV1110-COOGER-CAPLIC    PIC X(02).
+                 15 PSCV1110-COOGER-MSG       PIC 9(04).
+
+              10 PSCV1110-COEMAIL-ST.
+                 15 PSCV1110-COEMAIL-S         PIC  X(01).
+                    88 PSCV1110-COEMAIL-0      VALUE '0'.
+                    88 PSCV1110-COEMAIL-1      VALUE '1' ' '.
+                 15 PSCV1110-COEMAIL-CAPLIC    PIC X(02).
+                 15 PSCV1110-COEMAIL-MSG       PIC 9(04).
+
+              10 PSCV1110-CONOTOE-ST.
+                 15 PSCV1110-CONOTOE-S         PIC  X(01).
+                    88 PSCV1110-CONOTOE-0      VALUE '0'.
+                    88 PSCV1110-CONOTOE-1      VALUE '1' ' '.
+                 15 PSCV1110-CONOTOE-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONOTOE-MSG       PIC 9(04).
+
+              10 PSCV1110-CONOTBE-ST.
+                 15 PSCV1110-CONOTBE-S         PIC  X(01).
+                    88 PSCV1110-CONOTBE-0      VALUE '0'.
+                    88 PSCV1110-CONOTBE-1      VALUE '1' ' '.
+                 15 PSCV1110-CONOTBE-CAPLIC    PIC X(02).
+                 15 PSCV1110-CONOTBE-MSG       PIC 9(04).
+
+              10 PSCV1110-COAGEN-ST.
+                 15 PSCV1110-COAGEN-S         PIC  X(01).
+                    88 PSCV1110-COAGEN-0      VALUE '0'.
+                    88 PSCV1110-COAGEN-1      VALUE '1' ' '.
+                 15 PSCV1110-COAGEN-CAPLIC    PIC X(02).
+                 15 PSCV1110-COAGEN-MSG       PIC 9(04).
+
+              10 PSCV1110-COASSA-ST.
+                 15 PSCV1110-COASSA-S         PIC  X(01).
+                    88 PSCV1110-COASSA-0      VALUE '0'.
+                    88 PSCV1110-COASSA-1      VALUE '1' ' '.
+                 15 PSCV1110-COASSA-CAPLIC    PIC X(02).
+                 15 PSCV1110-COASSA-MSG       PIC 9(04).
+
+              10 PSCV1110-COASSB-ST.
+                 15 PSCV1110-COASSB-S         PIC  X(01).
+                    88 PSCV1110-COASSB-0      VALUE '0'.
+                    88 PSCV1110-COASSB-1      VALUE '1' ' '.
+                 15 PSCV1110-COASSB-CAPLIC    PIC X(02).
+                 15 PSCV1110-COASSB-MSG       PIC 9(04).
+
+              10 PSCV1110-COASSC-ST.
+                 15 PSCV1110-COASSC-S         PIC  X(01).
+                    88 PSCV1110-COASSC-0      VALUE '0'.
+                    88 PSCV1110-COASSC-1      VALUE '1' ' '.
+                 15 PSCV1110-COASSC-CAPLIC    PIC X(02).
+                 15 PSCV1110-COASSC-MSG       PIC 9(04).
+
+              10 PSCV1110-COCACE-ST.
+                 15 PSCV1110-COCACE-S         PIC  X(01).
+                    88 PSCV1110-COCACE-0      VALUE '0'.
+                    88 PSCV1110-COCACE-1      VALUE '1' ' '.
+                 15 PSCV1110-COCACE-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCACE-MSG       PIC 9(04).
+
+              10 PSCV1110-COCCONF-ST.
+                 15 PSCV1110-COCCONF-S         PIC  X(01).
+                    88 PSCV1110-COCCONF-0      VALUE '0'.
+                    88 PSCV1110-COCCONF-1      VALUE '1' ' '.
+                 15 PSCV1110-COCCONF-CAPLIC    PIC X(02).
+                 15 PSCV1110-COCCONF-MSG       PIC 9(04).
+
+              10 PSCV1110-COTELF-ST.
+                 15 PSCV1110-COTELF-S         PIC  X(01).
+                    88 PSCV1110-COTELF-0      VALUE '0'.
+                    88 PSCV1110-COTELF-1      VALUE '1' ' '.
+                 15 PSCV1110-COTELF-CAPLIC    PIC X(02).
+                 15 PSCV1110-COTELF-MSG       PIC 9(04).
+
+              10 PSCV1110-IDESCRDEF-ST.
+                 15 PSCV1110-IDESCRDEF-S         PIC  X(01).
+                    88 PSCV1110-IDESCRDEF-0      VALUE '0'.
+                    88 PSCV1110-IDESCRDEF-1      VALUE '1' ' '.
+                 15 PSCV1110-IDESCRDEF-CAPLIC    PIC X(02).
+                 15 PSCV1110-IDESCRDEF-MSG       PIC 9(04).
+
+      *
+          05  PSCV1110-ADE.
+                10 PSCV1110-COCCLI PIC 9(09).
+                10 PSCV1110-CONMCLI PIC X(40).
+                10 PSCV1110-COTSERV PIC X(02).
+                10 PSCV1110-CODESC PIC X(20).
+                10 PSCV1110-CONCLIA PIC 9(09).
+                10 PSCV1110-COCONTAA PIC 9(14).
+                10 PSCV1110-CONCLIB PIC 9(09).
+                10 PSCV1110-COCONTAB PIC 9(14).
+                10 PSCV1110-CONCLIC PIC 9(09).
+                10 PSCV1110-COCONTAC PIC 9(14).
+                10 PSCV1110-COCLICCC PIC 9(09).
+                10 PSCV1110-COCONTACCC PIC 9(14).
+                10 PSCV1110-CODABR PIC X(10).
+                10 PSCV1110-CODENC PIC X(10).
+                10 PSCV1110-COSITU PIC X(02).
+                10 PSCV1110-COPREC PIC X(02).
+                10 PSCV1110-COTMOV PIC X(01).
+                10 PSCV1110-CONTRY PIC 9(03).
+                10 PSCV1110-COILCO PIC X(01).
+                10 PSCV1110-COIIPURG PIC X(01).
+                10 PSCV1110-COIIMREG PIC X(01).
+                10 PSCV1110-COIIEBORDO PIC X(01).
+                10 PSCV1110-COIIEBORDB PIC X(01).
+                10 PSCV1110-COIIFORMT PIC X(01).
+                10 PSCV1110-CONOTOS PIC X(01).
+                10 PSCV1110-CONOTBS PIC X(01).
+                10 PSCV1110-COOGER PIC X(10).
+                10 PSCV1110-COEMAIL PIC X(50).
+                10 PSCV1110-CONOTOE PIC X(01).
+                10 PSCV1110-CONOTBE PIC X(01).
+                10 PSCV1110-COAGEN PIC 9(04).
+                10 PSCV1110-COASSA PIC X(01).
+                10 PSCV1110-COASSB PIC X(01).
+                10 PSCV1110-COASSC PIC X(01).
+                10 PSCV1110-COCACE PIC X(01).
+                10 PSCV1110-COCCONF PIC X(01).
+                10 PSCV1110-COTELF PIC X(17).
+                10 PSCV1110-IDESCRDEF PIC X(02).
+

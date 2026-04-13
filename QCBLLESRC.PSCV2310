@@ -1,0 +1,136 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV2310                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV2310-LENGTH                       PIC  9(05) VALUE 482.
+       01  PSCV2310-NR-CAMPOS                    PIC  9(05) VALUE 33.
+      *
+       01  PSCV2310-MSG.
+           05 PSCV2310-ASE.
+              10 PSCV2310-FCNCLI-ST.
+                 15 PSCV2310-FCNCLI-S         PIC  X(01).
+                    88 PSCV2310-FCNCLI-0      VALUE '0'.
+                    88 PSCV2310-FCNCLI-1      VALUE '1' ' '.
+                 15 PSCV2310-FCNCLI-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCNCLI-MSG       PIC 9(04).
+
+              10 PSCV2310-FCNMCLI-ST.
+                 15 PSCV2310-FCNMCLI-S         PIC  X(01).
+                    88 PSCV2310-FCNMCLI-0      VALUE '0'.
+                    88 PSCV2310-FCNMCLI-1      VALUE '1' ' '.
+                 15 PSCV2310-FCNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCNMCLI-MSG       PIC 9(04).
+
+              10 PSCV2310-FCDINT-ST.
+                 15 PSCV2310-FCDINT-S         PIC  X(01).
+                    88 PSCV2310-FCDINT-0      VALUE '0'.
+                    88 PSCV2310-FCDINT-1      VALUE '1' ' '.
+                 15 PSCV2310-FCDINT-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCDINT-MSG       PIC 9(04).
+
+              10 PSCV2310-FCNFIC-ST.
+                 15 PSCV2310-FCNFIC-S         PIC  X(01).
+                    88 PSCV2310-FCNFIC-0      VALUE '0'.
+                    88 PSCV2310-FCNFIC-1      VALUE '1' ' '.
+                 15 PSCV2310-FCNFIC-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCNFIC-MSG       PIC 9(04).
+
+              10 PSCV2310-FCNREG-ST.
+                 15 PSCV2310-FCNREG-S         PIC  X(01).
+                    88 PSCV2310-FCNREG-0      VALUE '0'.
+                    88 PSCV2310-FCNREG-1      VALUE '1' ' '.
+                 15 PSCV2310-FCNREG-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCNREG-MSG       PIC 9(04).
+
+              10 PSCV2310-FCNIB-ST.
+                 15 PSCV2310-FCNIB-S         PIC  X(01).
+                    88 PSCV2310-FCNIB-0      VALUE '0'.
+                    88 PSCV2310-FCNIB-1      VALUE '1' ' '.
+                 15 PSCV2310-FCNIB-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCNIB-MSG       PIC 9(04).
+
+              10 PSCV2310-FCMOED-ST.
+                 15 PSCV2310-FCMOED-S         PIC  X(01).
+                    88 PSCV2310-FCMOED-0      VALUE '0'.
+                    88 PSCV2310-FCMOED-1      VALUE '1' ' '.
+                 15 PSCV2310-FCMOED-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCMOED-MSG       PIC 9(04).
+
+              10 PSCV2310-FCDPRO-ST.
+                 15 PSCV2310-FCDPRO-S         PIC  X(01).
+                    88 PSCV2310-FCDPRO-0      VALUE '0'.
+                    88 PSCV2310-FCDPRO-1      VALUE '1' ' '.
+                 15 PSCV2310-FCDPRO-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCDPRO-MSG       PIC 9(04).
+
+              10 PSCV2310-FCREFORD-ST.
+                 15 PSCV2310-FCREFORD-S         PIC  X(01).
+                    88 PSCV2310-FCREFORD-0      VALUE '0'.
+                    88 PSCV2310-FCREFORD-1      VALUE '1' ' '.
+                 15 PSCV2310-FCREFORD-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCREFORD-MSG       PIC 9(04).
+
+              10 PSCV2310-FCMAIL-ST.
+                 15 PSCV2310-FCMAIL-S         PIC  X(01).
+                    88 PSCV2310-FCMAIL-0      VALUE '0'.
+                    88 PSCV2310-FCMAIL-1      VALUE '1' ' '.
+                 15 PSCV2310-FCMAIL-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCMAIL-MSG       PIC 9(04).
+
+              10 PSCV2310-FCOGER-ST.
+                 15 PSCV2310-FCOGER-S         PIC  X(01).
+                    88 PSCV2310-FCOGER-0      VALUE '0'.
+                    88 PSCV2310-FCOGER-1      VALUE '1' ' '.
+                 15 PSCV2310-FCOGER-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCOGER-MSG       PIC 9(04).
+
+              10 PSCV2310-FCAGEN-ST.
+                 15 PSCV2310-FCAGEN-S         PIC  X(01).
+                    88 PSCV2310-FCAGEN-0      VALUE '0'.
+                    88 PSCV2310-FCAGEN-1      VALUE '1' ' '.
+                 15 PSCV2310-FCAGEN-CAPLIC    PIC X(02).
+                 15 PSCV2310-FCAGEN-MSG       PIC 9(04).
+
+      *
+          05  PSCV2310-ADE.
+                10 PSCV2310-FCNCLI PIC 9(09).
+                10 PSCV2310-FCNMCLI PIC X(40).
+                10 PSCV2310-FCDINT PIC X(10).
+                10 PSCV2310-FCNFIC PIC 9(06).
+                10 PSCV2310-FCNREG PIC 9(06).
+                10 PSCV2310-FCNOMEF PIC X(10).
+                10 PSCV2310-FCFORM PIC X(01).
+                10 PSCV2310-FCTREG PIC X(01).
+                10 PSCV2310-FCTOPE PIC X(02).
+                10 PSCV2310-FCSITC PIC X(02).
+                10 PSCV2310-FCSITR PIC X(01).
+                10 PSCV2310-FCNIB.
+                   15 PSCV2310-FCCBAN  PIC 9(04).
+                   15 PSCV2310-FCCBAL  PIC 9(04).
+                   15 PSCV2310-FCCNTA  PIC 9(11).
+                   15 PSCV2310-FCCDIG  PIC 9(02).
+                10 PSCV2310-FCMOED PIC X(03).
+                10 PSCV2310-FCDPRO PIC X(10).
+                10 PSCV2310-FCREFORD PIC X(20).
+                10 PSCV2310-FCMAIL PIC X(50).
+                10 PSCV2310-FCSITU PIC X(02).
+                10 PSCV2310-FCOGER PIC X(10).
+                10 PSCV2310-FCAGEN PIC 9(04).
+                10 PSCV2310-FCNCLI-B PIC 9(09).
+                10 PSCV2310-FCCONTA-B PIC 9(14).
+                10 PSCV2310-FCDINT-B PIC X(10).
+                10 PSCV2310-FCREFORD-B PIC X(20).
+                10 PSCV2310-FCMONT-B PIC 9(11)V9(2).
+                10 PSCV2310-FCTREG-B PIC 9(06).
+                10 PSCV2310-FCNCLI-C PIC 9(09).
+                10 PSCV2310-FCCONTA-C PIC 9(14).
+                10 PSCV2310-FCDINT-C PIC X(10).
+                10 PSCV2310-FCREFORD-C PIC X(20).
+                10 PSCV2310-FCMONT-C PIC 9(11)V9(2).
+                10 PSCV2310-FCTREG-C PIC 9(06).
+                10 PSCV2310-FCUSRCNF PIC X(10).
+                10 PSCV2310-FCHTIMEV PIC X(26).
+

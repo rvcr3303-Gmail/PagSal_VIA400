@@ -1,0 +1,41 @@
+      ******************************************************************
+      *                                                               **
+      *  APLICAÇÃO:        DESENVOLVIMENTOS ADICIONAIS                **
+      *  MÓDULO:           TRANSVERSAL                                **
+      *  FUNÇÃO:           ESCRITA DE MENSAGENS DE ERRO               **
+      *  PROGRAMA:         SXCP0902                                   *
+      *  CRIACAO:          2011.01.04                                 **
+      *  AUTOR:            VIA CONSULTING                             **
+      *  DESCRIÇÃO:        EFECTUA OS SEGUINTES PROCESSAMENTOS:       **
+      *                            -  ESCREVE A MENSAGEM NA QUEWE     **
+      *                                                               **
+      ******************************************************************
+      *           L O G     D E     A L T E R A C O E S                *
+      ******************************************************************
+      *  INICIO  * AUTOR  * FIM    *  C O M E N T A R I O S           **
+      *          *        *        *                                  **
+      *          *        *        *                                  **
+      ******************************************************************
+       SXCP0902-ESCREVE-MSG.
+      *
+           IF SXCW0902-MSGID NOT EQUAL SPACES AND
+              SXCW0902-PGMQC NOT EQUAL SPACES AND
+              SXCW0902-MFILE NOT EQUAL SPACES
+
+              CALL SXCW0902-PRGMSG       USING SXCW0902-DATA
+
+      **R ESTOU A TESTAR. PENSO INCLUIR AQUI ALGO QUE REGISTE OS ERROS
+      **R BANKA NOS NOSSOS LOGS.
+              IF SXCW0902-MSGID NOT EQUAL '*CLEAR'
+                MOVE SXCW0902-PGMQC                TO VIAW0050-MSGQ
+                PERFORM VIAP0050-TRATA-ERRO-BANKA
+                   THRU VIAP0050-TRATA-ERRO-BANKA-EXIT
+              END-IF
+           ELSE
+             DISPLAY 'SXCP0902...= ' SXCW0902-MFILE ' / '
+                                     SXCW0902-PGMQC ' / '
+                                     SXCW0902-MSGID
+           END-IF.
+      *
+       SXCP0902-ESCREVE-MSG-EXIT.
+           EXIT.

@@ -1,0 +1,16 @@
+           EXEC SQL DECLARE PSSITTRAT TABLE
+           (
+               STCTRA DECIMAL(1,0) NOT NULL
+             , STCTRC DECIMAL(1,0) NOT NULL
+             , CUSERID CHAR(20) NOT NULL
+             , HTIMEEST TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE PSSITTRAT
+      ******************************************************************
+       01  DCLPSCDTT00.
+            05 PSCDTT00-STCTRA PIC S9(01) COMP-3.
+            05 PSCDTT00-STCTRC PIC S9(01) COMP-3.
+            05 PSCDTT00-CUSERID PIC X(20).
+            05 PSCDTT00-HTIMEEST PIC X(26).
+

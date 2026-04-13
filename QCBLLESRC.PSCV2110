@@ -1,0 +1,134 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV2110                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV2110-LENGTH                       PIC  9(05) VALUE 436.
+       01  PSCV2110-NR-CAMPOS                    PIC  9(05) VALUE 31.
+      *
+       01  PSCV2110-MSG.
+           05 PSCV2110-ASE.
+              10 PSCV2110-FGNCLI-ST.
+                 15 PSCV2110-FGNCLI-S         PIC  X(01).
+                    88 PSCV2110-FGNCLI-0      VALUE '0'.
+                    88 PSCV2110-FGNCLI-1      VALUE '1' ' '.
+                 15 PSCV2110-FGNCLI-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGNCLI-MSG       PIC 9(04).
+
+              10 PSCV2110-FGNMCLI-ST.
+                 15 PSCV2110-FGNMCLI-S         PIC  X(01).
+                    88 PSCV2110-FGNMCLI-0      VALUE '0'.
+                    88 PSCV2110-FGNMCLI-1      VALUE '1' ' '.
+                 15 PSCV2110-FGNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGNMCLI-MSG       PIC 9(04).
+
+              10 PSCV2110-FGDINT-ST.
+                 15 PSCV2110-FGDINT-S         PIC  X(01).
+                    88 PSCV2110-FGDINT-0      VALUE '0'.
+                    88 PSCV2110-FGDINT-1      VALUE '1' ' '.
+                 15 PSCV2110-FGDINT-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGDINT-MSG       PIC 9(04).
+
+              10 PSCV2110-FGNFIC-ST.
+                 15 PSCV2110-FGNFIC-S         PIC  X(01).
+                    88 PSCV2110-FGNFIC-0      VALUE '0'.
+                    88 PSCV2110-FGNFIC-1      VALUE '1' ' '.
+                 15 PSCV2110-FGNFIC-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGNFIC-MSG       PIC 9(04).
+
+              10 PSCV2110-FGNREG-ST.
+                 15 PSCV2110-FGNREG-S         PIC  X(01).
+                    88 PSCV2110-FGNREG-0      VALUE '0'.
+                    88 PSCV2110-FGNREG-1      VALUE '1' ' '.
+                 15 PSCV2110-FGNREG-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGNREG-MSG       PIC 9(04).
+
+              10 PSCV2110-FGOGER-ST.
+                 15 PSCV2110-FGOGER-S         PIC  X(01).
+                    88 PSCV2110-FGOGER-0      VALUE '0'.
+                    88 PSCV2110-FGOGER-1      VALUE '1' ' '.
+                 15 PSCV2110-FGOGER-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGOGER-MSG       PIC 9(04).
+
+              10 PSCV2110-FGNIB-ST.
+                 15 PSCV2110-FGNIB-S         PIC  X(01).
+                    88 PSCV2110-FGNIB-0      VALUE '0'.
+                    88 PSCV2110-FGNIB-1      VALUE '1' ' '.
+                 15 PSCV2110-FGNIB-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGNIB-MSG       PIC 9(04).
+
+              10 PSCV2110-FGMOED-ST.
+                 15 PSCV2110-FGMOED-S         PIC  X(01).
+                    88 PSCV2110-FGMOED-0      VALUE '0'.
+                    88 PSCV2110-FGMOED-1      VALUE '1' ' '.
+                 15 PSCV2110-FGMOED-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGMOED-MSG       PIC 9(04).
+
+              10 PSCV2110-FGDPRO-ST.
+                 15 PSCV2110-FGDPRO-S         PIC  X(01).
+                    88 PSCV2110-FGDPRO-0      VALUE '0'.
+                    88 PSCV2110-FGDPRO-1      VALUE '1' ' '.
+                 15 PSCV2110-FGDPRO-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGDPRO-MSG       PIC 9(04).
+
+              10 PSCV2110-FGREFORD-ST.
+                 15 PSCV2110-FGREFORD-S         PIC  X(01).
+                    88 PSCV2110-FGREFORD-0      VALUE '0'.
+                    88 PSCV2110-FGREFORD-1      VALUE '1' ' '.
+                 15 PSCV2110-FGREFORD-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGREFORD-MSG       PIC 9(04).
+
+              10 PSCV2110-FGMAIL-ST.
+                 15 PSCV2110-FGMAIL-S         PIC  X(01).
+                    88 PSCV2110-FGMAIL-0      VALUE '0'.
+                    88 PSCV2110-FGMAIL-1      VALUE '1' ' '.
+                 15 PSCV2110-FGMAIL-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGMAIL-MSG       PIC 9(04).
+
+              10 PSCV2110-FGAGEN-ST.
+                 15 PSCV2110-FGAGEN-S         PIC  X(01).
+                    88 PSCV2110-FGAGEN-0      VALUE '0'.
+                    88 PSCV2110-FGAGEN-1      VALUE '1' ' '.
+                 15 PSCV2110-FGAGEN-CAPLIC    PIC X(02).
+                 15 PSCV2110-FGAGEN-MSG       PIC 9(04).
+
+      *
+          05  PSCV2110-ADE.
+                10 PSCV2110-FGNCLI PIC 9(09).
+                10 PSCV2110-FGNMCLI PIC X(40).
+                10 PSCV2110-FGDINT PIC X(10).
+                10 PSCV2110-FGNFIC PIC 9(06).
+                10 PSCV2110-FGNREG PIC 9(06).
+                10 PSCV2110-FGOGER PIC X(10).
+                10 PSCV2110-FGNOMEF PIC X(10).
+                10 PSCV2110-FGFORM PIC X(01).
+                10 PSCV2110-FGTREG PIC X(01).
+                10 PSCV2110-FGTOPE PIC X(02).
+                10 PSCV2110-FGSITC PIC X(02).
+                10 PSCV2110-FGSITR PIC X(01).
+                10 PSCV2110-FGNIB.
+                   15 PSCV2110-FGCBAN PIC 9(04).
+                   15 PSCV2110-FGCBAL PIC 9(04).
+                   15 PSCV2110-FGCNTA PIC 9(11).
+                   15 PSCV2110-FGCDIG PIC 9(02).
+                10 PSCV2110-FGMOED PIC X(03).
+                10 PSCV2110-FGDPRO PIC X(10).
+                10 PSCV2110-FGREFORD PIC X(20).
+                10 PSCV2110-FGMAIL PIC X(50).
+                10 PSCV2110-FGSITU PIC X(02).
+                10 PSCV2110-FGAGEN PIC 9(04).
+                10 PSCV2110-FGNCLI-B PIC 9(09).
+                10 PSCV2110-FGCONTA-B PIC 9(14).
+                10 PSCV2110-FGDINT-B PIC X(10).
+                10 PSCV2110-FGREFORD-B PIC X(20).
+                10 PSCV2110-FGMONT-B PIC 9(11)V9(2).
+                10 PSCV2110-FGTREG-B PIC 9(06).
+                10 PSCV2110-FGNCLI-C PIC 9(09).
+                10 PSCV2110-FGCONTA-C PIC 9(14).
+                10 PSCV2110-FGDINT-C PIC X(10).
+                10 PSCV2110-FGREFORD-C PIC X(20).
+                10 PSCV2110-FGMONT-C PIC 9(11)V9(2).
+                10 PSCV2110-FGTREG-C PIC 9(06).
+

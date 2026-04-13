@@ -1,0 +1,256 @@
+      ****************************************************************
+      *                                                              *
+      *                      ECRAN DE MENSAGENS                      *
+      *                                                              *
+      *                      MAPA:  PSCV1170                         *
+      *                                                              *
+      ****************************************************************
+       01  PSCV1170-LENGTH                       PIC  9(05) VALUE 490.
+       01  PSCV1170-NR-CAMPOS                    PIC  9(05) VALUE 31.
+      *
+       01  PSCV1170-MSG.
+           05 PSCV1170-ASE.
+              10 PSCV1170-CHCCLI-ST.
+                 15 PSCV1170-CHCCLI-S         PIC  X(01).
+                    88 PSCV1170-CHCCLI-0      VALUE '0'.
+                    88 PSCV1170-CHCCLI-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCCLI-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCCLI-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNMCLI-ST.
+                 15 PSCV1170-CHNMCLI-S         PIC  X(01).
+                    88 PSCV1170-CHNMCLI-0      VALUE '0'.
+                    88 PSCV1170-CHNMCLI-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNMCLI-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNMCLI-MSG       PIC 9(04).
+
+              10 PSCV1170-CHDESC-ST.
+                 15 PSCV1170-CHDESC-S         PIC  X(01).
+                    88 PSCV1170-CHDESC-0      VALUE '0'.
+                    88 PSCV1170-CHDESC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHDESC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHDESC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNCLIA-ST.
+                 15 PSCV1170-CHNCLIA-S         PIC  X(01).
+                    88 PSCV1170-CHNCLIA-0      VALUE '0'.
+                    88 PSCV1170-CHNCLIA-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNCLIA-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNCLIA-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCONTAA-ST.
+                 15 PSCV1170-CHCONTAA-S         PIC  X(01).
+                    88 PSCV1170-CHCONTAA-0      VALUE '0'.
+                    88 PSCV1170-CHCONTAA-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCONTAA-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCONTAA-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNCLIB-ST.
+                 15 PSCV1170-CHNCLIB-S         PIC  X(01).
+                    88 PSCV1170-CHNCLIB-0      VALUE '0'.
+                    88 PSCV1170-CHNCLIB-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNCLIB-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNCLIB-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCONTAB-ST.
+                 15 PSCV1170-CHCONTAB-S         PIC  X(01).
+                    88 PSCV1170-CHCONTAB-0      VALUE '0'.
+                    88 PSCV1170-CHCONTAB-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCONTAB-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCONTAB-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNCLIC-ST.
+                 15 PSCV1170-CHNCLIC-S         PIC  X(01).
+                    88 PSCV1170-CHNCLIC-0      VALUE '0'.
+                    88 PSCV1170-CHNCLIC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNCLIC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNCLIC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCONTAC-ST.
+                 15 PSCV1170-CHCONTAC-S         PIC  X(01).
+                    88 PSCV1170-CHCONTAC-0      VALUE '0'.
+                    88 PSCV1170-CHCONTAC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCONTAC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCONTAC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCLICCC-ST.
+                 15 PSCV1170-CHCLICCC-S         PIC  X(01).
+                    88 PSCV1170-CHCLICCC-0      VALUE '0'.
+                    88 PSCV1170-CHCLICCC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCLICCC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCLICCC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCONTACCC-ST.
+                 15 PSCV1170-CHCONTACCC-S         PIC  X(01).
+                    88 PSCV1170-CHCONTACCC-0      VALUE '0'.
+                    88 PSCV1170-CHCONTACCC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCONTACCC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCONTACCC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHDABR-ST.
+                 15 PSCV1170-CHDABR-S         PIC  X(01).
+                    88 PSCV1170-CHDABR-0      VALUE '0'.
+                    88 PSCV1170-CHDABR-1      VALUE '1' ' '.
+                 15 PSCV1170-CHDABR-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHDABR-MSG       PIC 9(04).
+
+              10 PSCV1170-CHSITU-ST.
+                 15 PSCV1170-CHSITU-S         PIC  X(01).
+                    88 PSCV1170-CHSITU-0      VALUE '0'.
+                    88 PSCV1170-CHSITU-1      VALUE '1' ' '.
+                 15 PSCV1170-CHSITU-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHSITU-MSG       PIC 9(04).
+
+              10 PSCV1170-CHPREC-ST.
+                 15 PSCV1170-CHPREC-S         PIC  X(01).
+                    88 PSCV1170-CHPREC-0      VALUE '0'.
+                    88 PSCV1170-CHPREC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHPREC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHPREC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHTMOV-ST.
+                 15 PSCV1170-CHTMOV-S         PIC  X(01).
+                    88 PSCV1170-CHTMOV-0      VALUE '0'.
+                    88 PSCV1170-CHTMOV-1      VALUE '1' ' '.
+                 15 PSCV1170-CHTMOV-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHTMOV-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNTRY-ST.
+                 15 PSCV1170-CHNTRY-S         PIC  X(01).
+                    88 PSCV1170-CHNTRY-0      VALUE '0'.
+                    88 PSCV1170-CHNTRY-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNTRY-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNTRY-MSG       PIC 9(04).
+
+              10 PSCV1170-CHILCO-ST.
+                 15 PSCV1170-CHILCO-S         PIC  X(01).
+                    88 PSCV1170-CHILCO-0      VALUE '0'.
+                    88 PSCV1170-CHILCO-1      VALUE '1' ' '.
+                 15 PSCV1170-CHILCO-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHILCO-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNOTOS-ST.
+                 15 PSCV1170-CHNOTOS-S         PIC  X(01).
+                    88 PSCV1170-CHNOTOS-0      VALUE '0'.
+                    88 PSCV1170-CHNOTOS-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNOTOS-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNOTOS-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNOTBS-ST.
+                 15 PSCV1170-CHNOTBS-S         PIC  X(01).
+                    88 PSCV1170-CHNOTBS-0      VALUE '0'.
+                    88 PSCV1170-CHNOTBS-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNOTBS-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNOTBS-MSG       PIC 9(04).
+
+              10 PSCV1170-CHOGER-ST.
+                 15 PSCV1170-CHOGER-S         PIC  X(01).
+                    88 PSCV1170-CHOGER-0      VALUE '0'.
+                    88 PSCV1170-CHOGER-1      VALUE '1' ' '.
+                 15 PSCV1170-CHOGER-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHOGER-MSG       PIC 9(04).
+
+              10 PSCV1170-CHEMAIL-ST.
+                 15 PSCV1170-CHEMAIL-S         PIC  X(01).
+                    88 PSCV1170-CHEMAIL-0      VALUE '0'.
+                    88 PSCV1170-CHEMAIL-1      VALUE '1' ' '.
+                 15 PSCV1170-CHEMAIL-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHEMAIL-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNOTOE-ST.
+                 15 PSCV1170-CHNOTOE-S         PIC  X(01).
+                    88 PSCV1170-CHNOTOE-0      VALUE '0'.
+                    88 PSCV1170-CHNOTOE-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNOTOE-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNOTOE-MSG       PIC 9(04).
+
+              10 PSCV1170-CHNOTBE-ST.
+                 15 PSCV1170-CHNOTBE-S         PIC  X(01).
+                    88 PSCV1170-CHNOTBE-0      VALUE '0'.
+                    88 PSCV1170-CHNOTBE-1      VALUE '1' ' '.
+                 15 PSCV1170-CHNOTBE-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHNOTBE-MSG       PIC 9(04).
+
+              10 PSCV1170-CHAGEN-ST.
+                 15 PSCV1170-CHAGEN-S         PIC  X(01).
+                    88 PSCV1170-CHAGEN-0      VALUE '0'.
+                    88 PSCV1170-CHAGEN-1      VALUE '1' ' '.
+                 15 PSCV1170-CHAGEN-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHAGEN-MSG       PIC 9(04).
+
+              10 PSCV1170-CHASSA-ST.
+                 15 PSCV1170-CHASSA-S         PIC  X(01).
+                    88 PSCV1170-CHASSA-0      VALUE '0'.
+                    88 PSCV1170-CHASSA-1      VALUE '1' ' '.
+                 15 PSCV1170-CHASSA-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHASSA-MSG       PIC 9(04).
+
+              10 PSCV1170-CHASSB-ST.
+                 15 PSCV1170-CHASSB-S         PIC  X(01).
+                    88 PSCV1170-CHASSB-0      VALUE '0'.
+                    88 PSCV1170-CHASSB-1      VALUE '1' ' '.
+                 15 PSCV1170-CHASSB-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHASSB-MSG       PIC 9(04).
+
+              10 PSCV1170-CHASSC-ST.
+                 15 PSCV1170-CHASSC-S         PIC  X(01).
+                    88 PSCV1170-CHASSC-0      VALUE '0'.
+                    88 PSCV1170-CHASSC-1      VALUE '1' ' '.
+                 15 PSCV1170-CHASSC-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHASSC-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCACE-ST.
+                 15 PSCV1170-CHCACE-S         PIC  X(01).
+                    88 PSCV1170-CHCACE-0      VALUE '0'.
+                    88 PSCV1170-CHCACE-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCACE-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCACE-MSG       PIC 9(04).
+
+              10 PSCV1170-CHCCONF-ST.
+                 15 PSCV1170-CHCCONF-S         PIC  X(01).
+                    88 PSCV1170-CHCCONF-0      VALUE '0'.
+                    88 PSCV1170-CHCCONF-1      VALUE '1' ' '.
+                 15 PSCV1170-CHCCONF-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHCCONF-MSG       PIC 9(04).
+
+              10 PSCV1170-CHTELF-ST.
+                 15 PSCV1170-CHTELF-S         PIC  X(01).
+                    88 PSCV1170-CHTELF-0      VALUE '0'.
+                    88 PSCV1170-CHTELF-1      VALUE '1' ' '.
+                 15 PSCV1170-CHTELF-CAPLIC    PIC X(02).
+                 15 PSCV1170-CHTELF-MSG       PIC 9(04).
+
+      *
+          05  PSCV1170-ADE.
+                10 PSCV1170-CHCCLI PIC 9(09).
+                10 PSCV1170-CHNMCLI PIC X(40).
+                10 PSCV1170-CHDESC PIC X(20).
+                10 PSCV1170-CHNCLIA PIC 9(09).
+                10 PSCV1170-CHCONTAA PIC 9(14).
+                10 PSCV1170-CHNCLIB PIC 9(09).
+                10 PSCV1170-CHCONTAB PIC 9(14).
+                10 PSCV1170-CHNCLIC PIC 9(09).
+                10 PSCV1170-CHCONTAC PIC 9(14).
+                10 PSCV1170-CHCLICCC PIC 9(09).
+                10 PSCV1170-CHCONTACCC PIC 9(14).
+                10 PSCV1170-CHDABR PIC X(10).
+                10 PSCV1170-CHDENC PIC X(10).
+                10 PSCV1170-CHSITU PIC X(02).
+                10 PSCV1170-CHPREC PIC X(02).
+                10 PSCV1170-CHTMOV PIC X(01).
+                10 PSCV1170-CHNTRY PIC 9(03).
+                10 PSCV1170-CHILCO PIC X(01).
+                10 PSCV1170-CHNOTOS PIC X(01).
+                10 PSCV1170-CHNOTBS PIC X(01).
+                10 PSCV1170-CHOGER PIC X(10).
+                10 PSCV1170-CHEMAIL PIC X(50).
+                10 PSCV1170-CHNOTOE PIC X(01).
+                10 PSCV1170-CHNOTBE PIC X(01).
+                10 PSCV1170-CHAGEN PIC 9(04).
+                10 PSCV1170-CHASSA PIC X(01).
+                10 PSCV1170-CHASSB PIC X(01).
+                10 PSCV1170-CHASSC PIC X(01).
+                10 PSCV1170-CHCACE PIC X(01).
+                10 PSCV1170-CHCCONF PIC X(01).
+                10 PSCV1170-CHTELF PIC X(17).
+
